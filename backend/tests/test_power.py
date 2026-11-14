@@ -81,6 +81,24 @@ def test_missing_parameter_rejected(sample_doc):
         power.parse_daily_point(doc, PARAMS)
 
 
+def test_api_messages_are_rejected(sample_doc):
+    """Real failure mode: IMERG requested in LST returns all -999 plus a message."""
+    doc = copy.deepcopy(sample_doc)
+    doc["messages"] = ["The IMERG Source Data is not available at the Local Solar Time (LST) standard."]
+    with pytest.raises(power.PowerResponseError, match="messages"):
+        power.parse_daily_point(doc, PARAMS)
+
+
+def test_all_missing_variable_fails_validation(sample_doc):
+    doc = copy.deepcopy(sample_doc)
+    for k in doc["properties"]["parameter"]["PRECTOTCORR"]:
+        doc["properties"]["parameter"]["PRECTOTCORR"][k] = -999.0
+    f = power.parse_daily_point(doc, PARAMS).frame
+    report = power.validate_frame(f, date(2024, 1, 1), date(2024, 1, 5))
+    assert not report["passed"]
+    assert any("no valid values" in e for e in report["errors"])
+
+
 def test_malformed_structure_rejected():
     with pytest.raises(power.PowerResponseError):
         power.parse_daily_point({"header": {}}, PARAMS)

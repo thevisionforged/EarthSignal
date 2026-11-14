@@ -53,12 +53,24 @@ Priority order. Status: `[x]` done and tested · `[~]` in progress · `[ ]` not 
 - [x] Chronological backtesting harness: climatology, persistence, damped anomaly persistence; leads 1–30 days; yearly expanding folds (D-016)
 - [x] Leakage tests and validation against synthetic theory (AR(1) skill, white noise)
 - [x] `/api/backtest` (evaluation statistics only; nothing shown as a forecast)
+- [x] Committed and pushed as `56075c6`
 - [ ] Decide later whether a baseline-skill table belongs in the dashboard (it is evaluation, not forecasting)
 - [ ] Future: any candidate method must beat damped anomaly persistence at each lead, evaluated with this harness
 
-## Milestone 3: second NASA source
-- [ ] Investigate Earthdata-authenticated products (GPM IMERG precipitation, MODIS/MAIAC aerosol) and document access, licence and size before implementing
-- [ ] Decide whether gridded data justifies xarray/rasterio and, later, PostGIS
+## Milestone 3: multi-source Earth intelligence (GPM IMERG)
+- [x] Inspected the repo and git state (clean; Milestone 2 commits intact)
+- [x] Phase 1: IMERG source investigation from NASA CMR, the V07 Technical Documentation, the TRMM-era caveats, the GES DISC README and POWER docs (`docs/research/GPM_IMERG_RESEARCH.md`)
+- [x] Phase 2: authentication check. Native files and OPeNDAP need Earthdata Login (observed 302 to URS). No credentials handled.
+- [x] Phase 2: small sample via POWER (July 2024, 42 cells), checked against direct probes and checksums, then the full record for both cells
+- [ ] Phase 2: **native `GPM_3IMERGDF` sample. Blocked on the user's Earthdata Login** (steps in the research doc §5)
+- [x] Phase 3: compatibility analysis and comparison method (`docs/research/MULTI_SOURCE_METHODOLOGY.md`, D-019)
+- [x] Phase 4: common metadata interface (D-018), `/api/sources`
+- [x] Phase 5: dashboard "Data sources & precipitation check" view: source selector, metadata panel, coverage and resolution comparison, POWER vs IMERG charts, limitations, CSV downloads
+- [x] Phase 6: tests for download integrity, metadata, parsing, units, missing values, temporal alignment, spatial aggregation, comparison calculations and API (backend 99, frontend 7)
+- [x] Phase 7: docs updated
+- [ ] Manual browser check of the new view (user)
+- [ ] Investigate which product changed around 2014 (MERRA-2 correction inputs vs IMERG calibration)
+- [ ] Decide whether gridded data justifies xarray/rasterio (not needed so far; POWER point requests suffice)
 
 ## Deferred / backlog
 - [ ] Playwright end-to-end test (needs a ~100–300 MB browser download; ask first)

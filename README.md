@@ -6,6 +6,7 @@ AstraelForge · TheVisionForged
 EarthSignal aims to become a Predictive Earth Intelligence System. It starts with Lucknow, Uttar Pradesh, India. **The current version is historical only.** It:
 
 - ingests real NASA POWER daily data (2 m air temperature and corrected precipitation, 1981 to the present)
+- adds NASA GPM IMERG satellite-gauge precipitation (1998 onward) and NOAA station temperature as comparison sources
 - records full provenance for every download
 - validates the data
 - computes a statistically defensible long-term trend with its caveats
@@ -24,6 +25,13 @@ EarthSignal aims to become a Predictive Earth Intelligence System. It starts wit
 | Variables | `T2M`, Temperature at 2 Meters (°C): "The average air (dry bulb) temperature at 2 meters above the surface of the earth." `PRECTOTCORR`, Precipitation Corrected (mm/day): "The average MERRA-2 bias corrected total precipitation at the surface of the earth." (Definitions are taken from the POWER parameter-metadata API.) |
 | Missing values | The marker is read from each response's `header.fill_value` (−999 so far) and converted to empty/NaN. Values are never zero-filled or imputed. |
 | Access | Public; no login or API key |
+
+**Second NASA source: GPM IMERG precipitation (Milestone 3).**
+- **Product:** NASA GPM IMERG Final daily V07 (`GPM_3IMERGDF`, doi:10.5067/GPM/IMERGDF/DAY/07). Satellite microwave and infrared precipitation, calibrated monthly to GPCC rain gauges.
+- **Access:** EarthSignal obtains it through POWER's `IMERG_PRECTOT` parameter, which needs no login. That parameter is **UTC only** and served on IMERG's native 0.1° cells. Native GES DISC files need an Earthdata Login, so they are not used yet.
+- **Version and period:** POWER does not state the IMERG version (V07 is inferred). Only data up to **2025-09-30**, the end of the Final run, is used.
+- **Not independent:** IMERG Final uses MERRA-2 winds and GPCC gauges, so agreement with POWER is consistency, not validation.
+- Full details: `docs/research/GPM_IMERG_RESEARCH.md`.
 
 The documentation consulted is listed in `docs/DECISIONS.md` (D-003 to D-006): POWER methodology, meteorology sources, processing, Daily API and referencing pages.
 
@@ -52,6 +60,21 @@ The documentation consulted is listed in `docs/DECISIONS.md` (D-003 to D-006): P
 - **Trends, 2006–2023 (16 years):** station +0.10 °C/decade (not significant), POWER −0.26 °C/decade (not significant).
 - **Drift:** the POWER−station difference trends at −0.30 °C/decade (p 0.017). The two records **drift apart**, so POWER's recent cooling should not be read as what the station measured. The data cannot say which record is responsible.
 
+**Precipitation check: POWER (MERRA-2) versus GPM IMERG (Milestone 3)**
+
+Both are averaged over the same MERRA-2 cell, on UTC days, in mm, for 1998-01-01 to 2025-09-30 (`docs/research/MULTI_SOURCE_METHODOLOGY.md`).
+
+| 1998–2024 | Eastern cell | Western cell |
+|---|---|---|
+| Monthly totals: r / MERRA-2 ÷ IMERG | 0.96 / 1.07 | 0.97 / 1.03 |
+| Annual-mean trend, MERRA-2 (mm/day per decade, corrected p) | +0.41 (0.010) | +0.25 (0.044) |
+| Annual-mean trend, IMERG | −0.00 (0.97) | −0.04 (0.48) |
+| Mean annual MERRA-2 − IMERG, 1998–2013 → 2015–2024 | −8 → +172 mm (p 0.002) | −27 → +128 mm (p 0.007) |
+
+- **Agreement:** the two products agree closely on monthly timing.
+- **Trend:** **IMERG does not show the precipitation increase seen in MERRA-2.** The products diverge after the 2014 TRMM-to-GPM transition in both cells. These data cannot tell which product changed.
+- **Conclusion:** the POWER precipitation trend for Lucknow is **not supported** by a second NASA source.
+
 Re-running ingestion later produces a new dataset, and the numbers may change slightly as NASA updates the record.
 
 ## Limitations
@@ -60,6 +83,7 @@ Re-running ingestion later produces a new dataset, and the numbers may change sl
 - The MERRA-2 to GEOS-IT transition happens in the most recent months. Those values may be revised.
 - The station record is not homogeneous: daily means came from 6–8 observations before about 1996 and 20–24 from about 2005. That is why the station check covers only the recent period. It is also not fully independent, since MERRA-2 may assimilate this station's reports.
 - A trend describes change. It does not identify a cause, and extrapolating it is not a forecast.
+- IMERG trends across 2014 (TRMM to GPM) and 2005 (sensor changes) may contain artifacts (NASA caveats). POWER's IMERG values have not yet been checked against native GES DISC files.
 
 ## Station data notice
 NOAA NCEI GSOD data for non-U.S. stations are subject to WMO Resolution 40 (Cg-XII). They are intended for free and unrestricted use in research, education and other non-commercial activities. Non-U.S. data and derived products must not be used commercially. Raw GSOD files are **not** included in this repository; the download command below fetches them from NOAA.
@@ -67,7 +91,7 @@ NOAA NCEI GSOD data for non-U.S. stations are subject to WMO Resolution 40 (Cg-X
 ## Requirements
 - Python 3.12+, Node.js with npm (developed on Windows 11 with Node v26)
 - Internet access to `power.larc.nasa.gov` for ingestion only. Tests run offline.
-- No database, Docker or NASA account required
+- No database, Docker or NASA account required. A free NASA Earthdata Login is needed only for the planned native IMERG check.
 
 ## Setup (once, from the repository root)
 ```powershell
@@ -84,9 +108,12 @@ cd frontend; npm install; cd ..
 .venv\Scripts\python -m earthsignal.data.source_probe                    # optional: MERRA-2/GEOS-IT switch date
 .venv\Scripts\python -m earthsignal.data.source_probe --area lucknow_airport
 .venv\Scripts\python -m earthsignal.data.gsod                            # NOAA station data, 1981 to last year (~2 min)
+.venv\Scripts\python -m earthsignal.data.imerg_power --area lucknow      # GPM IMERG via POWER: 42 cells + MERRA-2 UTC (~10 min)
+.venv\Scripts\python -m earthsignal.data.imerg_power --area lucknow_airport
 ```
 - **POWER downloads:** 1981-01-01 to yesterday (UTC), into a new, never-overwritten folder at `data/raw/<dataset_id>/`. Each run writes `data/processed/<dataset_id>/daily.csv` and `provenance.json` and prints coverage and warnings. Options: `--start`, `--end`, `--area`, and `--from-raw <folder>` (reprocess offline).
 - **Station data:** GSOD files go to `data/raw/stations/` and `data/processed/stations/`.
+- **IMERG data:** goes to `data/raw/imerg/` and `data/processed/imerg/`. Add `--start/--end` for a small sample first.
 
 **2. Backend (terminal 1)**
 ```powershell
@@ -125,12 +152,17 @@ The backend tests use real POWER responses recorded on 2026-11-14 (`backend/test
   - `seasonal.py`: seasonal trends
   - `sensitivity.py`: robustness windows
   - `compare.py`: station comparison
+  - `multisource.py`: POWER versus IMERG precipitation comparison
+  - `backtest.py`: baseline backtest
 - `backend/earthsignal/data/`:
   - `source_probe.py`: MERRA-2/GEOS-IT switch date
   - `gsod.py`: NOAA station data
+  - `grid.py`: MERRA-2 and IMERG cell geometry
+  - `imerg_power.py`: IMERG acquisition and area mean
+- `backend/earthsignal/metadata.py`: the common dataset metadata interface (`/api/sources`)
 - `backend/earthsignal/api/main.py`: FastAPI app
 - `frontend/src/`: React + TypeScript UI using the Plotly basic bundle
-- `docs/`: `DECISIONS.md`, `TASKS.md`, `IMPLEMENTATION_LOG.md`, `DEMO_OUTLINE.md`
+- `docs/`: `DECISIONS.md`, `TASKS.md`, `IMPLEMENTATION_LOG.md`, `DEMO_OUTLINE.md`, and `research/` (`GPM_IMERG_RESEARCH.md`, `MULTI_SOURCE_METHODOLOGY.md`)
 
 ## Data citation
 The data was obtained from the National Aeronautics and Space Administration (NASA) Langley Research Center (LaRC) Prediction of Worldwide Energy Resource (POWER) Project, funded through the NASA Earth Science Division. The API version and access date for each dataset are recorded in its `provenance.json`.

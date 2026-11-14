@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { dataKindLabel, formatP, loadProblem, senLine, signed, trendLineLabel, unitLabel } from "./format";
+import { dataKindLabel, formatP, loadProblem, senLine, signed, sourceLabel, trendLineLabel, unitLabel } from "./format";
+
+describe("sourceLabel", () => {
+  it("names each source and cell without calling reanalysis observed", () => {
+    expect(sourceLabel({ source_type: "nasa_power_met", area: "lucknow" })).toBe("POWER MERRA-2 (eastern cell)");
+    expect(sourceLabel({ source_type: "nasa_power_imerg", area: "lucknow_airport" })).toBe("GPM IMERG via POWER (western cell)");
+    expect(sourceLabel({ source_type: "noaa_gsod" })).toBe("NOAA GSOD airport station");
+  });
+});
 
 describe("loadProblem", () => {
   it("distinguishes missing data from an unreachable backend", () => {

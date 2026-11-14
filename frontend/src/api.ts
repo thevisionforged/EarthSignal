@@ -216,3 +216,85 @@ export const api = {
     getJson<SensitivityResponse>(`/api/sensitivity?${q({ area, variable })}`),
   stationComparison: () => getJson<StationComparison>(`/api/station-comparison?${q({ area: "lucknow_airport" })}`),
 };
+
+// ---------------- Milestone 3: multi-source ----------------
+
+export interface SourceMetadata {
+  dataset_id: string;
+  source_type: "nasa_power_met" | "noaa_gsod" | "nasa_power_imerg";
+  provider: string;
+  distributor: string;
+  product_id: string;
+  product_version: string;
+  variables: { name: string; units: string; definition: string | null; data_kind: string }[];
+  spatial_resolution: string;
+  spatial_support: string;
+  geographic_coverage: Record<string, unknown>;
+  temporal_resolution: string;
+  time_standard: string;
+  time_coverage: { start: string | null; end: string | null; final_run_end?: string | null };
+  retrieved_at_utc: string;
+  processing_history: string[];
+  citation: string;
+  quality_limitations: string[];
+  access: string;
+  usage_notice: string | null;
+  area: string | null;
+}
+
+interface PairStats {
+  n: number;
+  mean_merra2: number;
+  mean_imerg: number;
+  bias_merra2_minus_imerg: number;
+  ratio_merra2_over_imerg: number | null;
+  rmse: number;
+  pearson_r: number;
+  spearman_rho: number;
+}
+
+interface TrendLite {
+  sen_slope_per_decade: number;
+  ci95_per_decade: [number, number];
+  modified_mk_p_value: number;
+  significant_at_0_05: boolean;
+  n_years: number;
+  period: [number, number];
+}
+
+export interface PrecipComparison {
+  area: string;
+  imerg_dataset_id: string;
+  metadata: SourceMetadata;
+  coverage: { days: number; area_mean_valid_days: number; merra2_valid_days: number; days_after_final_run_end: number };
+  period: { first_day: string; last_day: string; final_run_end: string };
+  daily: PairStats & { units: string };
+  contingency: {
+    threshold_mm_day: number;
+    wet_day_fraction_merra2: number;
+    wet_day_fraction_imerg: number;
+    pod: number | null;
+    far: number | null;
+    csi: number | null;
+    frequency_bias: number | null;
+  };
+  monthly: PairStats & {
+    units: string;
+    anomaly_pearson_r: number;
+    mean_by_calendar_month_mm: { merra2: Record<string, number>; imerg: Record<string, number> };
+  };
+  annual: (PairStats & { years: number[] }) | null;
+  series: { months: string[]; merra2_mm: number[]; imerg_mm: number[] };
+  trend_comparison: { merra2: TrendLite; imerg: TrendLite; difference_merra2_minus_imerg: TrendLite } | null;
+  era_step_2014: { available: boolean; mean_diff_pre_mm?: number; mean_diff_post_mm?: number; mann_whitney_p?: number };
+  scale_sensitivity?: { monthly_r_area_mean: number; monthly_r_point_cell: number };
+  diagnostics: string[];
+  method: string[];
+  independence_note: string;
+}
+
+export const multiApi = {
+  sources: () => getJson<SourceMetadata[]>("/api/sources"),
+  precip: (area: string) => getJson<PrecipComparison>(`/api/precip-comparison?${q({ area })}`),
+  csvUrl: (area: string, level: "monthly" | "daily") => `/api/precip-comparison.csv?${q({ area, level })}`,
+};

@@ -35,11 +35,28 @@ def _repo_relative(path: Path) -> Path:
         return path
 
 
-def _http_get(url: str, timeout: float = 180.0) -> bytes:
-    with httpx.Client(timeout=timeout, follow_redirects=True) as client:
-        resp = client.get(url)
-        resp.raise_for_status()
-        return resp.content
+RETRY_DELAYS_S = (2.0, 5.0, 15.0)
+
+
+def _http_get(url: str, timeout: float = 180.0, retry_delays=RETRY_DELAYS_S, sleep=None) -> bytes:
+    """GET with bounded retries on TRANSPORT errors only (connection reset, timeout).
+
+    HTTP error statuses (4xx/5xx) are raised immediately and never retried."""
+    import time
+
+    sleep = sleep or time.sleep
+    attempts = len(retry_delays) + 1
+    for attempt in range(attempts):
+        try:
+            with httpx.Client(timeout=timeout, follow_redirects=True) as client:
+                resp = client.get(url)
+                resp.raise_for_status()
+                return resp.content
+        except httpx.TransportError:
+            if attempt == attempts - 1:
+                raise
+            sleep(retry_delays[attempt])
+    raise AssertionError("unreachable")
 
 
 def download(

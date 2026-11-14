@@ -158,3 +158,56 @@ Newest entries at the bottom. Record only what was actually done and verified.
   1. My white-noise test wrongly expected raw-persistence skill of −1 at every lead. The seasonal change between origin and target adds error at longer leads. The test now asserts −1 at lead 1 and below −1.2 at lead 7.
   2. **Real bug:** `test_year_range` ignored where the data ends, so it scheduled empty folds when the data ended before the cutoff year. This was caught by the API test on synthetic data ending in 2020. Fixed, with regression assertions. Real-data results are unaffected, because the cutoff falls inside the data.
 - Tests: `pytest backend` 79 passed, 1 deselected.
+- Committed and pushed as `56075c6`.
+
+## 2026-11-15: Milestone 3, multi-source (GPM IMERG)
+- **Start state:** git clean; Milestone 2 commits `bb592d8`, `26e4f36` and `56075c6` intact.
+- **Phase 1 investigation (official sources only):**
+  - NASA CMR collections, granules and variables APIs (public JSON).
+  - IMERG V07 Technical Documentation (13 July 2023), TRMM-era caveats (2019, V06), GES DISC GPM README, V07 release notes, GPM data policy, and the POWER sources_meteorology page.
+  - PDFs were text-extracted with `pypdf` 4.3.1, installed into the session scratchpad only (not the project venv), and run with `python -I`.
+  - Findings are in `docs/research/GPM_IMERG_RESEARCH.md`.
+- **Authentication (observed):**
+  - HTTPS GET of a `GPM_3IMERGDF` granule returns 302 to `urs.earthdata.nasa.gov/oauth/authorize`.
+  - OPeNDAP returns 302 to `/login/urs`.
+  - No credentials were requested, used or bypassed.
+- **POWER IMERG behaviour (observed):**
+  - LST requests return all −999 with a message, so IMERG is UTC only.
+  - Native 0.1° cells, with edges on multiples of 0.1°. The point-in-cell test used 6 probes.
+  - Valid 1998-01-01 to 2026-09-14.
+  - `IMERG_PRECTOT_COUNT` is the conditional count, so it cannot be used to check completeness.
+- **MERRA-2 cell edges:** verified with probes on both sides of all 4 eastern-cell edges and the western cell's west edge.
+- **Sample (Phase 2):**
+  - `imergpower_lucknow_20240701_20240731_20261114T223158Z`, 42 cells + MERRA-2 UTC.
+  - All 43 checksums match.
+  - The point-cell, edge-cell and MERRA-2 values equal the earlier direct probes exactly. The independently recomputed area mean agrees within 5e-5.
+  - The July 2024 sub-cell totals spread from 298.5 to 396.9 mm.
+  - The first attempt failed on a server connection reset and wrote nothing, which led to the retry logic (D-020).
+- **Full acquisition:** each run took about 10 min. 86 POWER requests in total.
+  - `imergpower_lucknow_19980101_20261113_20261114T223323Z`
+  - `imergpower_lucknow_airport_19980101_20261113_…`
+  - Each covers 10,544 days, with 10,484 area-mean days valid. The 60 missing days are all at the end (2026-09-15 onward), so there are no gaps inside the series. 409 days fall after the Final-run end.
+- **Real comparison (1998-01-01 to 2025-09-30, UTC, mm):**
+
+| | Eastern cell | Western cell |
+|---|---|---|
+| Daily r / RMSE | 0.67 / 6.70 mm/day | 0.73 |
+| Monthly r (n) / MERRA-2 ÷ IMERG | 0.96 (333) / 1.07 | 0.97 / 1.03 |
+| Monthly anomaly r | 0.85 | 0.87 |
+| Wet-day fraction MERRA-2 / IMERG, CSI | 27.8% / 24.2%, 0.63 | 24.8% / 23.3%, 0.63 |
+| Trend 1998–2024, MERRA-2 (mm/day per decade, p) | **+0.41 (0.010)** | **+0.25 (0.044)** |
+| Trend 1998–2024, IMERG | **−0.00 (0.97)** | **−0.04 (0.48)** |
+| Trend of the difference | +0.40 (0.004) | +0.26 (0.024) |
+| Mean annual difference, 1998–2013 → 2015–2024 | −8 → +172 mm (p 0.002) | −27 → +128 mm (p 0.007) |
+| Monthly r, area mean vs single 0.1° cell | 0.96 vs 0.95 | 0.97 vs 0.96 |
+
+  - **Interpretation:** IMERG does **not** confirm the MERRA-2 precipitation increase. The two agree before 2014 and diverge from 2015 in both cells.
+  - The data cannot tell which product changed, and the diagnostic wording was corrected to be neutral before it reached the UI.
+- **Ingestion hardening (D-020):** message rejection, all-missing error, transport retries. The existing POWER raw data reprocesses identically.
+- **Test-design errors corrected:**
+  1. Synthetic MERRA noise clipped at zero has a positive mean, so the expected ratio was wrong.
+  2. The URL substring check assumed latitude came before longitude.
+- **Verification:**
+  - `pytest backend`: 99 passed, 1 deselected. `pytest -m network`: 1 passed.
+  - `npm test`: 7 passed; typecheck clean; build OK (434 kB gzipped).
+  - Temporary-server smoke test of 10 routes: all 200, unknown area 422. The CSVs carry provenance headers.

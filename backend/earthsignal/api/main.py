@@ -12,6 +12,7 @@ from typing import Literal
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import PlainTextResponse
 
 from earthsignal import __version__
 from earthsignal.analysis import backtest as backtest_mod
@@ -19,8 +20,10 @@ from earthsignal.analysis import compare as compare_mod
 from earthsignal.analysis import seasonal as seasonal_mod
 from earthsignal.analysis import sensitivity as sensitivity_mod
 from earthsignal.analysis import trend as trend_mod
+from earthsignal.analysis import multisource
 from earthsignal.config import DEFAULT_AREA, PROCESSED_DIR, STUDY_AREAS
-from earthsignal.data import gsod, store
+from earthsignal.data import gsod, imerg_power, store
+from earthsignal.metadata import describe
 
 MONTHLY_MIN_COVERAGE = 0.9
 
@@ -50,7 +53,7 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
             "endpoints": [
                 "/api/health", "/api/datasets", "/api/provenance", "/api/timeseries", "/api/trend",
                 "/api/seasonal", "/api/sensitivity", "/api/areas", "/api/station-comparison",
-                "/api/backtest",
+                "/api/backtest", "/api/sources", "/api/precip-comparison", "/api/precip-comparison.csv",
             ],
             "docs": "/docs",
             "ui": "Run the frontend (cd frontend; npm run dev) and open the URL Vite prints.",
@@ -286,6 +289,96 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
             ],
             "licence_notice": sprov["licence_notice"],
         }
+
+    # ---------------- Milestone 3: multi-source ----------------
+
+    @app.get("/api/sources")
+    def sources() -> list[dict]:
+        """Every dataset held, described through the common metadata interface (D-018)."""
+        out = []
+        for p in store.list_provenance(processed_root):
+            md = describe(p).model_dump()
+            md["area"] = store.area_of(p)
+            out.append(md)
+        loaded = gsod.latest(processed_root)
+        if loaded:
+            out.append({**describe(loaded[1]).model_dump(), "area": "lucknow_airport"})
+        for key in STUDY_AREAS:
+            imerg = imerg_power.latest(processed_root, key)
+            if imerg:
+                out.append({**describe(imerg[1]).model_dump(), "area": key})
+        return out
+
+    def _precip(area: str) -> tuple[dict, dict, pd.DataFrame]:
+        if area not in STUDY_AREAS:
+            raise HTTPException(status_code=422, detail=f"unknown area {area!r}")
+        loaded = imerg_power.latest(processed_root, area)
+        if loaded is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No IMERG dataset for area {area!r}. Run: python -m earthsignal.data.imerg_power --area {area}",
+            )
+        frame, prov = loaded
+        try:
+            res = multisource.compare(frame, imerg_power.FINAL_RUN_END)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        return res, prov, frame
+
+    @app.get("/api/precip-comparison")
+    def precip_comparison(area: str = DEFAULT_AREA) -> dict:
+        res, prov, _ = _precip(area)
+        return {
+            "area": area,
+            "imerg_dataset_id": prov["dataset_id"],
+            "metadata": prov["metadata"],
+            "coverage": prov["coverage"],
+            "sources_reported_by_api": prov["sources_reported_by_api"],
+            **res,
+            "diagnostics": multisource.diagnostics(res),
+            "method": [
+                "IMERG: overlap- and cos(lat)-weighted mean of the 0.1° cells covering the MERRA-2 cell; a day counts only if every cell is valid.",
+                "Both series in UTC days and mm/day; only days on or before the IMERG Final-run end with both values valid.",
+                "Monthly and annual totals only from complete months and years; nothing is gap-filled.",
+                "Differences are MERRA-2 minus IMERG. Neither source is treated as truth.",
+            ],
+            "independence_note": (
+                "IMERG Final uses MERRA-2 atmospheric fields for morphing and GPCC gauges for monthly calibration. "
+                "Agreement is consistency between related products, not independent validation."
+            ),
+        }
+
+    @app.get("/api/precip-comparison.csv", response_class=PlainTextResponse)
+    def precip_comparison_csv(area: str = DEFAULT_AREA, level: Literal["monthly", "daily"] = "monthly") -> PlainTextResponse:
+        res, prov, frame = _precip(area)
+        if level == "monthly":
+            table = pd.DataFrame(
+                {"month": res["series"]["months"], "merra2_prectotcorr_mm": res["series"]["merra2_mm"],
+                 "imerg_area_mean_mm": res["series"]["imerg_mm"]}
+            )
+        else:
+            d = multisource.aligned_daily(frame, imerg_power.FINAL_RUN_END)
+            table = d.rename(columns={"merra2": "merra2_prectotcorr_mm_day", "imerg": "imerg_area_mean_mm_day"})
+            table.index = table.index.strftime("%Y-%m-%d")
+            table = table.reset_index().rename(columns={"date": "date_utc"})
+        md = prov["metadata"]
+        header = "\n".join(
+            [
+                f"# EarthSignal precipitation comparison ({level}), area={area}",
+                f"# IMERG dataset: {prov['dataset_id']} (retrieved {prov['retrieved_at_utc']})",
+                f"# Spatial support: {md['spatial_support']}; time standard UTC; units mm",
+                f"# Period: {res['period']['first_day']} to {res['period']['last_day']} (IMERG Final run ends {res['period']['final_run_end']})",
+                "# Both columns are derived estimates (MERRA-2 reanalysis; IMERG satellite-gauge). Not independent.",
+                f"# IMERG citation: {md['citation']}",
+                "# MERRA-2 via NASA LaRC POWER Project, funded through the NASA Earth Science Division.",
+            ]
+        )
+        body = table.to_csv(index=False, float_format="%.3f")
+        return PlainTextResponse(
+            header + "\n" + body,
+            media_type="text/csv",
+            headers={"Content-Disposition": f'attachment; filename="earthsignal_precip_{area}_{level}.csv"'},
+        )
 
     return app
 

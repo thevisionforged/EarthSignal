@@ -45,13 +45,24 @@ CITATION = (
 
 # The variables EarthSignal requests, with the units we expect. The units are checked against
 # both the parameter-metadata endpoint and each response header. A mismatch fails ingestion.
-EXPECTED_UNITS = {"T2M": "C", "PRECTOTCORR": "mm/day"}
-DEFAULT_PARAMETERS = tuple(EXPECTED_UNITS)
+EXPECTED_UNITS = {
+    "T2M": "C",
+    "PRECTOTCORR": "mm/day",
+    # GPM IMERG as served by POWER (UTC only; see docs/research/GPM_IMERG_RESEARCH.md)
+    "IMERG_PRECTOT": "mm/day",
+    "IMERG_PRECTOT_COUNT": "count",
+}
+DEFAULT_PARAMETERS = ("T2M", "PRECTOTCORR")
 DEFAULT_COMMUNITY = "AG"
 DEFAULT_TIME_STANDARD = "LST"
 
 # Loose physical-plausibility bounds, used only to FLAG values, never to drop or alter them.
-PLAUSIBLE_RANGES = {"T2M": (-60.0, 60.0), "PRECTOTCORR": (0.0, 1000.0)}
+PLAUSIBLE_RANGES = {
+    "T2M": (-60.0, 60.0),
+    "PRECTOTCORR": (0.0, 1000.0),
+    "IMERG_PRECTOT": (0.0, 1000.0),
+    "IMERG_PRECTOT_COUNT": (0.0, 48.0),  # 48 half-hours per day
+}
 
 # EarthSignal value categories (CLAUDE.md, scientific integrity rule 3).
 DATA_KIND = "derived_estimate"
@@ -137,6 +148,12 @@ def parse_daily_point(doc: dict[str, Any], expected_parameters: tuple[str, ...])
     except (KeyError, TypeError) as exc:
         raise PowerResponseError(f"unexpected POWER response structure: missing {exc}") from exc
 
+    messages = list(doc.get("messages", []))
+    if messages:
+        # e.g. "The IMERG Source Data is not available at the Local Solar Time (LST) standard." In that
+        # case every value is the fill marker, so the response must not be treated as valid data.
+        raise PowerResponseError(f"POWER returned messages; refusing to ingest: {messages}")
+
     if "fill_value" not in header:
         raise PowerResponseError("response header has no fill_value; refusing to guess missing-value marker")
     fill_value = float(header["fill_value"])
@@ -173,7 +190,7 @@ def parse_daily_point(doc: dict[str, Any], expected_parameters: tuple[str, ...])
             "elevation_m": float(coords[2]) if len(coords) > 2 else float("nan"),
         },
         time_standard=str(header.get("time_standard", "unknown")),
-        messages=list(doc.get("messages", [])),
+        messages=messages,
     )
 
 
@@ -222,6 +239,8 @@ def validate_frame(frame: pd.DataFrame, requested_start: date, requested_end: da
             "plausible_range": [lo, hi],
         }
         report["variables"][col] = info
+        if valid.empty:
+            report["errors"].append(f"{col}: no valid values at all (every value is the fill marker)")
         if out_of_range.size:
             report["warnings"].append(f"{col}: {out_of_range.size} values outside plausible range {lo}..{hi}")
         if interior_missing:

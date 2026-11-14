@@ -120,3 +120,14 @@ def test_too_few_months_rejected():
     s = pd.Series(1.0, index=idx)
     with pytest.raises(ValueError, match="paired months"):
         compare.pair_metrics(s, s)
+
+
+def test_gsod_provenance_maps_to_common_metadata(tmp_path):
+    from earthsignal.metadata import DatasetMetadata, describe
+
+    payload = year_csv([row("2023-01-01", 50.0, 24, "0.00", "G"), row("2023-01-02", 51.0, 24, "0.00", "G")])
+    raw = gsod.download("42369099999", range(2023, 2024), raw_root=tmp_path, http_get_status=lambda url: (200, payload))
+    md = describe(gsod.process(raw, processed_root=tmp_path / "p"))
+    assert isinstance(md, DatasetMetadata)
+    assert md.source_type == "noaa_gsod" and md.variables[0].data_kind == "observed"
+    assert "WMO Resolution 40" in md.usage_notice

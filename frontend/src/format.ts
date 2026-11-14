@@ -19,6 +19,21 @@ export function unitLabel(units: string): string {
   return units === "C" ? "°C" : units;
 }
 
+/** Short human label for a dataset in the multi-source view. */
+export function sourceLabel(s: { source_type: string; area?: string | null }): string {
+  const cell = s.area === "lucknow_airport" ? "western cell" : s.area === "lucknow" ? "eastern cell" : "";
+  switch (s.source_type) {
+    case "nasa_power_met":
+      return `POWER MERRA-2 (${cell})`;
+    case "nasa_power_imerg":
+      return `GPM IMERG via POWER (${cell})`;
+    case "noaa_gsod":
+      return "NOAA GSOD airport station";
+    default:
+      return s.source_type;
+  }
+}
+
 /** Which problem to show for a failed API call. 404 = backend up but no ingested data. */
 export function loadProblem(status: number | undefined): "no-data" | "backend-unreachable" {
   return status === 404 ? "no-data" : "backend-unreachable";

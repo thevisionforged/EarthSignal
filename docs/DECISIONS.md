@@ -131,5 +131,39 @@ The sources_meteorology page explains that PRECTOTCORR uses MERRA-2's observatio
   - RMSE skill is a rough guide for daily precipitation.
   - Climatology bias reflects shifts between the training and test periods.
 
+## D-017: GPM IMERG through NASA POWER first; native GES DISC IMERG needs Earthdata Login (2026-11-15, Milestone 3)
+- **Investigation:** see `docs/research/GPM_IMERG_RESEARCH.md`.
+  - The official product is `GPM_3IMERGDF` V07 (doi:10.5067/GPM/IMERGDF/DAY/07), whose Final run currently ends 2025-09-30 (CMR).
+  - Native files are global, 31.7 MB per day.
+  - An HTTPS GET or an OPeNDAP request without credentials redirects to Earthdata Login.
+- **Decision:**
+  - Acquire IMERG through POWER's `IMERG_PRECTOT` (public, no login). It is UTC only, and was verified to return the native 0.1° cells without interpolation.
+  - Label it as a POWER distribution with version V07 *inferred*.
+  - Use only data up to 2025-09-30 (the Final-run end) in comparisons.
+- **Not done:** a native sample, which needs the user's Earthdata account. EarthSignal never handles credentials directly.
+- **MERRA-2 cell edges:** verified empirically on both sides of every edge, with no interpolation. Eastern cell 26.75–27.25 N × 80.9375–81.5625 E; western cell 26.75–27.25 N × 80.3125–80.9375 E. Encoded and tested in `data/grid.py`.
+
+## D-018: Common dataset metadata interface (2026-11-15)
+- `metadata.DatasetMetadata` (Pydantic) holds the fields required by the Milestone 3 brief.
+- Existing provenance is never rewritten; adapters derive the common description. New source types embed it.
+- Served at `GET /api/sources`.
+
+## D-019: POWER-versus-IMERG comparison rules (2026-11-15)
+- **Like-for-like basis:**
+  - same area: IMERG area mean over the MERRA-2 cell, with every cell required each day
+  - same day boundaries: MERRA-2 requested in UTC
+  - same units: mm/day
+  - same period: 1998-01-01 to 2025-09-30, with both series valid
+- **Aggregation:** complete months and years only. Differences are MERRA-2 − IMERG.
+- **Era-step test:** fixed at the documented 2014 TRMM→GPM transition.
+- **Not independent:** IMERG Final uses MERRA-2 fields and GPCC gauges. Results are framed as consistency between related products, never as validation.
+- Full method: `docs/research/MULTI_SOURCE_METHODOLOGY.md`.
+
+## D-020: Ingestion hardening (2026-11-15)
+- **API messages:** any non-empty POWER `messages` now rejects the response. This was found when IMERG requested in LST returned only −999 values and a message, which the old parser would have accepted as an all-missing series.
+- **Empty variables:** a requested variable with no valid values is now a validation **error**.
+- **Retries:** transport errors (connection reset, timeout) are retried up to 3 times with 2, 5 and 15 s backoff. HTTP error statuses are never retried. This followed a real connection reset by the server during the first IMERG sample.
+- **No regression:** existing Milestone 1–2 POWER raw data reprocesses under the new rules into byte-identical processed data.
+
 ## D-009: Lightweight frontend (2026-11-14)
 - **Decision:** Vite + React + TypeScript with `plotly.js-basic-dist-min` (the smallest Plotly bundle with scatter and line traces) and no UI framework. The Vite dev server proxies `/api` to `127.0.0.1:8000`. Playwright is deferred because its browser download is large; Vitest covers the frontend logic.

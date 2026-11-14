@@ -75,3 +75,41 @@ def test_live_power_api_small_request(tmp_path):
     raw_dir = ingest.download(LUCKNOW, date(2024, 1, 1), date(2024, 1, 3), raw_root=tmp_path / "raw")
     prov = ingest.process(raw_dir, processed_root=tmp_path / "processed")
     assert prov["validation"]["variables"]["T2M"]["n_valid"] == 3
+
+
+def test_http_get_retries_transport_errors_only(monkeypatch):
+    import httpx
+
+    calls = {"n": 0}
+
+    class FakeClient:
+        def __init__(self, *a, **k):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def get(self, url):
+            calls["n"] += 1
+            if calls["n"] < 3:
+                raise httpx.ConnectError("reset by peer")
+            return httpx.Response(200, content=b"ok", request=httpx.Request("GET", url))
+
+    monkeypatch.setattr(httpx, "Client", FakeClient)
+    slept = []
+    assert ingest._http_get("https://x", sleep=slept.append) == b"ok"
+    assert calls["n"] == 3 and slept == [2.0, 5.0]
+
+    class Http500(FakeClient):
+        def get(self, url):
+            calls["n"] += 1
+            return httpx.Response(500, request=httpx.Request("GET", url))
+
+    calls["n"] = 0
+    monkeypatch.setattr(httpx, "Client", Http500)
+    with pytest.raises(httpx.HTTPStatusError):
+        ingest._http_get("https://x", sleep=slept.append)
+    assert calls["n"] == 1  # HTTP errors are not retried

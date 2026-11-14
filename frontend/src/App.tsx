@@ -13,6 +13,7 @@ import {
   TimeSeries,
   TrendResponse,
 } from "./api";
+import { SourcesView } from "./Sources";
 import { StationCard } from "./Station";
 import { dataKindLabel, formatP, loadProblem, senLine, signed, trendLineLabel, unitLabel } from "./format";
 
@@ -43,6 +44,7 @@ function useLoad<T>(fn: () => Promise<T>, deps: unknown[]): Load<T> {
 export default function App() {
   const [variable, setVariable] = useState("T2M");
   const [area, setArea] = useState("lucknow");
+  const [view, setView] = useState<"analysis" | "sources">("analysis");
   const health = useLoad<Health>(() => api.health(), []);
   const areas = useLoad<Area[]>(() => api.areas(), []);
   const series = useLoad<TimeSeries>(() => api.timeseries(area, variable, "monthly"), [area, variable]);
@@ -67,12 +69,14 @@ export default function App() {
         </p>
       </header>
 
-      <section className="banner" aria-label="About this data">
-        <strong>About these values:</strong> they are <strong>NASA POWER reanalysis estimates</strong> (NASA GMAO
-        MERRA-2, extended to near real time with GEOS-IT). That is weather-model output constrained by observations and
-        averaged over a ~55 × 62 km grid cell. Lucknow straddles the boundary between two cells, so both are available
-        below. They are <strong>not</strong> thermometer or rain-gauge readings. No forecasts are shown.
-      </section>
+      <nav className="tabs views" aria-label="View">
+        <button aria-pressed={view === "analysis"} onClick={() => setView("analysis")}>
+          Climate analysis
+        </button>
+        <button aria-pressed={view === "sources"} onClick={() => setView("sources")}>
+          Data sources &amp; precipitation check
+        </button>
+      </nav>
 
       <nav className="tabs" aria-label="Grid cell">
         {(areas.state === "ok" ? areas.data : []).map((a) => (
@@ -82,6 +86,18 @@ export default function App() {
         ))}
       </nav>
       {areaInfo && <p className="note area-note">{areaInfo.note}</p>}
+
+      {view === "sources" ? (
+        <SourcesView area={area} areaLabel={areaInfo?.label ?? area} />
+      ) : (
+        <>
+      <section className="banner" aria-label="About this data">
+        <strong>About these values:</strong> they are <strong>NASA POWER reanalysis estimates</strong> (NASA GMAO
+        MERRA-2, extended to near real time with GEOS-IT). That is weather-model output constrained by observations and
+        averaged over a ~55 × 62 km grid cell. Lucknow straddles the boundary between two cells, so both are available
+        below. They are <strong>not</strong> thermometer or rain-gauge readings. No forecasts are shown.
+      </section>
+
 
       <nav className="tabs" aria-label="Variable">
         {VARIABLES.map((v) => (
@@ -127,9 +143,11 @@ export default function App() {
       {seasonal.state === "ok" && <SeasonalCard s={seasonal.data} label={varLabel} />}
       {station.state === "ok" && <StationCard c={station.data} />}
       {prov.state === "ok" && <ProvenanceCard p={prov.data} />}
+        </>
+      )}
 
       <footer className="note">
-        EarthSignal · AstraelForge · TheVisionForged. Data: NASA Langley Research Center POWER Project.
+        EarthSignal · AstraelForge · TheVisionForged. Data: NASA LaRC POWER Project; NASA GPM IMERG (GES DISC); NOAA NCEI GSOD.
       </footer>
     </main>
   );

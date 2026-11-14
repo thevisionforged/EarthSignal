@@ -1,4 +1,7 @@
 import json
+
+import numpy as np
+import pandas as pd
 from datetime import date
 
 import pytest
@@ -172,3 +175,68 @@ def test_provenance_endpoint(synthetic_client):
     body = synthetic_client.get("/api/provenance").json()
     assert body["request_url"].startswith("https://power.larc.nasa.gov/")
     assert body["raw_files"][0]["sha256"]
+
+
+def _imerg_synthetic(tmp_path, area, start="1998-01-01", end="2003-12-31"):
+    """SYNTHETIC IMERG + MERRA-2 (UTC) POWER-shaped responses for every cell of `area`."""
+    from earthsignal.data import imerg_power
+
+    days = pd.date_range(start, end, freq="D")
+    rng = np.random.default_rng(11)
+    base = np.where(rng.random(days.size) < 0.3, rng.gamma(1.0, 6.0, days.size), 0.0)
+
+    def get(url):
+        if "system/manager/parameters" in url:
+            return json.dumps({"IMERG_PRECTOT": {"units": "mm/day"}, "PRECTOTCORR": {"units": "mm/day"}}).encode()
+        param = "IMERG_PRECTOT" if "IMERG_PRECTOT" in url else "PRECTOTCORR"
+        vals = base if param == "IMERG_PRECTOT" else base * 1.2
+        doc = {
+            "type": "Feature", "geometry": {"type": "Point", "coordinates": [81.0, 26.9, 117.0]},
+            "properties": {"parameter": {param: dict(zip(days.strftime("%Y%m%d"), np.round(vals, 2).tolist()))}},
+            "header": {"api": {"version": "v2.10.3"}, "sources": ["IMERG"], "fill_value": -999.0, "time_standard": "UTC"},
+            "messages": [], "parameters": {param: {"units": "mm/day", "longname": param}},
+        }
+        return json.dumps(doc).encode()
+
+    raw = imerg_power.download(area, date.fromisoformat(start), date.fromisoformat(end),
+                               raw_root=tmp_path / "raw", http_get=get, pause_s=0)
+    imerg_power.process(raw, processed_root=tmp_path / "processed")
+
+
+def test_precip_comparison_endpoints(tmp_path, synthetic_client):
+    import numpy as np  # noqa: F401  (used by helper)
+
+    client = TestClient(create_app(processed_root=tmp_path / "processed"))
+    assert client.get("/api/precip-comparison").status_code == 404  # nothing ingested yet
+    _imerg_synthetic(tmp_path, LUCKNOW)
+    body = client.get("/api/precip-comparison").json()
+    assert body["monthly"]["ratio_merra2_over_imerg"] == pytest.approx(1.2, rel=0.01)
+    assert body["metadata"]["time_standard"] == "UTC"
+    assert "not independent validation" in body["independence_note"]
+    assert body["diagnostics"]
+    csv = client.get("/api/precip-comparison.csv", params={"level": "monthly"})
+    assert csv.status_code == 200 and csv.headers["content-type"].startswith("text/csv")
+    assert "attachment" in csv.headers["content-disposition"]
+    lines = csv.text.splitlines()
+    assert lines[0].startswith("# EarthSignal precipitation comparison")
+    assert any(l.startswith("month,merra2_prectotcorr_mm,imerg_area_mean_mm") for l in lines)
+    daily = client.get("/api/precip-comparison.csv", params={"level": "daily"}).text
+    assert "date_utc,merra2_prectotcorr_mm_day,imerg_area_mean_mm_day" in daily
+    assert client.get("/api/precip-comparison", params={"area": "x"}).status_code == 422
+
+
+def test_sources_common_metadata(tmp_path, sample_doc, metadata_bytes):
+    from earthsignal.metadata import DatasetMetadata
+
+    doc = synthetic_power_doc(sample_doc, "1990-01-01", "1992-12-31")
+    payload = json.dumps(doc).encode()
+    get = lambda url: metadata_bytes if "/system/manager/parameters" in url else payload
+    raw = ingest.download(LUCKNOW, date(1990, 1, 1), date(1992, 12, 31), raw_root=tmp_path / "raw", http_get=get)
+    ingest.process(raw, processed_root=tmp_path / "processed")
+    _imerg_synthetic(tmp_path, LUCKNOW, end="1999-12-31")
+    rows = TestClient(create_app(processed_root=tmp_path / "processed")).get("/api/sources").json()
+    types = {r["source_type"] for r in rows}
+    assert types == {"nasa_power_met", "nasa_power_imerg"}
+    for r in rows:
+        DatasetMetadata.model_validate({k: v for k, v in r.items() if k != "area"})
+        assert r["citation"] and r["quality_limitations"] and r["processing_history"]
