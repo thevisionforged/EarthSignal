@@ -160,6 +160,14 @@ def test_station_comparison_endpoint(tmp_path, sample_doc, metadata_bytes):
     assert body["diagnostics"] and body["limitations"]
 
 
+def test_backtest_endpoint(synthetic_client):
+    body = synthetic_client.get("/api/backtest", params={"variable": "T2M"}).json()
+    assert body["not_a_forecast"] is True and body["data_kind"] == "evaluation_statistic"
+    assert body["test_years"] == [2011, 2020]  # synthetic data 1990-2020: 20 training years + gap
+    assert [L["lead_days"] for L in body["by_lead"]] == [1, 3, 7, 14, 30]
+    assert body["by_lead"][0]["pooled"]["climatology"]["skill_vs_climatology"] == pytest.approx(0.0)
+
+
 def test_provenance_endpoint(synthetic_client):
     body = synthetic_client.get("/api/provenance").json()
     assert body["request_url"].startswith("https://power.larc.nasa.gov/")

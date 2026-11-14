@@ -134,3 +134,27 @@ Newest entries at the bottom. Record only what was actually done and verified.
   - The records drift apart over the recent period. These data cannot tell which record is responsible.
 - Tests: `pytest backend` 70 passed, 1 deselected. `npm test` 6 passed, typecheck clean, build OK (431 kB gzipped).
 - HTTP smoke test of all 11 routes on a temporary server (:8001): all 200, and an unknown area returns 422.
+
+## 2026-11-15: Milestone 2b committed
+- `26e4f36` pushed to `origin/master` (user approved).
+
+## 2026-11-15: Milestone 2c, backtesting groundwork (no forecasts in the UI)
+- New `analysis/backtest.py` and `/api/backtest?area=&variable=` (D-016). Runtime for 2 cells × 2 variables × 24 folds × 5 leads: about 2.4 s.
+- **Real results:** test years 2002–2025, 24 folds, 8,766 forecasts per lead. Skill vs climatology (pooled):
+
+| Lead (days) | T2M persistence | T2M damped anomaly | PRECTOTCORR persistence | PRECTOTCORR damped anomaly |
+|---|---|---|---|---|
+| 1 | +0.73 | **+0.75** (24/24 folds > 0) | −0.10 | **+0.20** (23/24) |
+| 3 | +0.16 | **+0.35** (24/24) | −0.83 | +0.01 (16/24) |
+| 7 | −0.37 | **+0.17** (23/24) | −1.04 | 0.00 (climatology best) |
+| 14 | −1.12 | **+0.10** (20/24) | −1.01 | 0.00 (climatology best) |
+| 30 | −3.98 | **+0.04** (17/24) | −1.08 | 0.00 (climatology best) |
+
+  These are eastern-cell numbers. The western cell is within 0.01–0.04 at every lead.
+- **Other values:**
+  - T2M climatology RMSE 2.14 °C; PRECTOTCORR climatology RMSE 7.45 mm/day.
+  - **T2M climatology bias +0.33 °C** at every lead: the test years were cooler than training in POWER. Given the POWER–station drift (D-015), part of this shift may not be real.
+- **Two errors found and fixed during testing:**
+  1. My white-noise test wrongly expected raw-persistence skill of −1 at every lead. The seasonal change between origin and target adds error at longer leads. The test now asserts −1 at lead 1 and below −1.2 at lead 7.
+  2. **Real bug:** `test_year_range` ignored where the data ends, so it scheduled empty folds when the data ended before the cutoff year. This was caught by the API test on synthetic data ending in 2020. Fixed, with regression assertions. Real-data results are unaffected, because the cutoff falls inside the data.
+- Tests: `pytest backend` 79 passed, 1 deselected.

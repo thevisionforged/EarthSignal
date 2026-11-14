@@ -50,7 +50,11 @@ Priority order. Status: `[x]` done and tested · `[~]` in progress · `[ ]` not 
 - [ ] Manual browser check of the cell switcher and the station card (user)
 - [ ] Optional: check whether MERRA-2 assimilates this station's reports (independence), using MERRA-2 documentation
 ### 2c: backtesting groundwork
-- [ ] Chronological backtesting harness with climatology and persistence baselines (still no forecasts in the UI until validated)
+- [x] Chronological backtesting harness: climatology, persistence, damped anomaly persistence; leads 1–30 days; yearly expanding folds (D-016)
+- [x] Leakage tests and validation against synthetic theory (AR(1) skill, white noise)
+- [x] `/api/backtest` (evaluation statistics only; nothing shown as a forecast)
+- [ ] Decide later whether a baseline-skill table belongs in the dashboard (it is evaluation, not forecasting)
+- [ ] Future: any candidate method must beat damped anomaly persistence at each lead, evaluated with this harness
 
 ## Milestone 3: second NASA source
 - [ ] Investigate Earthdata-authenticated products (GPM IMERG precipitation, MODIS/MAIAC aerosol) and document access, licence and size before implementing

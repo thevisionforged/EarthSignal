@@ -14,6 +14,7 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
 
 from earthsignal import __version__
+from earthsignal.analysis import backtest as backtest_mod
 from earthsignal.analysis import compare as compare_mod
 from earthsignal.analysis import seasonal as seasonal_mod
 from earthsignal.analysis import sensitivity as sensitivity_mod
@@ -49,6 +50,7 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
             "endpoints": [
                 "/api/health", "/api/datasets", "/api/provenance", "/api/timeseries", "/api/trend",
                 "/api/seasonal", "/api/sensitivity", "/api/areas", "/api/station-comparison",
+                "/api/backtest",
             ],
             "docs": "/docs",
             "ui": "Run the frontend (cd frontend; npm run dev) and open the URL Vite prints.",
@@ -211,6 +213,36 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
             "source_periods": source_periods,
             "geosit_in_trend_window": geosit_in_window,
             "note": "Overlapping windows are descriptive robustness checks, not independent significance tests.",
+        }
+
+    @app.get("/api/backtest")
+    def backtest_baselines(area: str = DEFAULT_AREA, variable: Variable = "T2M", dataset_id: str | None = None) -> dict:
+        """Chronological evaluation of simple baselines. These are evaluation statistics, not forecasts."""
+        ds = _load(dataset_id, area)
+        cutoff = _cutoff(ds)
+        series = ds.frame[variable][ds.frame.index <= pd.Timestamp(cutoff)]
+        try:
+            first, last = backtest_mod.test_year_range(series, cutoff)
+            result = backtest_mod.run_backtest(series, first, last)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        return {
+            "dataset_id": ds.dataset_id,
+            "area": area,
+            "variable": variable,
+            "units": ds.provenance["variables"][variable]["units"],
+            "analysis_cutoff": cutoff.isoformat(),
+            "data_kind": "evaluation_statistic",
+            "not_a_forecast": True,
+            **result,
+            "limitations": [
+                "Baselines are evaluated against NASA POWER reanalysis, not station observations. Skill here "
+                "means predicting the reanalysis, not real-world forecast skill at a point.",
+                "RMSE-based skill is dominated by large errors. For daily precipitation (skewed, many dry "
+                "days) it is a rough guide only.",
+                "These baselines set the bar a future method must beat at each lead time. They are not "
+                "shown as forecasts.",
+            ],
         }
 
     @app.get("/api/station-comparison")

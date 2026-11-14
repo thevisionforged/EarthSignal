@@ -39,6 +39,7 @@ The documentation consulted is listed in `docs/DECISIONS.md` (D-003 to D-006): P
 - **Robustness:** the trend is recomputed for every start year and every end year (windows of at least 20 years). These windows are descriptive only; the full-period result is the one reported.
 - **Source check:** the MERRA-2 to GEOS-IT switch date is measured with single-day requests (currently 2026-10-01). The trend window is entirely MERRA-2.
 - **Station check (temperature):** POWER's western cell is compared with NOAA GSOD station 42369099999 (Lucknow airport), using only near-hourly station days (D-015).
+- **Baseline backtest (evaluation only, no forecasts shown):** climatology, persistence and damped anomaly persistence are evaluated chronologically (test years 2002–2025, leads of 1–30 days). This sets the bar any future method must beat. Damped anomaly persistence is best for temperature at every lead (skill +0.75 at 1 day, falling to +0.04 at 30 days). For precipitation, nothing beats climatology beyond 1–3 days. Available at `/api/backtest` (D-016).
 
 ### Results (POWER retrieved 2026-11-14, trends 1981–2025)
 | | Eastern cell | Western cell | Reading |

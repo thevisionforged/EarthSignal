@@ -108,5 +108,28 @@ The sources_meteorology page explains that PRECTOTCORR uses MERRA-2's observatio
 - **Precipitation:** not compared. GSOD reports are mostly missing ("I") or partial-day (A–F, H), and the readme does not state that the D and F sums cover a full 24 hours. Any monthly total would be biased.
 - **Comparison cell:** POWER is compared using the cell that contains the station (the western cell). The eastern cell's metrics are reported in the implementation log for reference only.
 
+## D-016: Chronological backtesting harness with simple baselines (2026-11-15, Milestone 2c)
+- **Purpose:** set the bar that any future forecasting method must beat. **No forecasts are shown in the UI.** The results are evaluation statistics (`data_kind: evaluation_statistic`, `not_a_forecast: true`), exposed through `/api/backtest` only.
+- **Baselines:**
+  - **Climatology:** a 3-harmonic seasonal cycle fitted by least squares on training data. It handles leap years and needs no smoothing window.
+  - **Persistence:** the value at the forecast origin.
+  - **Damped anomaly persistence:** climatology plus φ_h × (origin anomaly), where φ_h is the lag-h autocorrelation of training anomalies.
+- **Folds:**
+  - Expanding window, one fold per calendar test year.
+  - Training data ends `max(lead)` days before the test year starts, so no training day falls after any forecast origin. This is tested by scrambling data after an origin and by perturbing the gap.
+  - First test year: at least 20 training years (2002 for data starting in 1981).
+  - Last test year: the last full year that ends on or before the 2-month cutoff **and** is covered by the data.
+- **Leads:** 1, 3, 7, 14 and 30 days.
+- **Metrics:** MAE, RMSE, bias, and skill = 1 − MSE/MSE_climatology, pooled and per fold.
+- **Missing values:** NaN targets or origins are skipped, never filled.
+- **Harness validation (synthetic):**
+  - recovers the AR(1) theoretical skill φ^(2h) within 0.05
+  - on white noise, damped anomaly persistence has no skill and raw persistence has skill ≈ −1 at lead 1
+  - the climatology fit recovers a known harmonic exactly
+- **Limitations:**
+  - Skill is measured against reanalysis, not station data.
+  - RMSE skill is a rough guide for daily precipitation.
+  - Climatology bias reflects shifts between the training and test periods.
+
 ## D-009: Lightweight frontend (2026-11-14)
 - **Decision:** Vite + React + TypeScript with `plotly.js-basic-dist-min` (the smallest Plotly bundle with scatter and line traces) and no UI framework. The Vite dev server proxies `/api` to `127.0.0.1:8000`. Playwright is deferred because its browser download is large; Vitest covers the frontend logic.
