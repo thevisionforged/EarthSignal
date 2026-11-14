@@ -1,5 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { dataKindLabel, formatP, senLine, signed, unitLabel } from "./format";
+import { dataKindLabel, formatP, loadProblem, senLine, signed, trendLineLabel, unitLabel } from "./format";
+
+describe("loadProblem", () => {
+  it("distinguishes missing data from an unreachable backend", () => {
+    expect(loadProblem(404)).toBe("no-data");
+    expect(loadProblem(500)).toBe("backend-unreachable"); // Vite proxy error when uvicorn is down
+    expect(loadProblem(0)).toBe("backend-unreachable");
+    expect(loadProblem(undefined)).toBe("backend-unreachable");
+  });
+});
+
+describe("trendLineLabel", () => {
+  it("marks non-significant trends on the chart legend", () => {
+    expect(trendLineLabel(-0.158, "°C", false)).toBe("Sen's slope -0.16 °C/decade (not significant)");
+    expect(trendLineLabel(0.243, "mm/day", true)).toBe("Sen's slope +0.24 mm/day/decade");
+  });
+});
 
 describe("senLine", () => {
   it("evaluates intercept + slope*year with slope given per decade", () => {

@@ -52,3 +52,24 @@ Newest entries at the bottom. Record only what was actually done and verified.
 - `pytest backend`: 43 passed, 1 deselected. `pytest backend -m network`: 1 passed. `npm test`: 4 passed. `npm run typecheck`: exit 0. `npm run build`: OK (JS 1,252 kB, 428 kB gzipped).
 - Raw file check: `daily_point_response.json` sha256 is unchanged (`b37050b4…9643`). Header covers 19810101–20261113, and 16,753 keys per variable. Only 20261112 and 20261113 carry −999 for each variable. The processed CSV has exactly 2 NaN per column and 0 zeros in T2M.
 - Found: `frontend/tsconfig.tsbuildinfo` (a typecheck build artifact) is not in `.gitignore`. Not fixed yet.
+
+## 2026-11-15: First commit
+- Added `*.tsbuildinfo` to `.gitignore` and reviewed the 40 files (no data, venv, node_modules or secrets).
+- Git identity set for this repo only: `thevisionforged <thevisionforged@users.noreply.github.com>`. Committed as `c2f0c5e`, not pushed.
+
+## 2026-11-15: Demo-readiness review (Milestone 1b)
+- Port 5173 was held by an orphaned Vite process from an earlier session (PIDs 17980 and 17500, started 2026-11-14 23:06). Stopping the background task had not killed the Node child. Stopped those PIDs only; the user's servers (Vite :5174, uvicorn PID 1476) were left running.
+- The user's uvicorn log showed `Invalid HTTP request received` (non-HTTP traffic on :8000, typically an https attempt) and an asyncio `ConnectionResetError` (known Windows Proactor noise). Neither is an application defect. Documented in README troubleshooting.
+- Defects found and fixed:
+  1. The chart drew a prominent Sen's slope line even when the trend was not significant (T2M). It is now muted and dotted, with "(not significant)" in the legend (`trendLineLabel`).
+  2. When the backend was down, the UI said "No data loaded" and gave the ingest command. It now distinguishes 404 (no data) from an unreachable backend (`loadProblem`).
+  3. There was no loading state. Added one.
+  4. Chart colours were read once, so they were wrong after an OS theme change. Chart now re-renders on `prefers-color-scheme` change and resolves colour tokens itself.
+  5. The legend sat below the plot and crowded the x-axis on narrow screens. It is now above the plot, with automargins and a 300 px chart height on phones.
+  6. The reanalysis nature was visible only in a badge and footnote. Added a page banner stating the values are reanalysis estimates, not thermometer or gauge readings, and that there are no forecasts.
+  7. The trend heading did not name the variable. Fixed, and added a plain-language verdict and a "How to read these numbers" section. That section explains why the T2M CI excludes 0 while the corrected p is 0.18: the CI does not account for autocorrelation.
+  8. `GET /` returned 404. Added a root route listing endpoints.
+- Tests added: `test_root_lists_endpoints`, `test_datasets_listing` (backend), plus `loadProblem` and `trendLineLabel` (frontend). One new test initially failed because of a test-fixture bug: two fixtures shared one temp folder. Fixed in the test, not the app.
+- README rewritten: data source table, analysis method, results with dataset date, limitations, port fallback, troubleshooting. Added `docs/DEMO_OUTLINE.md`.
+- Verification: `pytest backend` 45 passed, 1 deselected. `pytest -m network` 1 passed. `npm test` 6 passed. Typecheck clean. Build OK (JS 1,256 kB, 429 kB gzipped). The user's Vite dev server on :5174 served the updated modules (HTTP 200) and proxied `/api/trend` successfully.
+- Not verified by me: the visual rendering in a browser. Waiting for the user's manual inspection.

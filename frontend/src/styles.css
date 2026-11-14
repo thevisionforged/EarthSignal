@@ -69,7 +69,19 @@ h3 { font-size: 14px; margin: 16px 0 4px; color: var(--muted); text-transform: u
 .card.notice { background: var(--notice); }
 .card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
 .badge { font-size: 12px; border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; color: var(--muted); }
-.chart { width: 100%; min-height: 380px; }
+.chart { width: 100%; height: 380px; }
+.banner {
+  background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent);
+  border-radius: 8px; padding: 10px 14px; margin-top: 16px; font-size: 14px;
+}
+.loading { color: var(--muted); }
+.verdict { margin: 4px 0 8px; font-weight: 600; }
+.verdict.sig { color: var(--accent); }
+.verdict.nonsig { color: var(--muted); }
+details { margin: 12px 0 0; font-size: 13px; }
+details summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+details ul { margin-top: 6px; }
+footer { margin-top: 24px; text-align: center; }
 .note { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 8px 0; }
 .stat { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
@@ -85,4 +97,15 @@ h3 { font-size: 14px; margin: 16px 0 4px; color: var(--muted); text-transform: u
 .url { font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
 code { font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
 a { color: var(--accent); }
-@media (max-width: 560px) { .prov { grid-template-columns: 1fr; } .prov dt { margin-top: 6px; } }
+@media (max-width: 560px) {
+  main { padding: 16px 16px 32px; }
+  h1 { font-size: 24px; }
+  .card { padding: 12px; }
+  .chart { height: 300px; }
+  .stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-value { font-size: 16px; }
+  .tabs button { flex: 1 1 auto; }
+  .prov { grid-template-columns: 1fr; }
+  .prov dt { margin-top: 6px; }
+}
+@media (max-width: 360px) { .stats { grid-template-columns: 1fr; } }

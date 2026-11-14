@@ -36,6 +36,16 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
         except store.NoDatasetError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
 
+    @app.get("/")
+    def root() -> dict:
+        return {
+            "service": "EarthSignal API",
+            "version": __version__,
+            "endpoints": ["/api/health", "/api/datasets", "/api/provenance", "/api/timeseries", "/api/trend"],
+            "docs": "/docs",
+            "ui": "Run the frontend (cd frontend; npm run dev) and open the URL Vite prints.",
+        }
+
     @app.get("/api/health")
     def health() -> dict:
         n = len(store.list_provenance(processed_root))

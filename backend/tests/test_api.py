@@ -13,7 +13,7 @@ from .conftest import synthetic_power_doc
 
 @pytest.fixture
 def empty_client(tmp_path):
-    return TestClient(create_app(processed_root=tmp_path / "processed"))
+    return TestClient(create_app(processed_root=tmp_path / "empty_processed"))
 
 
 @pytest.fixture
@@ -35,6 +35,19 @@ def test_health(empty_client):
     assert r.status_code == 200
     assert r.json()["status"] == "ok"
     assert r.json()["datasets_available"] == 0
+
+
+def test_root_lists_endpoints(empty_client):
+    r = empty_client.get("/")
+    assert r.status_code == 200
+    assert "/api/health" in r.json()["endpoints"]
+
+
+def test_datasets_listing(synthetic_client, empty_client):
+    assert empty_client.get("/api/datasets").json() == []
+    rows = synthetic_client.get("/api/datasets").json()
+    assert len(rows) == 1
+    assert rows[0]["data_kind"] == "derived_estimate"
 
 
 def test_no_data_is_404_not_fake(empty_client):

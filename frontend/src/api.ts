@@ -31,6 +31,7 @@ export interface TrendResult {
   sen_intercept: number;
   mk_p_value: number;
   modified_mk_p_value: number;
+  variance_inflation_factor: number;
   lag1_autocorrelation_detrended: number;
   ols_slope_per_decade: number;
   ols_p_value: number;
@@ -66,6 +67,7 @@ export interface Provenance {
   citation: string;
   citation_data_reference: string;
   validation: { variables: Record<string, { n_valid: number; n_days: number; first_valid: string; last_valid: string }> };
+  // (fields not used by the UI are omitted)
 }
 
 export class ApiError extends Error {
@@ -75,7 +77,12 @@ export class ApiError extends Error {
 }
 
 async function getJson<T>(path: string): Promise<T> {
-  const res = await fetch(path);
+  let res: Response;
+  try {
+    res = await fetch(path);
+  } catch (e) {
+    throw new ApiError(0, `Network error: ${String(e)}`);
+  }
   if (!res.ok) {
     let detail = res.statusText;
     try {

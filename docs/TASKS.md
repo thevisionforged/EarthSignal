@@ -17,8 +17,19 @@ Priority order. Status: `[x]` done and tested · `[~]` in progress · `[ ]` not 
 - [x] React + TS + Vite frontend: monthly time series, annual means, Sen trend line, trend statistics, diagnostics, provenance
 - [x] Frontend unit tests (Vitest), typecheck and build
 - [x] README run procedure, verified by actually running it (HTTP level)
-- [ ] Visual check of the rendered page in a browser (light and dark, phone width)
-- [ ] First git commit (waiting for the user to ask)
+- [x] First git commit (`c2f0c5e`, 2026-11-15)
+
+## Milestone 1b: demo readiness (no new science, data or architecture)
+- [x] `.gitignore` covers `*.tsbuildinfo` (done before `c2f0c5e`, re-verified)
+- [x] Code review of the backend and frontend; defects fixed (IMPLEMENTATION_LOG 2026-11-15)
+- [x] Reanalysis labelling: page banner, chart badge, provenance card and API `data_kind`
+- [x] Trend card made readable: plain verdict, corrected and uncorrected p, CI, "How to read these numbers"; non-significant trend line marked and muted
+- [x] Responsive CSS (phone breakpoints at 560 and 360 px), legend moved above the plot, theme-aware chart colours
+- [x] README rewritten: data source, analysis, results, limitations, troubleshooting
+- [x] Seven-slide demo outline (`docs/DEMO_OUTLINE.md`)
+- [~] Second commit staged, waiting for user approval
+- [ ] **Manual browser inspection by the user** (light and dark, desktop and phone width, both tabs, the "How to read" toggle, and the offline backend message)
+- [ ] Choose the Space Apps challenge and confirm submission requirements
 
 ## Milestone 2: historical validation and backtesting groundwork
 - [ ] Compare POWER T2M with an independent station record for Lucknow (for example NOAA GSOD/ISD for the Amausi airport station), with source and licence checked first

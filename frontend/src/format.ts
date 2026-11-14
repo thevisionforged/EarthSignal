@@ -19,6 +19,16 @@ export function unitLabel(units: string): string {
   return units === "C" ? "°C" : units;
 }
 
+/** Which problem to show for a failed API call. 404 = backend up but no ingested data. */
+export function loadProblem(status: number | undefined): "no-data" | "backend-unreachable" {
+  return status === 404 ? "no-data" : "backend-unreachable";
+}
+
+export function trendLineLabel(slopePerDecade: number, units: string, significant: boolean): string {
+  const base = `Sen's slope ${signed(slopePerDecade)} ${units}/decade`;
+  return significant ? base : `${base} (not significant)`;
+}
+
 export function dataKindLabel(kind: string): string {
   switch (kind) {
     case "observed":
