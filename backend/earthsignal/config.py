@@ -18,6 +18,11 @@ class StudyArea:
     latitude: float
     longitude: float
     note: str
+    key: str = "lucknow"
+    label: str = ""
+
+    def matches(self, latitude: float, longitude: float, tol: float = 1e-4) -> bool:
+        return abs(self.latitude - latitude) < tol and abs(self.longitude - longitude) < tol
 
 
 # Point near central Lucknow (Hazratganj area). NASA POWER returns the value of the MERRA-2 grid
@@ -34,4 +39,23 @@ LUCKNOW = StudyArea(
         "Single point request; the value is that of the enclosing MERRA-2/GEOS-IT grid cell. The point "
         "lies just east of a cell boundary, so the cell mostly covers land east of the city (D-013)."
     ),
+    key="lucknow",
+    label="Eastern cell (central Lucknow point)",
 )
+
+# Coordinates of the Lucknow airport station (NOAA GSOD 42369099999, as given in its 2024 file).
+# Requesting POWER here returns the western cell, which also contains the old city station 42368.
+LUCKNOW_AIRPORT = StudyArea(
+    name="Lucknow airport (Chaudhary Charan Singh Intl), Uttar Pradesh, India",
+    latitude=26.761,
+    longitude=80.889,
+    note=(
+        "Point at the Lucknow airport weather station; the value is that of the enclosing MERRA-2/GEOS-IT "
+        "grid cell (centred near 27.0 N, 80.625 E), which covers the airport and western Lucknow (D-013)."
+    ),
+    key="lucknow_airport",
+    label="Western cell (Lucknow airport station)",
+)
+
+STUDY_AREAS: dict[str, StudyArea] = {a.key: a for a in (LUCKNOW, LUCKNOW_AIRPORT)}
+DEFAULT_AREA = LUCKNOW.key

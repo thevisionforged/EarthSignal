@@ -1,7 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import Chart from "./Chart";
 import { RobustnessCard, SeasonalCard } from "./Analysis";
-import { api, ApiError, Health, Provenance, SeasonalResponse, SensitivityResponse, TimeSeries, TrendResponse } from "./api";
+import {
+  api,
+  ApiError,
+  Area,
+  Health,
+  Provenance,
+  SeasonalResponse,
+  SensitivityResponse,
+  StationComparison,
+  TimeSeries,
+  TrendResponse,
+} from "./api";
+import { StationCard } from "./Station";
 import { dataKindLabel, formatP, loadProblem, senLine, signed, trendLineLabel, unitLabel } from "./format";
 
 const VARIABLES = [
@@ -30,13 +42,17 @@ function useLoad<T>(fn: () => Promise<T>, deps: unknown[]): Load<T> {
 
 export default function App() {
   const [variable, setVariable] = useState("T2M");
+  const [area, setArea] = useState("lucknow");
   const health = useLoad<Health>(() => api.health(), []);
-  const series = useLoad<TimeSeries>(() => api.timeseries(variable, "monthly"), [variable]);
-  const trend = useLoad<TrendResponse>(() => api.trend(variable), [variable]);
-  const prov = useLoad<Provenance>(() => api.provenance(), []);
-  const seasonal = useLoad<SeasonalResponse>(() => api.seasonal(variable), [variable]);
-  const sens = useLoad<SensitivityResponse>(() => api.sensitivity(variable), [variable]);
+  const areas = useLoad<Area[]>(() => api.areas(), []);
+  const series = useLoad<TimeSeries>(() => api.timeseries(area, variable, "monthly"), [area, variable]);
+  const trend = useLoad<TrendResponse>(() => api.trend(area, variable), [area, variable]);
+  const prov = useLoad<Provenance>(() => api.provenance(area), [area]);
+  const seasonal = useLoad<SeasonalResponse>(() => api.seasonal(area, variable), [area, variable]);
+  const sens = useLoad<SensitivityResponse>(() => api.sensitivity(area, variable), [area, variable]);
+  const station = useLoad<StationComparison>(() => api.stationComparison(), []);
   const varLabel = VARIABLES.find((v) => v.id === variable)?.short ?? variable;
+  const areaInfo = areas.state === "ok" ? areas.data.find((a) => a.key === area) : undefined;
 
   return (
     <main>
@@ -54,10 +70,18 @@ export default function App() {
       <section className="banner" aria-label="About this data">
         <strong>About these values:</strong> they are <strong>NASA POWER reanalysis estimates</strong> (NASA GMAO
         MERRA-2, extended to near real time with GEOS-IT). That is weather-model output constrained by observations and
-        averaged over one ~55 × 62 km grid cell. Our request point in central Lucknow sits at the cell's western edge, so
-        the cell mostly covers land east of the city. They are <strong>not</strong> thermometer or rain-gauge
-        readings. No forecasts are shown.
+        averaged over a ~55 × 62 km grid cell. Lucknow straddles the boundary between two cells, so both are available
+        below. They are <strong>not</strong> thermometer or rain-gauge readings. No forecasts are shown.
       </section>
+
+      <nav className="tabs" aria-label="Grid cell">
+        {(areas.state === "ok" ? areas.data : []).map((a) => (
+          <button key={a.key} aria-pressed={area === a.key} onClick={() => setArea(a.key)} disabled={!a.dataset_id}>
+            {a.label}
+          </button>
+        ))}
+      </nav>
+      {areaInfo && <p className="note area-note">{areaInfo.note}</p>}
 
       <nav className="tabs" aria-label="Variable">
         {VARIABLES.map((v) => (
@@ -75,7 +99,8 @@ export default function App() {
             <h2>No data ingested yet</h2>
             <p>{series.message}</p>
             <p>
-              Run <code>.venv\Scripts\python -m earthsignal.data.ingest</code> from the project root, then reload.
+              Run <code>.venv\Scripts\python -m earthsignal.data.ingest --area {area}</code> from the project root, then
+              reload.
             </p>
           </section>
         ) : (
@@ -100,6 +125,7 @@ export default function App() {
       )}
       {sens.state === "ok" && <RobustnessCard s={sens.data} label={varLabel} />}
       {seasonal.state === "ok" && <SeasonalCard s={seasonal.data} label={varLabel} />}
+      {station.state === "ok" && <StationCard c={station.data} />}
       {prov.state === "ok" && <ProvenanceCard p={prov.data} />}
 
       <footer className="note">

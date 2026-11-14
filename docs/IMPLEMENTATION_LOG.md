@@ -103,3 +103,34 @@ Newest entries at the bottom. Record only what was actually done and verified.
 - GSOD readme and the 2024 airport file were read through the web-fetch agent (D-014). The NCEI landing page returned HTTP 503.
 - **Grid-cell check:** POWER requests at both station coordinates return identical values (elevation 127.59 m). Our study point returns different values (117.11 m). The study point is 0.009° east of the MERRA-2 cell boundary at 80.9375° E (D-013).
 - Waiting for user decisions on D-013 and D-014.
+
+## 2026-11-15: Milestone 2a committed
+- `bb592d8` pushed to `origin/master`.
+
+## 2026-11-15: Milestone 2b, both grid cells and the station comparison
+- The user chose to show both cells and to show GSOD results in the demo with the notice attached (D-013 and D-014 resolutions).
+- **Multi-area support:** `config.STUDY_AREAS`, `store.area_of()`, `ingest --area`, `source_probe --area`, `?area=` on all endpoints, and `/api/areas`.
+- **Real ingestion, western cell:**
+  - dataset `power_daily_lucknow_airport_19810101_20261113_20261114T210009Z`, grid elevation 127.59 m
+  - T2M and PRECTOTCORR: 16,751 of 16,753 days valid
+  - source probe: MERRA-2 to 2026-09-30, GEOS-IT from 2026-10-01 (14 requests)
+- **Western versus eastern cell (1981–2025):**
+  - T2M: −0.12 °C/decade (corrected p 0.35) in the west, against −0.16 (0.18) in the east. Neither is significant.
+  - PRECTOTCORR: **+0.15 mm/day/decade, p 0.079, not significant** in the west, against +0.24 (0.014, significant) in the east. The pre-monsoon FDR result also disappears in the west. **The precipitation "finding" depends on the grid cell.**
+- **Real GSOD download:**
+  - dataset `gsod_42369099999_1981_2025_20261114T210127Z`: 45 yearly files, none missing on the server, 15,932 station-days
+  - station metadata constant at 26.760594 N, 80.889339 E, 124.96 m; the name changed in 2025; the station list ends 2025-08-24
+  - download time about 1 min 42 s
+- **Inspection findings:** observation-count inhomogeneity and unusable precipitation (D-015).
+- **Comparison, western cell versus station:**
+  - 216 paired months (1999-11 to 2025-07)
+  - POWER − station: mean +0.63 °C, MAE 1.37, RMSE 1.70, r 0.977, anomaly r 0.80
+  - seasonal bias pattern: +3.0 °C in May, +2.9 in June, −1.1 in September and October
+  - eastern cell, for reference: bias +0.46, RMSE 1.57, r 0.978
+- **Trend comparison:** 16 years (2006, 2008, 2010–2023), annual mean anomalies.
+  - station +0.10 °C/decade (p 0.86)
+  - POWER western cell −0.26 (p 0.58)
+  - **difference POWER − station −0.30 °C/decade, p 0.017, significant drift**
+  - The records drift apart over the recent period. These data cannot tell which record is responsible.
+- Tests: `pytest backend` 70 passed, 1 deselected. `npm test` 6 passed, typecheck clean, build OK (431 kB gzipped).
+- HTTP smoke test of all 11 routes on a temporary server (:8001): all 200, and an unknown area returns 422.

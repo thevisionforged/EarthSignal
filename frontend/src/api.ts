@@ -138,12 +138,81 @@ async function getJson<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export interface Area {
+  key: string;
+  label: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  note: string;
+  default: boolean;
+  dataset_id: string | null;
+  grid_elevation_m: number | null;
+}
+
+interface TrendSummary {
+  sen_slope_per_decade: number;
+  ci95_per_decade: [number, number];
+  modified_mk_p_value: number;
+  significant_at_0_05: boolean;
+  n_years: number;
+}
+
+export interface StationComparison {
+  power_dataset_id: string;
+  power_area: string;
+  station_dataset_id: string;
+  station: {
+    id: string;
+    metadata_history: { from: string; to: string; name: string; lat: number; lon: number; elev_m: number }[];
+    retrieved_at_utc: string;
+    data_kind: string;
+    time_standard: string;
+  };
+  variable: string;
+  metrics_primary: {
+    n_months: number;
+    first_month: string;
+    last_month: string;
+    mean_bias: number;
+    mae: number;
+    rmse: number;
+    pearson_r: number;
+    anomaly_pearson_r: number;
+    anomaly_rmse: number;
+  };
+  trend_comparison: {
+    years: number[];
+    contiguous: boolean;
+    power: TrendSummary;
+    station: TrendSummary;
+    difference_power_minus_station: TrendSummary;
+    method: string;
+  } | null;
+  monthly: {
+    months: string[];
+    power: (number | null)[];
+    station_all: (number | null)[];
+    station_primary: (number | null)[];
+    station_obs_median: (number | null)[];
+  };
+  rules: { min_obs_primary: number; month_min_coverage: number };
+  diagnostics: string[];
+  limitations: string[];
+  licence_notice: string;
+}
+
+const q = (params: Record<string, string>) => new URLSearchParams(params).toString();
+
 export const api = {
   health: () => getJson<Health>("/api/health"),
-  timeseries: (variable: string, resolution: string) =>
-    getJson<TimeSeries>(`/api/timeseries?variable=${variable}&resolution=${resolution}`),
-  trend: (variable: string) => getJson<TrendResponse>(`/api/trend?variable=${variable}`),
-  provenance: () => getJson<Provenance>("/api/provenance"),
-  seasonal: (variable: string) => getJson<SeasonalResponse>(`/api/seasonal?variable=${variable}`),
-  sensitivity: (variable: string) => getJson<SensitivityResponse>(`/api/sensitivity?variable=${variable}`),
+  areas: () => getJson<Area[]>("/api/areas"),
+  timeseries: (area: string, variable: string, resolution: string) =>
+    getJson<TimeSeries>(`/api/timeseries?${q({ area, variable, resolution })}`),
+  trend: (area: string, variable: string) => getJson<TrendResponse>(`/api/trend?${q({ area, variable })}`),
+  provenance: (area: string) => getJson<Provenance>(`/api/provenance?${q({ area })}`),
+  seasonal: (area: string, variable: string) => getJson<SeasonalResponse>(`/api/seasonal?${q({ area, variable })}`),
+  sensitivity: (area: string, variable: string) =>
+    getJson<SensitivityResponse>(`/api/sensitivity?${q({ area, variable })}`),
+  stationComparison: () => getJson<StationComparison>(`/api/station-comparison?${q({ area: "lucknow_airport" })}`),
 };

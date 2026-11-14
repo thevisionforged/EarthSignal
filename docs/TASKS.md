@@ -41,9 +41,14 @@ Priority order. Status: `[x]` done and tested · `[~]` in progress · `[ ]` not 
 ### 2b: independent station comparison
 - [x] Investigate NOAA GSOD: station, access, format, comparability, licence (D-014)
 - [x] Found the study point sits at the edge of a grid cell; the stations fall in the neighbouring cell (D-013)
-- [ ] **Blocked on user decision:** which grid cell represents Lucknow (D-013)
-- [ ] **Blocked on user decision:** GSOD licence handling for public display (D-014)
-- [ ] Then: GSOD ingestion (immutable raw, provenance, unit conversion, minimum-observation rule), monthly/annual comparison with the station's own POWER cell, and a station trend computed with the same method
+- [x] Decision: show both cells; area switcher in the API and dashboard (D-013 resolution)
+- [x] Decision: show GSOD results with the WMO Resolution 40 notice; never commit raw GSOD (D-014 resolution)
+- [x] Western-cell ingestion and source probe (real)
+- [x] GSOD ingestion: immutable raw files, provenance, unit conversion, sentinel handling, station metadata history
+- [x] Inspected the real station data before choosing rules: observation-count inhomogeneity, unusable precipitation (D-015)
+- [x] Temperature comparison: monthly metrics, anomaly correlation, trend comparison including a drift test, dashboard card
+- [ ] Manual browser check of the cell switcher and the station card (user)
+- [ ] Optional: check whether MERRA-2 assimilates this station's reports (independence), using MERRA-2 documentation
 ### 2c: backtesting groundwork
 - [ ] Chronological backtesting harness with climatology and persistence baselines (still no forecasts in the UI until validated)
 

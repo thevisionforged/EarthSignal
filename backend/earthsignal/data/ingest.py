@@ -4,6 +4,7 @@ Usage (from repo root, venv active):
     python -m earthsignal.data.ingest                       # 1981-01-01 .. yesterday (UTC)
     python -m earthsignal.data.ingest --start 2000-01-01 --end 2020-12-31
     python -m earthsignal.data.ingest --from-raw data/raw/<dataset_id>   # reprocess, no network
+    python -m earthsignal.data.ingest --area lucknow_airport             # western (airport) grid cell
 
 Each run creates a new dataset_id. Raw responses are written once and never overwritten.
 """
@@ -19,7 +20,7 @@ from typing import Any
 
 import httpx
 
-from earthsignal.config import LUCKNOW, PROCESSED_DIR, RAW_DIR, REPO_ROOT, StudyArea
+from earthsignal.config import DEFAULT_AREA, PROCESSED_DIR, RAW_DIR, REPO_ROOT, STUDY_AREAS, StudyArea
 from earthsignal.data import power
 
 RAW_RESPONSE_NAME = "daily_point_response.json"
@@ -47,7 +48,7 @@ def download(
     """Download the daily point response and parameter metadata into a new immutable raw folder."""
     retrieved_at = power.utc_now()
     dataset_id = (
-        f"power_daily_lucknow_{start:%Y%m%d}_{end:%Y%m%d}_{retrieved_at:%Y%m%dT%H%M%SZ}"
+        f"power_daily_{area.key}_{start:%Y%m%d}_{end:%Y%m%d}_{retrieved_at:%Y%m%dT%H%M%SZ}"
     )
     raw_dir = raw_root / dataset_id
     data_url = power.build_daily_point_url(area.latitude, area.longitude, start, end)
@@ -139,14 +140,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--start", type=date.fromisoformat, default=date(1981, 1, 1))
     ap.add_argument("--end", type=date.fromisoformat, default=None, help="default: yesterday (UTC)")
     ap.add_argument("--from-raw", type=Path, default=None, help="reprocess an existing raw folder offline")
+    ap.add_argument("--area", choices=sorted(STUDY_AREAS), default=DEFAULT_AREA, help="study area (grid cell) to download")
     args = ap.parse_args(argv)
 
     if args.from_raw:
         raw_dir = args.from_raw
     else:
         end = args.end or (power.utc_now().date() - timedelta(days=1))
-        print(f"Requesting NASA POWER daily data {args.start}..{end} for {LUCKNOW.name}")
-        raw_dir = download(LUCKNOW, args.start, end)
+        area = STUDY_AREAS[args.area]
+        print(f"Requesting NASA POWER daily data {args.start}..{end} for {area.name} ({area.key})")
+        raw_dir = download(area, args.start, end)
         print(f"Raw response stored (immutable): {raw_dir}")
 
     prov = process(raw_dir)

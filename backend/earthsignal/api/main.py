@@ -14,11 +14,12 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
 
 from earthsignal import __version__
+from earthsignal.analysis import compare as compare_mod
 from earthsignal.analysis import seasonal as seasonal_mod
 from earthsignal.analysis import sensitivity as sensitivity_mod
 from earthsignal.analysis import trend as trend_mod
-from earthsignal.config import PROCESSED_DIR
-from earthsignal.data import store
+from earthsignal.config import DEFAULT_AREA, PROCESSED_DIR, STUDY_AREAS
+from earthsignal.data import gsod, store
 
 MONTHLY_MIN_COVERAGE = 0.9
 
@@ -32,9 +33,11 @@ def _clean(values) -> list[float | None]:
 def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
     app = FastAPI(title="EarthSignal API", version=__version__)
 
-    def _load(dataset_id: str | None) -> store.Dataset:
+    def _load(dataset_id: str | None, area: str = DEFAULT_AREA) -> store.Dataset:
+        if area not in STUDY_AREAS:
+            raise HTTPException(status_code=422, detail=f"unknown area {area!r}; choose from {sorted(STUDY_AREAS)}")
         try:
-            return store.load_dataset(processed_root, dataset_id)
+            return store.load_dataset(processed_root, dataset_id, area=area)
         except store.NoDatasetError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -45,7 +48,7 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
             "version": __version__,
             "endpoints": [
                 "/api/health", "/api/datasets", "/api/provenance", "/api/timeseries", "/api/trend",
-                "/api/seasonal", "/api/sensitivity",
+                "/api/seasonal", "/api/sensitivity", "/api/areas", "/api/station-comparison",
             ],
             "docs": "/docs",
             "ui": "Run the frontend (cd frontend; npm run dev) and open the URL Vite prints.",
@@ -65,21 +68,42 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
                 "requested": p["requested"],
                 "api_version": p["api_version"],
                 "data_kind": p["data_kind"],
+                "area": store.area_of(p),
             }
             for p in store.list_provenance(processed_root)
         ]
 
+    @app.get("/api/areas")
+    def areas() -> list[dict]:
+        out = []
+        for key, a in STUDY_AREAS.items():
+            provs = store.list_provenance(processed_root, key)
+            out.append(
+                {
+                    "key": key,
+                    "label": a.label,
+                    "name": a.name,
+                    "latitude": a.latitude,
+                    "longitude": a.longitude,
+                    "note": a.note,
+                    "default": key == DEFAULT_AREA,
+                    "dataset_id": provs[0]["dataset_id"] if provs else None,
+                    "grid_elevation_m": provs[0]["returned_coordinates"]["elevation_m"] if provs else None,
+                }
+            )
+        return out
+
     @app.get("/api/provenance")
-    def provenance(dataset_id: str | None = None) -> dict:
-        return _load(dataset_id).provenance
+    def provenance(area: str = DEFAULT_AREA, dataset_id: str | None = None) -> dict:
+        return _load(dataset_id, area).provenance
 
     @app.get("/api/timeseries")
-    def timeseries(
+    def timeseries(area: str = DEFAULT_AREA, 
         variable: Variable = "T2M",
         resolution: Literal["daily", "monthly", "annual"] = "monthly",
         dataset_id: str | None = None,
     ) -> dict:
-        ds = _load(dataset_id)
+        ds = _load(dataset_id, area)
         daily = ds.frame[variable]
         if resolution == "daily":
             series = daily
@@ -110,8 +134,8 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
         }
 
     @app.get("/api/trend")
-    def trend(variable: Variable = "T2M", dataset_id: str | None = None) -> dict:
-        ds = _load(dataset_id)
+    def trend(area: str = DEFAULT_AREA, variable: Variable = "T2M", dataset_id: str | None = None) -> dict:
+        ds = _load(dataset_id, area)
         retrieved = datetime.fromisoformat(ds.provenance["retrieved_at_utc"]).date()
         cutoff = trend_mod.analysis_cutoff(retrieved)
         annual, excluded = trend_mod.annual_means(ds.frame[variable], last_allowed_day=cutoff)
@@ -136,8 +160,8 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
         return trend_mod.analysis_cutoff(datetime.fromisoformat(ds.provenance["retrieved_at_utc"]).date())
 
     @app.get("/api/seasonal")
-    def seasonal(variable: Variable = "T2M", dataset_id: str | None = None) -> dict:
-        ds = _load(dataset_id)
+    def seasonal(area: str = DEFAULT_AREA, variable: Variable = "T2M", dataset_id: str | None = None) -> dict:
+        ds = _load(dataset_id, area)
         cutoff = _cutoff(ds)
         try:
             rows = seasonal_mod.seasonal_trends(
@@ -159,8 +183,8 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
         }
 
     @app.get("/api/sensitivity")
-    def sensitivity(variable: Variable = "T2M", dataset_id: str | None = None) -> dict:
-        ds = _load(dataset_id)
+    def sensitivity(area: str = DEFAULT_AREA, variable: Variable = "T2M", dataset_id: str | None = None) -> dict:
+        ds = _load(dataset_id, area)
         cutoff = _cutoff(ds)
         annual, _ = trend_mod.annual_means(ds.frame[variable], last_allowed_day=cutoff)
         try:
@@ -187,6 +211,48 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
             "source_periods": source_periods,
             "geosit_in_trend_window": geosit_in_window,
             "note": "Overlapping windows are descriptive robustness checks, not independent significance tests.",
+        }
+
+    @app.get("/api/station-comparison")
+    def station_comparison(area: str = "lucknow_airport", dataset_id: str | None = None) -> dict:
+        ds = _load(dataset_id, area)
+        loaded = gsod.latest(processed_root)
+        if loaded is None:
+            raise HTTPException(
+                status_code=404,
+                detail="No NOAA GSOD station dataset found. Run: python -m earthsignal.data.gsod",
+            )
+        station, sprov = loaded
+        try:
+            res = compare_mod.compare_temperature(ds.frame["T2M"], station)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        return {
+            "power_dataset_id": ds.dataset_id,
+            "power_area": area,
+            "station_dataset_id": sprov["dataset_id"],
+            "station": {
+                "id": sprov["station"],
+                "metadata_history": sprov["station_metadata_history"],
+                "retrieved_at_utc": sprov["retrieved_at_utc"],
+                "data_kind": sprov["data_kind"],
+                "time_standard": sprov["time_standard"],
+                "documentation": sprov["documentation"],
+            },
+            "variable": "T2M vs GSOD TEMP (daily mean air temperature, °C)",
+            **res,
+            "diagnostics": compare_mod.comparison_diagnostics(res),
+            "limitations": [
+                "The station's observation count per day changed from about 6-8 (before ~1996) to 20-24 (from ~2005). "
+                "Only near-hourly days (>= 20 observations) enter the metrics and trends, so the comparison covers "
+                "mainly 2005 onward.",
+                "Station point versus a ~55 x 62 km reanalysis grid cell; a constant offset is expected and is not an error.",
+                "GSOD days are UTC; POWER days are Local Solar Time (~5.4 h offset). Monthly means reduce this effect.",
+                "Not fully independent: MERRA-2 assimilates surface observations and may include reports from this station.",
+                "Precipitation is not compared. GSOD precipitation at this station is mostly unreported or partial-day "
+                "(flags I, A-F), so monthly totals would be biased.",
+            ],
+            "licence_notice": sprov["licence_notice"],
         }
 
     return app

@@ -93,5 +93,20 @@ The sources_meteorology page explains that PRECTOTCORR uses MERRA-2's observatio
 - **Licence (GSOD readme, WMO Resolution 40):** non-US data are "intended for free and unrestricted use in research, education, and other non-commercial activities". For non-US locations, the readme also restricts providing "the data or any derived product" to other users. The formal NCEI landing page returned HTTP 503 and has not been read.
 - **Proposed handling, pending user decision:** never commit GSOD files (`data/` is already gitignored). Use them for non-commercial research comparison. Do not show GSOD-derived values in any public demo until the user decides how to read the restriction.
 
+## D-013 resolution and D-014 resolution (2026-11-15, user decisions)
+- **D-013:** the user chose to **show both cells**. Study areas are `lucknow` (the original point, eastern cell) and `lucknow_airport` (26.761 N, 80.889 E, western cell containing stations 42369 and 42368). Datasets are matched to areas by requested coordinates. Every data endpoint takes `?area=`. The dashboard has a cell switcher. The original dataset is unchanged.
+- **D-014:** the user judges a non-commercial hackathon demo acceptable under the GSOD/WMO Resolution 40 terms. GSOD-derived comparison results are shown in the dashboard **with the licence notice attached**. Raw GSOD files are still never committed (`data/` is gitignored), and tests use synthetic GSOD-format data only.
+
+## D-015: Station comparison design (2026-11-15)
+- **Inspection before design:** the real GSOD file for 42369099999 (1981–2025) was examined first.
+  - Median observations per day: 6–8 until 1995, 12–19 in 1996–2004, 22–24 from 2005.
+  - Days with at least 20 observations make up 83–100% of each year from 2005.
+  - Precipitation flag "I" (no report) covers about 230 days per year from 1999. Only 15 of 536 months have at least 90% of days with a 24-hour report (flag G).
+- **Temperature, primary rule:** a station day counts only if it has at least 20 observations, and a month only if at least 90% of its days are valid in both series. All metrics use this primary set.
+- **Context series:** the at-least-4-observations series is shown for context only. Its POWER−station difference is about +1.2 °C in months with up to 8 observations, versus +0.66 °C in months with at least 20. That gap shows the sampling inhomogeneity.
+- **Trend comparison:** annual means of paired monthly anomalies (each series relative to its own calendar-month climatology), using years with at least 10 paired months. The same method (D-007) is applied to the station, to POWER, and to the POWER−station difference. A significant difference trend means the records drift apart.
+- **Precipitation:** not compared. GSOD reports are mostly missing ("I") or partial-day (A–F, H), and the readme does not state that the D and F sums cover a full 24 hours. Any monthly total would be biased.
+- **Comparison cell:** POWER is compared using the cell that contains the station (the western cell). The eastern cell's metrics are reported in the implementation log for reference only.
+
 ## D-009: Lightweight frontend (2026-11-14)
 - **Decision:** Vite + React + TypeScript with `plotly.js-basic-dist-min` (the smallest Plotly bundle with scatter and line traces) and no UI framework. The Vite dev server proxies `/api` to `127.0.0.1:8000`. Playwright is deferred because its browser download is large; Vitest covers the frontend logic.

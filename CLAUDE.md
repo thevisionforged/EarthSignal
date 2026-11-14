@@ -25,7 +25,8 @@ Environment audit (2026-11-14): Windows 11, **7.7 GB physical RAM** (often only 
 - `backend/earthsignal/analysis/trend.py`: annual means (≥95% coverage, cutoff of retrieval date − 2 months per NASA guidance), Mann-Kendall plus Yue-Wang correction (decides significance), Sen's slope and CI, OLS cross-check, and rule-based `diagnostics`.
 - `backend/earthsignal/analysis/seasonal.py` (IMD seasons, Benjamini-Hochberg FDR) and `sensitivity.py` (start/end-year windows of at least 20 years, plus diagnostics). Both reuse `trend.analyze_trend`. Never pick a window after looking at the results (D-011).
 - `backend/earthsignal/data/source_probe.py`: measures the MERRA-2/GEOS-IT boundary with single-day requests and writes `source_periods.json` (D-012).
-- **Grid-cell caveat (D-013):** POWER returns the cell containing the point, with no interpolation. The current study point sits 0.009° east of a cell boundary, so it is NOT the cell containing the Lucknow stations. Check cell membership before any point comparison.
+- **Grid-cell caveat (D-013):** POWER returns the cell containing the point, with no interpolation. Lucknow straddles a cell boundary, so there are two study areas in `config.STUDY_AREAS`: `lucknow` (eastern cell, default) and `lucknow_airport` (western cell, containing the stations). Datasets are matched to areas by requested coordinates (`store.area_of`), and endpoints take `?area=`. Check cell membership before any point comparison.
+- `backend/earthsignal/data/gsod.py` and `analysis/compare.py`: NOAA GSOD station 42369099999 compared against the western cell (D-014, D-015). **Never commit real GSOD data** (WMO Resolution 40); tests use synthetic GSOD-format rows. Only station days with at least 20 observations enter the metrics, because the observation count changed over time. GSOD precipitation is not usable for comparison.
 - `backend/earthsignal/api/main.py`: `create_app(processed_root)` factory. Routes: `/api/health`, `/api/datasets`, `/api/provenance`, `/api/timeseries`, `/api/trend`. Returns 404 (never fake data) when nothing has been ingested.
 - `frontend/src/`: React 18 with `plotly.js-basic-dist-min`. Vite proxies `/api` to `127.0.0.1:8000`. `format.ts` holds the pure, tested helpers.
 - Data labels: POWER values are `derived_estimate` (reanalysis), trend outputs are `derived_statistic`. Never label POWER data "observed".
@@ -51,7 +52,10 @@ For the MVP, deliberately not installed: PostgreSQL/PostGIS, Docker, xarray, geo
 Run from the repo root (PowerShell):
 ```powershell
 .venv\Scripts\python -m pip install -e "backend[dev]"            # backend setup
-.venv\Scripts\python -m earthsignal.data.ingest                   # download real POWER data (network)
+.venv\Scripts\python -m earthsignal.data.ingest                   # download real POWER data, eastern cell (network)
+.venv\Scripts\python -m earthsignal.data.ingest --area lucknow_airport   # western cell
+.venv\Scripts\python -m earthsignal.data.source_probe [--area ...]       # MERRA-2/GEOS-IT switch date
+.venv\Scripts\python -m earthsignal.data.gsod                     # NOAA GSOD station data (~2 min at ~40 KB/s)
 .venv\Scripts\python -m earthsignal.data.ingest --from-raw data\raw\<dataset_id>   # reprocess offline
 .venv\Scripts\python -m uvicorn earthsignal.api.main:app --app-dir backend --port 8000
 .venv\Scripts\python -m pytest backend                            # offline tests (network tests deselected)

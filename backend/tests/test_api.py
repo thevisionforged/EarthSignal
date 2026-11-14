@@ -96,6 +96,70 @@ def test_sensitivity_endpoint(synthetic_client):
     assert body["geosit_in_trend_window"] is None
 
 
+def test_areas_are_kept_separate(tmp_path, sample_doc, metadata_bytes):
+    """SYNTHETIC data for two areas: each area's endpoints must use only its own dataset."""
+    from earthsignal.config import LUCKNOW_AIRPORT
+
+    for area, trend_per_year in ((LUCKNOW, 0.0), (LUCKNOW_AIRPORT, 0.08)):
+        doc = synthetic_power_doc(sample_doc, "1990-01-01", "2020-12-31", seed=1, trend_per_year=trend_per_year)
+        payload = json.dumps(doc).encode()
+        get = lambda url, p=payload: metadata_bytes if "/system/manager/parameters" in url else p
+        raw = ingest.download(area, date(1990, 1, 1), date(2020, 12, 31), raw_root=tmp_path / "raw", http_get=get)
+        ingest.process(raw, processed_root=tmp_path / "processed")
+    client = TestClient(create_app(processed_root=tmp_path / "processed"))
+
+    areas = {a["key"]: a for a in client.get("/api/areas").json()}
+    assert areas["lucknow"]["dataset_id"].startswith("power_daily_lucknow_1990")
+    assert areas["lucknow_airport"]["dataset_id"].startswith("power_daily_lucknow_airport_")
+    east = client.get("/api/trend", params={"area": "lucknow"}).json()["result"]["sen_slope_per_decade"]
+    west = client.get("/api/trend", params={"area": "lucknow_airport"}).json()["result"]["sen_slope_per_decade"]
+    assert abs(east) < 0.3 and west == pytest.approx(0.8, abs=0.3)
+    assert client.get("/api/provenance", params={"area": "lucknow_airport"}).json()["requested"]["longitude"] == 80.889
+    assert client.get("/api/trend", params={"area": "nowhere"}).status_code == 422
+    assert {d["area"] for d in client.get("/api/datasets").json()} == {"lucknow", "lucknow_airport"}
+
+
+def test_missing_area_data_is_404(synthetic_client):
+    r = synthetic_client.get("/api/trend", params={"area": "lucknow_airport"})
+    assert r.status_code == 404 and "--area lucknow_airport" in r.json()["detail"]
+
+
+def test_station_comparison_endpoint(tmp_path, sample_doc, metadata_bytes):
+    """SYNTHETIC POWER (airport area) and SYNTHETIC GSOD-format station files."""
+    from earthsignal.config import LUCKNOW_AIRPORT
+    from earthsignal.data import gsod
+
+    from .test_gsod import row, year_csv
+
+    doc = synthetic_power_doc(sample_doc, "2005-01-01", "2020-12-31", seed=3, trend_per_year=0.0)
+    payload = json.dumps(doc).encode()
+    get = lambda url: metadata_bytes if "/system/manager/parameters" in url else payload
+    raw = ingest.download(LUCKNOW_AIRPORT, date(2005, 1, 1), date(2020, 12, 31), raw_root=tmp_path / "raw", http_get=get)
+    ingest.process(raw, processed_root=tmp_path / "processed")
+    client = TestClient(create_app(processed_root=tmp_path / "processed"))
+    assert client.get("/api/station-comparison").status_code == 404  # no station data yet
+
+    t2m = doc["properties"]["parameter"]["T2M"]
+    files = {}
+    for year in range(2005, 2021):
+        rows = [
+            row(f"{k[:4]}-{k[4:6]}-{k[6:]}", round(v * 9 / 5 + 32 + 0.9, 1), 24, "0.00", "G")
+            for k, v in t2m.items() if k.startswith(str(year))
+        ]
+        files[year] = year_csv(rows)
+    sraw = gsod.download("42369099999", range(2005, 2021), raw_root=tmp_path / "raw",
+                         http_get_status=lambda url: (200, files[int(url.split("/")[-2])]))
+    gsod.process(sraw, processed_root=tmp_path / "processed")
+
+    body = client.get("/api/station-comparison").json()
+    m = body["metrics_primary"]
+    assert m["mean_bias"] == pytest.approx(-0.5, abs=0.06)  # station = POWER + 0.9 F (0.5 C)
+    assert m["pearson_r"] > 0.999
+    assert "WMO Resolution 40" in body["licence_notice"]
+    assert body["power_area"] == "lucknow_airport"
+    assert body["diagnostics"] and body["limitations"]
+
+
 def test_provenance_endpoint(synthetic_client):
     body = synthetic_client.get("/api/provenance").json()
     assert body["request_url"].startswith("https://power.larc.nasa.gov/")

@@ -1,4 +1,10 @@
-"""Read access to processed datasets produced by earthsignal.data.ingest."""
+"""Read access to processed NASA POWER datasets produced by earthsignal.data.ingest.
+
+Each processed dataset lives in `<processed_root>/<dataset_id>/` with `daily.csv` and
+`provenance.json`. A dataset belongs to the study area whose coordinates match the requested
+coordinates in its provenance. Station datasets live under `<processed_root>/stations/` and are
+not returned here.
+"""
 
 from __future__ import annotations
 
@@ -8,6 +14,8 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+
+from earthsignal.config import STUDY_AREAS
 
 
 class NoDatasetError(LookupError):
@@ -21,12 +29,22 @@ class Dataset:
     provenance: dict[str, Any]
 
 
-def list_provenance(processed_root: Path) -> list[dict[str, Any]]:
+def area_of(prov: dict[str, Any]) -> str | None:
+    req = prov.get("requested", {})
+    for key, area in STUDY_AREAS.items():
+        if area.matches(req.get("latitude", 999), req.get("longitude", 999)):
+            return key
+    return None
+
+
+def list_provenance(processed_root: Path, area: str | None = None) -> list[dict[str, Any]]:
     out = []
     if not processed_root.exists():
         return out
     for prov_path in processed_root.glob("*/provenance.json"):
-        out.append(json.loads(prov_path.read_text()))
+        prov = json.loads(prov_path.read_text())
+        if area is None or area_of(prov) == area:
+            out.append(prov)
     out.sort(key=lambda p: p["retrieved_at_utc"], reverse=True)
     return out
 
@@ -37,12 +55,12 @@ def load_source_periods(processed_root: Path, dataset_id: str) -> dict[str, Any]
     return json.loads(path.read_text()) if path.exists() else None
 
 
-def load_dataset(processed_root: Path, dataset_id: str | None = None) -> Dataset:
-    provs = list_provenance(processed_root)
+def load_dataset(processed_root: Path, dataset_id: str | None = None, area: str | None = None) -> Dataset:
+    provs = list_provenance(processed_root, area)
     if not provs:
-        raise NoDatasetError(
-            "No processed NASA POWER dataset found. Run: python -m earthsignal.data.ingest"
-        )
+        where = f" for area {area!r}" if area else ""
+        cmd = "python -m earthsignal.data.ingest" + (f" --area {area}" if area else "")
+        raise NoDatasetError(f"No processed NASA POWER dataset found{where}. Run: {cmd}")
     if dataset_id is None:
         prov = provs[0]
     else:

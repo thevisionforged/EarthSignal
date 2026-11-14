@@ -1,66 +1,70 @@
 # NASA Space Apps demo outline (7 slides)
 
-Every claim below maps to something implemented and verified (see "Evidence"). Numbers are from dataset `power_daily_lucknow_19810101_20261113_20261114T173438Z`, retrieved 2026-11-14. If you re-run ingestion before the demo, refresh the numbers from the dashboard.
+Every claim below maps to something implemented and verified (see "Evidence").
+- **Source data:** POWER datasets retrieved 2026-11-14 (eastern cell `power_daily_lucknow_…T173438Z`, western cell `power_daily_lucknow_airport_…T210009Z`) and GSOD dataset `gsod_42369099999_1981_2025_…T210127Z`.
+- **Refresh before the demo:** if you re-run ingestion, take the numbers from the dashboard again.
 
-Not yet known: the specific Space Apps challenge this is entered under and its submission rules. Align slide 1 wording with the challenge statement once it is chosen.
+Not yet known: the specific Space Apps challenge and its submission rules. Align slide 1 wording with the challenge statement once it is chosen.
 
 ---
 
-## Slide 1: EarthSignal: understanding Lucknow's climate record honestly
+## Slide 1: EarthSignal: reading Lucknow's climate record honestly
 - Tagline: *Understand Reality. Simulate Possibilities. Anticipate Tomorrow.*
-- Problem: city-level climate claims often skip three things: where the data comes from, what kind of data it is, and whether a "trend" is statistically real.
-- What we built: an open pipeline and dashboard that turns 45 years of NASA data for Lucknow into trend results with provenance and stated caveats.
-- Scope today: **historical analysis only**. Forecasting is future work.
+- Problem: city climate claims often skip where the data comes from, what kind of data it is, and whether a "trend" survives basic checks.
+- Built: an open pipeline and dashboard that turns 45 years of NASA data for Lucknow into trend results, robustness checks, a station cross-check, provenance, and stated caveats.
+- Scope today: **historical analysis only**. No forecasts.
 - *Evidence:* README; dashboard header and banner.
 
 ## Slide 2: NASA data used
-- NASA POWER Daily API (NASA Langley Research Center), point request for Lucknow (26.85 N, 80.95 E).
-- Variables: `T2M`, 2 m air temperature (°C), and `PRECTOTCORR`, bias-corrected precipitation (mm/day). Definitions are quoted from NASA's parameter metadata.
-- What it is: **reanalysis**, meaning NASA GMAO MERRA-2 plus GEOS-IT for the most recent days. Model output constrained by observations, on a 0.5° × 0.625° grid cell. *Not* station or satellite readings, and the dashboard labels it that way.
-- Coverage: 1981-01-01 to 2026-11-11, with 16,751 of 16,753 days valid. The last 2 days are pending NASA's ~2-day latency.
-- *Evidence:* `provenance.json`; dashboard provenance card; DECISIONS D-004 and D-005.
+- NASA POWER Daily API (NASA Langley Research Center).
+- Variables: `T2M`, 2 m air temperature (°C), and `PRECTOTCORR`, bias-corrected precipitation (mm/day). Definitions are quoted from NASA's metadata.
+- What it is: **reanalysis**, meaning NASA GMAO MERRA-2 plus GEOS-IT for the latest weeks. Model output constrained by observations, on 0.5° × 0.625° cells. *Not* station or satellite readings, and the dashboard says so.
+- Lucknow straddles a cell boundary, so EarthSignal analyses **both cells** (east and west).
+- *Evidence:* `/api/areas`, `provenance.json`; DECISIONS D-004, D-005 and D-013.
 
 ## Slide 3: Pipeline and provenance (show it working)
-- Diagram: NASA POWER API → raw JSON (immutable, SHA-256 recorded) → validation → processed CSV and provenance record → FastAPI → React dashboard.
-- Recorded for every download: exact request URL, retrieval time (UTC), API version (v2.10.3), sources reported (MERRA2, GEOSIT), coordinates, units, definitions, date range, hashes, citation.
-- Missing values: NASA's fill marker is read from each response and becomes "missing", never zero.
-- Live: run `python -m earthsignal.data.ingest` (about 5 s) and show its coverage printout.
-- *Evidence:* `backend/earthsignal/data/`; tests in `test_power.py` and `test_ingest.py`.
+- Pipeline: NASA POWER API, then raw JSON (immutable, SHA-256), then validation, then processed CSV and provenance, then FastAPI, then React dashboard.
+- Recorded for every download: request URL, UTC retrieval time, API version (v2.10.3), sources (MERRA2, GEOSIT), coordinates, units, definitions, hashes, citation.
+- Missing values: NASA's fill marker becomes "missing", never zero.
+- Source switch date measured, not assumed: MERRA-2 to 2026-09-30, GEOS-IT from 2026-10-01. The trend window is all MERRA-2.
+- Live: `python -m earthsignal.data.ingest` (about 5 s).
+- *Evidence:* `backend/earthsignal/data/`; `test_power.py`, `test_ingest.py`, `test_source_probe.py`.
 
 ## Slide 4: Dashboard walkthrough (live)
-- Temperature tab: monthly means, annual means and Sen's slope line, with the reanalysis label visible.
-- Switch to the precipitation tab.
-- Provenance card: request URL, retrieval time, variable definitions, citation.
-- *Evidence:* `frontend/src/App.tsx`. Manual browser check is still required before the demo (see TASKS).
+- Switch between the eastern and western cells, and between temperature and precipitation.
+- Trend card: plain verdict, Sen's slope with CI, corrected p, and "how to read these numbers".
+- Robustness charts (start and end year), seasonal table, station check, provenance.
+- *Evidence:* `frontend/src/`. A manual browser check is required before the demo.
 
-## Slide 5: Finding 1: no significant temperature trend
-- Sen's slope −0.16 °C/decade (95% CI −0.29 to −0.01), 1981–2025, 45 annual means.
-- Naive Mann-Kendall p = 0.035 and OLS p = 0.026 would say "significant cooling".
-- After correcting for autocorrelation (Yue & Wang 2004), p = 0.18: **not significant**.
-- Annual means rose into the 1990s and declined after about 2002: multi-decadal variability, not a steady trend.
-- Message: the tool stops a misleading headline.
-- *Evidence:* `/api/trend?variable=T2M`; IMPLEMENTATION_LOG trend table; `test_trend.py` (false-positive tests).
+## Slide 5: Finding 1: no robust temperature trend
+- 1981–2025: −0.16 °C/decade in the eastern cell (corrected p 0.18), −0.12 in the western cell (p 0.35). **Not significant.**
+- Naive tests (uncorrected Mann-Kendall, OLS) would have said "significant cooling". Correcting for autocorrelation removes that.
+- Starting the analysis in 1983–1995 *would* give significant cooling, so the verdict depends on the window. EarthSignal flags this and reports the full period.
+- No season is significant after the multiple-testing correction.
+- *Evidence:* `/api/trend`, `/api/sensitivity`, `/api/seasonal`; IMPLEMENTATION_LOG.
 
-## Slide 6: Finding 2: precipitation, with a caveat
-- Sen's slope +0.24 mm/day per decade (95% CI +0.10 to +0.38), corrected p = 0.014: significant *in this dataset*.
-- But NASA's own validation of POWER daily precipitation against stations: R² 0.39 (versus 0.97 for temperature).
-- So EarthSignal reports it as needing independent confirmation, not as a fact about Lucknow's rainfall.
-- No cause is claimed for either result.
-- *Evidence:* `/api/trend?variable=PRECTOTCORR`; limitations list in the API output.
+## Slide 6: Finding 2: checking against a real thermometer
+- NOAA GSOD station at Lucknow airport, compared with the POWER cell that contains it.
+- Monthly agreement is high (r 0.977), with a +0.63 °C mean offset that is strongly seasonal: +3 °C in May and June, −1 °C in September and October.
+- 2006–2023: station +0.10 °C/decade, POWER −0.26 °C/decade, difference **−0.30 °C/decade (p 0.017)**. The records drift apart, so POWER's recent cooling is not what the thermometer saw. Cause unknown.
+- Precipitation: significant in one cell (+0.24 mm/day/decade, p 0.014) but **not** in the neighbouring cell (p 0.079), and driven by recent years. The station's rain reports are too incomplete to check it. **Not a robust finding.**
+- Station data notice (WMO Resolution 40): non-commercial research use; shown with attribution.
+- *Evidence:* `/api/station-comparison`; DECISIONS D-015.
 
 ## Slide 7: Scientific integrity and next steps
-- Built in: observed versus derived labels, immutable raw data, chronological cutoff, corrected significance tests, rule-based diagnostics, a written limitations list, 45 backend tests and 6 frontend tests.
+- Built in: observed versus derived labels, immutable raw data, measured source boundary, corrected significance tests, FDR across seasons, robustness windows, a station cross-check with a homogeneity rule, rule-based diagnostics, written limitations. 70 backend tests and 6 frontend tests.
 - Next, planned and **not built**:
-  1. Compare against an independent Lucknow station record.
-  2. Seasonal trends and sensitivity checks.
-  3. A chronological backtesting harness with simple baselines, before any forecast is shown.
-  4. Additional NASA datasets (for example GPM IMERG precipitation), after access review.
+  1. Chronological backtesting harness with simple baselines, before any forecast is shown.
+  2. Investigate the POWER−station drift (station history, MERRA-2 inputs).
+  3. An independent precipitation source (for example NASA GPM IMERG), after access review.
 - Team: AstraelForge (TheVisionForged).
-- Data citation: NASA LaRC POWER Project, funded through the NASA Earth Science Division; Daily API v2.10.3, accessed 2026-11-14.
+- Citations: NASA LaRC POWER Project, funded through the NASA Earth Science Division (Daily API v2.10.3, accessed 2026-11-14). NOAA NCEI Global Surface Summary of the Day (accessed 2026-11-14).
 
 ---
 
 ### Claims to avoid in the submission
-- Do not say "satellite data" for these variables, "observed temperatures", "forecast", "AI predicts", or "Lucknow is cooling" / "Lucknow is getting wetter" as facts.
-- Do not call the precipitation result confirmed.
-- Do not imply city-street-scale or urban-heat-island resolution.
+- "Satellite data" for these variables, "observed temperatures" for POWER, "forecast", or "AI predicts".
+- "Lucknow is cooling" or "Lucknow is getting wetter" stated as facts.
+- Calling the precipitation result confirmed, or saying POWER is "validated" in general. Only monthly temperature agreement was checked, and it shows a drift.
+- Implying street-scale or urban-heat-island resolution.
+- Naming a cause for the POWER−station drift.

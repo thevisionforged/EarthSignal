@@ -9,7 +9,7 @@ Assumption (checked at both ends, not at every day): the source is MERRA2 up to 
 GEOSIT after it. The boundary moves forward as NASA back-fills MERRA-2, so the result is only
 valid at the probe time, which is recorded.
 
-Usage:  python -m earthsignal.data.source_probe            # probes, stores raw, writes result
+Usage:  python -m earthsignal.data.source_probe [--area lucknow_airport]   # probes, stores raw, writes result
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any, Callable
 
-from earthsignal.config import LUCKNOW, PROCESSED_DIR, RAW_DIR, StudyArea
+from earthsignal.config import DEFAULT_AREA, PROCESSED_DIR, RAW_DIR, STUDY_AREAS, StudyArea
 from earthsignal.data import power, store
 from earthsignal.data.ingest import _http_get, _repo_relative
 
@@ -72,13 +72,16 @@ def find_boundary(
             "probes": probes, "_payloads": payloads}
 
 
-def run(processed_root: Path = PROCESSED_DIR, raw_root: Path = RAW_DIR, http_get=_http_get) -> dict[str, Any]:
-    ds = store.load_dataset(processed_root)
+def run(
+    processed_root: Path = PROCESSED_DIR, raw_root: Path = RAW_DIR, http_get=_http_get, area_key: str = DEFAULT_AREA
+) -> dict[str, Any]:
+    area = STUDY_AREAS[area_key]
+    ds = store.load_dataset(processed_root, area=area_key)
     last_valid = max(v["last_valid"] for v in ds.provenance["validation"]["variables"].values())
     first = date(2020, 1, 1)
     last = date.fromisoformat(last_valid)
     retrieved_at = power.utc_now()
-    result = find_boundary(LUCKNOW, first, last, http_get)
+    result = find_boundary(area, first, last, http_get)
 
     probe_dir = raw_root / f"{ds.dataset_id}__source_probe_{retrieved_at:%Y%m%dT%H%M%SZ}"
     for day, payload in result.pop("_payloads"):
@@ -102,8 +105,12 @@ def run(processed_root: Path = PROCESSED_DIR, raw_root: Path = RAW_DIR, http_get
     return record
 
 
-def main() -> int:
-    rec = run()
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--area", choices=sorted(STUDY_AREAS), default=DEFAULT_AREA)
+    rec = run(area_key=ap.parse_args(argv).area)
     print(f"dataset {rec['dataset_id']}: GEOS-IT present={rec['geosit_present']}")
     print(f"  last MERRA-2 day: {rec['last_merra2_day']}   first GEOS-IT day: {rec['first_geosit_day']}")
     print(f"  {len(rec['probes'])} single-day requests; raw responses in {rec['raw_probe_dir']}")
