@@ -58,7 +58,12 @@ Not yet known: the specific Space Apps challenge and its submission rules. Align
 - Monthly totals agree closely (r 0.96–0.97; MERRA-2 is 3–7% wetter).
 - Trend 1998–2024: MERRA-2 **+0.41 / +0.25 mm/day per decade** (east/west, significant). IMERG **−0.00 / −0.04** (no trend).
 - The products track each other until 2014, then diverge: the mean difference goes from −8 to +172 mm/yr in the east, with the same pattern in the west. That is the TRMM-to-GPM satellite transition, but the data cannot tell which product changed.
-- **Message:** POWER's rainfall increase is not supported by a second NASA dataset. EarthSignal shows the disagreement instead of picking a winner.
+- **Message:** POWER's rainfall increase is not supported by a second NASA dataset.
+- **Milestone 4, against IMD rain gauges:**
+  - In the western cell, POWER drifts away from the gauges (+129 mm/yr per decade, p 0.02) while IMERG matches them.
+  - In both cells, POWER jumps relative to the gauges at 2006, the documented year its gauge input (NOAA CPC) switched versions.
+  - Local CPC gauge counts did not change, so the mechanism is open.
+- *Evidence:* `/api/precip-arbitration`; `docs/research/PRECIP_DIVERGENCE_INVESTIGATION.md`.
 - *Evidence:* `/api/precip-comparison`, CSV downloads; DECISIONS D-019.
 
 ## Slide 7: Scientific integrity and next steps
@@ -79,4 +84,6 @@ Not yet known: the specific Space Apps challenge and its submission rules. Align
 - Implying street-scale or urban-heat-island resolution.
 - Naming a cause for the POWER−station drift.
 - Saying IMERG "validates" or "disproves" POWER. They are related products. Say they **disagree on the trend**.
+- Saying "MERRA-2 is wrong" in general, or that the 2006 shift was *caused* by losing gauges. Local counts did not drop. Say "shifts relative to IMD gauges at a documented input change".
+- Treating IMD as truth. It is a gauge-based reference with a varying network.
 - Saying the IMERG data came straight from GES DISC. It came via POWER; native files need Earthdata Login and were not used.

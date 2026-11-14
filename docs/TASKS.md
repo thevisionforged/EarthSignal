@@ -69,7 +69,17 @@ Priority order. Status: `[x]` done and tested · `[~]` in progress · `[ ]` not 
 - [x] Phase 6: tests for download integrity, metadata, parsing, units, missing values, temporal alignment, spatial aggregation, comparison calculations and API (backend 99, frontend 7)
 - [x] Phase 7: docs updated
 - [ ] Manual browser check of the new view (user)
-- [ ] Investigate which product changed around 2014 (MERRA-2 correction inputs vs IMERG calibration)
+- [x] Investigate which product changed around 2014 (done in Milestone 4)
+
+## Milestone 4: explain the POWER/IMERG precipitation divergence
+- [x] Documented MERRA-2's corrected-precipitation input over Lucknow: CPCU, switching from V1.0 to real-time in 2006 (D-022)
+- [x] Gauge reference: IMD 0.25° gridded rainfall, 1998–2024 acquired and format-verified (D-021)
+- [x] Arbitration analysis with pre-registered break dates and a corrected verdict rule (D-023), `/api/precip-arbitration`
+- [x] CPC gauge-count sample (2 monsoon days per year, 1998–2024)
+- [x] Dashboard card: "Which product matches the rain gauges?"
+- [x] Research write-up `docs/research/PRECIP_DIVERGENCE_INVESTIGATION.md`
+- [ ] CPCU precipitation series via NOAA PSL (blocked by PSL 429/502; retry later)
+- [ ] Manual browser check of the new card (user)
 - [ ] Decide whether gridded data justifies xarray/rasterio (not needed so far; POWER point requests suffice)
 
 ## Deferred / backlog

@@ -221,7 +221,7 @@ export const api = {
 
 export interface SourceMetadata {
   dataset_id: string;
-  source_type: "nasa_power_met" | "noaa_gsod" | "nasa_power_imerg";
+  source_type: "nasa_power_met" | "noaa_gsod" | "nasa_power_imerg" | "imd_gridded" | "noaa_cpcu";
   provider: string;
   distributor: string;
   product_id: string;
@@ -297,4 +297,55 @@ export const multiApi = {
   sources: () => getJson<SourceMetadata[]>("/api/sources"),
   precip: (area: string) => getJson<PrecipComparison>(`/api/precip-comparison?${q({ area })}`),
   csvUrl: (area: string, level: "monthly" | "daily") => `/api/precip-comparison.csv?${q({ area, level })}`,
+};
+
+// ---------------- Milestone 4: gauge-reference arbitration ----------------
+
+interface TrendM4 {
+  sen_slope_per_decade: number;
+  ci95_per_decade: [number, number];
+  modified_mk_p_value: number;
+  significant_at_0_05: boolean;
+  n_years: number;
+}
+
+interface BreakM4 {
+  year: number;
+  available: boolean;
+  reason?: string;
+  mean_pre_mm?: number;
+  mean_post_mm?: number;
+  mann_whitney_p?: number;
+}
+
+export interface Arbitration {
+  area: string;
+  period: [number, number];
+  n_years: number;
+  trends: Record<"merra2" | "imerg" | "imd", TrendM4>;
+  vs_reference: Record<"merra2" | "imerg", {
+    monthly_r: number;
+    monthly_anomaly_r: number;
+    annual_r: number;
+    mean_ratio: number;
+    annual_rmse_mm: number;
+    difference_trend: TrendM4;
+    breaks: Record<string, BreakM4>;
+  }>;
+  annual: { years: number[]; merra2: number[]; imerg: number[]; imd: number[] };
+  reference_trend_robustness: { slope_min: number; slope_max: number; n_significant: number; n_cases: number };
+  verdicts: string[];
+  cpc_gauge_counts: {
+    date: string;
+    version: string;
+    gauges_in_cell_boxes: number;
+    gauges_in_neighbourhood: number;
+    gauges_global: number;
+  }[] | null;
+  method: string[];
+  reference_metadata: { citation: string; quality_limitations: string[] };
+}
+
+export const m4Api = {
+  arbitration: (area: string) => getJson<Arbitration>(`/api/precip-arbitration?${q({ area })}`),
 };

@@ -32,6 +32,9 @@ function resolveColors(trace: Record<string, unknown>): Record<string, unknown> 
     if (!part) return part;
     const next = { ...part };
     if (typeof next.color === "string" && next.color.startsWith("--")) next.color = cssVar(next.color);
+    if (Array.isArray(next.color)) {
+      next.color = next.color.map((c) => (typeof c === "string" && c.startsWith("--") ? cssVar(c) : c));
+    }
     if (next.line) next.line = fix(next.line as Record<string, unknown>);
     return next;
   };

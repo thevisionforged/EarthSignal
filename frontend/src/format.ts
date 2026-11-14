@@ -29,6 +29,8 @@ export function sourceLabel(s: { source_type: string; area?: string | null }): s
       return `GPM IMERG via POWER (${cell})`;
     case "noaa_gsod":
       return "NOAA GSOD airport station";
+    case "imd_gridded":
+      return "IMD rain-gauge grid (both cells)";
     default:
       return s.source_type;
   }

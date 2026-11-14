@@ -20,9 +20,9 @@ from earthsignal.analysis import compare as compare_mod
 from earthsignal.analysis import seasonal as seasonal_mod
 from earthsignal.analysis import sensitivity as sensitivity_mod
 from earthsignal.analysis import trend as trend_mod
-from earthsignal.analysis import multisource
+from earthsignal.analysis import arbiter, multisource
 from earthsignal.config import DEFAULT_AREA, PROCESSED_DIR, STUDY_AREAS
-from earthsignal.data import gsod, imerg_power, store
+from earthsignal.data import cpc, gsod, imd, imerg_power, store
 from earthsignal.metadata import describe
 
 MONTHLY_MIN_COVERAGE = 0.9
@@ -53,7 +53,7 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
             "endpoints": [
                 "/api/health", "/api/datasets", "/api/provenance", "/api/timeseries", "/api/trend",
                 "/api/seasonal", "/api/sensitivity", "/api/areas", "/api/station-comparison",
-                "/api/backtest", "/api/sources", "/api/precip-comparison", "/api/precip-comparison.csv",
+                "/api/backtest", "/api/sources", "/api/precip-comparison", "/api/precip-comparison.csv", "/api/precip-arbitration",
             ],
             "docs": "/docs",
             "ui": "Run the frontend (cd frontend; npm run dev) and open the URL Vite prints.",
@@ -307,6 +307,9 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
             imerg = imerg_power.latest(processed_root, key)
             if imerg:
                 out.append({**describe(imerg[1]).model_dump(), "area": key})
+        imd_loaded = imd.latest(processed_root)
+        if imd_loaded:
+            out.append({**describe(imd_loaded[1]).model_dump(), "area": None})
         return out
 
     def _precip(area: str) -> tuple[dict, dict, pd.DataFrame]:
@@ -346,6 +349,39 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
                 "IMERG Final uses MERRA-2 atmospheric fields for morphing and GPCC gauges for monthly calibration. "
                 "Agreement is consistency between related products, not independent validation."
             ),
+        }
+
+    @app.get("/api/precip-arbitration")
+    def precip_arbitration(area: str = DEFAULT_AREA) -> dict:
+        """Milestone 4: MERRA-2 and IMERG against the IMD rain-gauge analysis (D-023)."""
+        _, iprov, frame = _precip(area)
+        loaded = imd.latest(processed_root)
+        if loaded is None:
+            raise HTTPException(status_code=404, detail="No IMD dataset. Run: python -m earthsignal.data.imd <years> then --process")
+        imdf, mprov = loaded
+        daily = pd.DataFrame({
+            "merra2": frame["merra2_prectotcorr_utc_mm_day"],
+            "imerg": frame["imerg_area_mean_mm_day"].where(frame.index <= pd.Timestamp(imerg_power.FINAL_RUN_END)),
+            "imd": imdf[f"imd_{area}_mm_day"],
+        })
+        try:
+            res = arbiter.arbitrate(daily)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        gauges = cpc.latest_gauge_counts(processed_root)
+        return {
+            "area": area,
+            "datasets": {"imerg_power": iprov["dataset_id"], "imd": mprov["dataset_id"]},
+            "reference_metadata": mprov["metadata"],
+            **res,
+            "verdicts": arbiter.verdicts(res),
+            "cpc_gauge_counts": gauges.get(area) if gauges else None,
+            "method": [
+                "IMD 0.25° gauge analysis averaged over the same MERRA-2 cell (overlap x cos(lat) weights) is the reference.",
+                "Monthly and annual totals only (IMD day boundary undocumented); complete months/years only; 1998–2024.",
+                "Primary test per product: trend of (product − IMD). Break tests at 2006 and 2014 were fixed in advance "
+                "from documentation and use a Bonferroni-corrected level.",
+            ],
         }
 
     @app.get("/api/precip-comparison.csv", response_class=PlainTextResponse)

@@ -24,7 +24,7 @@ class VariableInfo(BaseModel):
 
 class DatasetMetadata(BaseModel):
     dataset_id: str
-    source_type: Literal["nasa_power_met", "noaa_gsod", "nasa_power_imerg"]
+    source_type: Literal["nasa_power_met", "noaa_gsod", "nasa_power_imerg", "imd_gridded", "noaa_cpcu"]
     provider: str
     distributor: str
     product_id: str

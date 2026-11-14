@@ -36,6 +36,11 @@ Environment audit (2026-11-14): Windows 11, **7.7 GB physical RAM** (often only 
   - Use IMERG data only up to the Final-run end (`imerg_power.FINAL_RUN_END`, 2025-09-30).
   - Native GES DISC IMERG needs Earthdata Login. Never handle the user's credentials; see `docs/research/GPM_IMERG_RESEARCH.md` §5.
   - POWER responses with non-empty `messages` are rejected (D-020).
+- **Milestone 4, gauge reference:**
+  - `data/imd.py`: IMD 0.25° binary, little-endian, (days, lat S→N, lon W→E), −999 = missing. Byte count is checked on download.
+  - `data/cpc.py`: CPCU, with gauge counts from the CPC HTTPS archive. File naming varies by year, including `.gz`.
+  - `analysis/arbiter.py`: one primary test per product (trend of product − IMD), plus break tests at the **pre-registered** dates 2006 and 2014 with Bonferroni correction (D-023). Never add break dates chosen from the data.
+  - IMD's day boundary is undocumented, so compare it monthly or annually only.
 - `backend/earthsignal/api/main.py`: `create_app(processed_root)` factory. Routes: `/api/health`, `/api/datasets`, `/api/provenance`, `/api/timeseries`, `/api/trend`. Returns 404 (never fake data) when nothing has been ingested.
 - `frontend/src/`: React 18 with `plotly.js-basic-dist-min`. Vite proxies `/api` to `127.0.0.1:8000`. `format.ts` holds the pure, tested helpers.
 - Data labels: POWER values are `derived_estimate` (reanalysis), trend outputs are `derived_statistic`. Never label POWER data "observed".

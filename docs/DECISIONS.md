@@ -165,5 +165,30 @@ The sources_meteorology page explains that PRECTOTCORR uses MERRA-2's observatio
 - **Retries:** transport errors (connection reset, timeout) are retried up to 3 times with 2, 5 and 15 s backoff. HTTP error statuses are never retried. This followed a real connection reset by the server during the first IMERG sample.
 - **No regression:** existing Milestone 1–2 POWER raw data reprocesses under the new rules into byte-identical processed data.
 
+## D-021: IMD 0.25° gridded rainfall as the gauge reference (2026-11-15, Milestone 4)
+- **Why IMD:**
+  - It is the densest gauge analysis for India (6,955 stations, Shepard interpolation; Pai et al. 2014).
+  - It's public with no login, in a binary format readable with numpy alone, so no new dependency.
+- **Rejected alternatives:**
+  - CHIRPS: the IRI Data Library now requires sign-in, and CHIRPS v3's daily data is derived from IMERG or ERA5, so it is not independent of IMERG.
+  - GPCP daily: hosted at GES DISC, so it needs Earthdata Login.
+- **Use rules:**
+  - The format was verified against geography before use.
+  - Comparisons are monthly and annual only, because IMD's rainfall-day boundary is undocumented in the sources read.
+  - IMD is a **reference, not truth**: its network varies over time and may share stations with CPC and GPCC.
+  - Raw files are never committed, because no explicit licence was found.
+
+## D-022: MERRA-2 corrected precipitation input over Lucknow (documented)
+- **Input:** NASA/TM-2014-104606 Vol. 35, Table 3: MERRA-2 over global land excluding Africa uses **CPCU** (NOAA CPC Unified daily gauge analysis), with "V1.0" for 1979–2005 and "real-time" from 2006.
+- **Network change:** the CPC README gives "30K+ gauges" for the retrospective version and "~17K gauges" for the real-time version.
+- **Pre-registered test date:** 2006, fixed from these documents before testing.
+- **Access:** CPC's HTTPS archive (daily files with gauge counts) is public. NOAA PSL OPeNDAP returned 429 then 502 during this work, so the CPCU precipitation series was not obtained.
+
+## D-023: Arbitration test design
+- **Primary test:** one per product, the full-period trend of (product − IMD) on annual totals.
+- **Supporting break tests:** at pre-registered dates (2006 CPCU switch, 2014 TRMM→GPM), using Mann-Whitney on annual differences, transition year excluded, Bonferroni α = 0.025.
+- **Reference robustness:** IMD's own trend is checked by leaving out one year at a time.
+- **Correction:** the first rule (any of three tests at p < 0.05 counts as "departs") overstated the eastern cell and was replaced before any result was reported.
+
 ## D-009: Lightweight frontend (2026-11-14)
 - **Decision:** Vite + React + TypeScript with `plotly.js-basic-dist-min` (the smallest Plotly bundle with scatter and line traces) and no UI framework. The Vite dev server proxies `/api` to `127.0.0.1:8000`. Playwright is deferred because its browser download is large; Vitest covers the frontend logic.

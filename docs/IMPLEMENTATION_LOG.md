@@ -211,3 +211,34 @@ Newest entries at the bottom. Record only what was actually done and verified.
   - `pytest backend`: 99 passed, 1 deselected. `pytest -m network`: 1 passed.
   - `npm test`: 7 passed; typecheck clean; build OK (434 kB gzipped).
   - Temporary-server smoke test of 10 routes: all 200, unknown area 422. The CSVs carry provenance headers.
+- Committed and pushed as `8c78e6a`.
+
+## 2026-11-15: Milestone 4, explaining the precipitation divergence
+- **Start state:** clean, at `8c78e6a`. The user chose this focus out of four options.
+- **Research:**
+  - CHIRPS and IMD were investigated through a web-fetch agent; CHIRPS was rejected (D-021).
+  - The MERRA-2 correction input was found in NASA/TM-2014-104606 Vol. 35 (NTRS 20150000725): MERRA-2 over land excluding Africa uses CPCU, V1.0 for 1979–2005 and real-time from 2006. The journal paper (Reichle et al. 2017) returned HTTP 403.
+  - The CPC README gives "30K+ gauges" for 1979–2005 and "~17K" for 2006 onward.
+  - IMD method from Pai et al. (2014), fetched from IMD's own site: 6,955 gauges, Shepard interpolation, varying network.
+  - PDFs were text-extracted with scratchpad `pypdf`, run in `-I` mode.
+- **IMD acquisition:** 1998–2024, 27 yearly binary files (656 MB raw), each byte count checked. Format verified on the 2024 file against geography and byte order. Processed to `imd_rf025_lucknow_1998_2024`, with no missing days in either cell.
+- **CPC:**
+  - The NOAA PSL OPeNDAP subset returned 429, then 502 on two later attempts (handled politely, nothing written). Recorded as a blocker.
+  - The CPC HTTPS archive gauge sample covers 54 days (15 July and 15 August, 1998–2024). The first run missed 2006–2008 because of `.gz` naming; it was fixed and fetched separately.
+  - Format verified: the 2014-07-15 global total is 16,807, against the README's "~17K".
+- **Results:**
+  - The arbitration table and the gauge-count table are in `docs/research/PRECIP_DIVERGENCE_INVESTIGATION.md`.
+  - Western cell: MERRA-2 drifts from IMD (+129 mm/yr per decade, p 0.02) and IMERG does not.
+  - Both cells: MERRA-2 shifts relative to IMD across 2006 (p 0.022 east, 0.008 west).
+  - Eastern cell: not settled, and its IMD trend is fragile.
+  - Local CPC gauges did **not** fall at 2006 (about 5–6 within ±2° before and after), so the "lost gauges" hypothesis is **not supported**.
+- **Corrections made during the work:**
+  1. A verdict rule that overstated the eastern cell was replaced (D-023).
+  2. An unsupported IMD rainfall-day claim was removed from the metadata.
+  3. A test of mine assumed an IMD box belonged to one cell, but boxes centred at 81.0° E straddle the cell boundary.
+  4. The chart helper did not resolve per-bar colour arrays.
+  5. The CPC URL list missed the `.gz` names.
+- **Verification:**
+  - `pytest backend`: 115 passed, 1 deselected. `pytest -m network`: 1 passed.
+  - `npm test`: 7 passed; typecheck clean; build OK.
+  - Temporary-server smoke test: `/api/precip-arbitration` 200 for both cells with 54 gauge rows; unknown area 422.

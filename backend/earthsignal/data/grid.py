@@ -53,6 +53,22 @@ def _edges(lo: float, hi: float, d: float) -> list[tuple[float, float]]:
     return [(round(k * d, 6), round((k + 1) * d, 6)) for k in range(k0, k1)]
 
 
+def overlap_weights(lat_centres, lon_centres, dlat: float, dlon: float, box: Box) -> list[tuple[int, int, float, float, float, float]]:
+    """Generic cell-centred grid: cells overlapping `box` as (lat_index, lon_index, lat, lon, overlap_fraction,
+    weight), where weight = overlap_fraction * cos(lat), normalised to sum to 1."""
+    rows = []
+    for j, la in enumerate(lat_centres):
+        fy = (min(la + dlat / 2, box.north) - max(la - dlat / 2, box.south)) / dlat
+        if fy <= 0:
+            continue
+        for i, lo in enumerate(lon_centres):
+            fx = (min(lo + dlon / 2, box.east) - max(lo - dlon / 2, box.west)) / dlon
+            if fx > 0:
+                rows.append((j, i, float(la), float(lo), fx * fy, fx * fy * math.cos(math.radians(la))))
+    total = sum(r[5] for r in rows)
+    return [(j, i, la, lo, frac, w / total) for j, i, la, lo, frac, w in rows]
+
+
 def imerg_cells_in(box: Box) -> list[SubCell]:
     """All IMERG 0.1 deg cells overlapping `box`, with area weights for an area-mean over `box`."""
     raw = []

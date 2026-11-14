@@ -7,6 +7,7 @@ EarthSignal aims to become a Predictive Earth Intelligence System. It starts wit
 
 - ingests real NASA POWER daily data (2 m air temperature and corrected precipitation, 1981 to the present)
 - adds NASA GPM IMERG satellite-gauge precipitation (1998 onward) and NOAA station temperature as comparison sources
+- checks precipitation against the India Meteorological Department (IMD) rain-gauge analysis
 - records full provenance for every download
 - validates the data
 - computes a statistically defensible long-term trend with its caveats
@@ -75,6 +76,15 @@ Both are averaged over the same MERRA-2 cell, on UTC days, in mm, for 1998-01-01
 - **Trend:** **IMERG does not show the precipitation increase seen in MERRA-2.** The products diverge after the 2014 TRMM-to-GPM transition in both cells. These data cannot tell which product changed.
 - **Conclusion:** the POWER precipitation trend for Lucknow is **not supported** by a second NASA source.
 
+**Which product matches the rain gauges? (Milestone 4)**
+
+Reference: IMD's 0.25° gridded rain-gauge analysis (Pai et al. 2014), averaged over the same cells. Annual totals, 1998–2024.
+- **Western cell:** the gauges show **no trend** (−40 mm/yr per decade, p 0.35). POWER/MERRA-2 **drifts away from them** (+129, p 0.02) and IMERG does not.
+- **Both cells:** MERRA-2 shifts upward relative to the gauges across **2006** (p 0.022 and 0.008). That is the year its documented input, NOAA CPC's gauge analysis, switched from the retrospective version (30K+ gauges) to the real-time version (~17K) (NASA TM-2014-104606 Vol. 35; CPC README).
+- **Local gauges:** the number of CPC gauges near Lucknow did **not** fall at 2006 (about 5–6 within ±2° before and after), so the cause of the shift is not established.
+- **Eastern cell:** the gauges show a fragile increase, so that cell does not settle the question.
+- **Conclusion:** no Lucknow precipitation trend should be stated. Details: `docs/research/PRECIP_DIVERGENCE_INVESTIGATION.md`.
+
 Re-running ingestion later produces a new dataset, and the numbers may change slightly as NASA updates the record.
 
 ## Limitations
@@ -84,6 +94,9 @@ Re-running ingestion later produces a new dataset, and the numbers may change sl
 - The station record is not homogeneous: daily means came from 6–8 observations before about 1996 and 20–24 from about 2005. That is why the station check covers only the recent period. It is also not fully independent, since MERRA-2 may assimilate this station's reports.
 - A trend describes change. It does not identify a cause, and extrapolating it is not a forecast.
 - IMERG trends across 2014 (TRMM to GPM) and 2005 (sensor changes) may contain artifacts (NASA caveats). POWER's IMERG values have not yet been checked against native GES DISC files.
+
+## IMD data notice
+IMD gridded rainfall is downloaded from imdpune.gov.in. No licence terms were found on the download pages. IMD asks for citation of Pai et al. (2014), MAUSAM 65(1), 1–18. Raw IMD files are **not** included in this repository.
 
 ## Station data notice
 NOAA NCEI GSOD data for non-U.S. stations are subject to WMO Resolution 40 (Cg-XII). They are intended for free and unrestricted use in research, education and other non-commercial activities. Non-U.S. data and derived products must not be used commercially. Raw GSOD files are **not** included in this repository; the download command below fetches them from NOAA.
@@ -110,6 +123,8 @@ cd frontend; npm install; cd ..
 .venv\Scripts\python -m earthsignal.data.gsod                            # NOAA station data, 1981 to last year (~2 min)
 .venv\Scripts\python -m earthsignal.data.imerg_power --area lucknow      # GPM IMERG via POWER: 42 cells + MERRA-2 UTC (~10 min)
 .venv\Scripts\python -m earthsignal.data.imerg_power --area lucknow_airport
+.venv\Scripts\python -m earthsignal.data.imd 1998 1999 2000                 # IMD gauge grid, ~25 MB per year (list the years you need)
+.venv\Scripts\python -m earthsignal.data.imd --process                       # area means over both cells
 ```
 - **POWER downloads:** 1981-01-01 to yesterday (UTC), into a new, never-overwritten folder at `data/raw/<dataset_id>/`. Each run writes `data/processed/<dataset_id>/daily.csv` and `provenance.json` and prints coverage and warnings. Options: `--start`, `--end`, `--area`, and `--from-raw <folder>` (reprocess offline).
 - **Station data:** GSOD files go to `data/raw/stations/` and `data/processed/stations/`.

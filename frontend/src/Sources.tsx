@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { ArbitrationCard } from "./Arbitration";
 import Chart from "./Chart";
 import { multiApi, PrecipComparison, SourceMetadata } from "./api";
 import { dataKindLabel, formatP, signed } from "./format";
@@ -42,6 +43,7 @@ export function SourcesView({ area, areaLabel }: { area: string; areaLabel: stri
         </section>
       )}
       {precip.state === "ok" && <PrecipCard c={precip.data} area={area} areaLabel={areaLabel} />}
+      <ArbitrationCard area={area} areaLabel={areaLabel} />
     </>
   );
 }
