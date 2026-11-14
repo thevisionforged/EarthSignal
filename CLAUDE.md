@@ -23,6 +23,9 @@ Environment audit (2026-11-14): Windows 11, **7.7 GB physical RAM** (often only 
 - `backend/earthsignal/data/ingest.py`: CLI. `download()` creates `data/raw/<dataset_id>/` (response, parameter metadata, request record). `process()` reads raw and writes `data/processed/<dataset_id>/daily.csv` and `provenance.json`. A new dataset_id is created per run, and raw files are never overwritten.
 - `backend/earthsignal/data/store.py`: loads the newest processed dataset (by `retrieved_at_utc`).
 - `backend/earthsignal/analysis/trend.py`: annual means (≥95% coverage, cutoff of retrieval date − 2 months per NASA guidance), Mann-Kendall plus Yue-Wang correction (decides significance), Sen's slope and CI, OLS cross-check, and rule-based `diagnostics`.
+- `backend/earthsignal/analysis/seasonal.py` (IMD seasons, Benjamini-Hochberg FDR) and `sensitivity.py` (start/end-year windows of at least 20 years, plus diagnostics). Both reuse `trend.analyze_trend`. Never pick a window after looking at the results (D-011).
+- `backend/earthsignal/data/source_probe.py`: measures the MERRA-2/GEOS-IT boundary with single-day requests and writes `source_periods.json` (D-012).
+- **Grid-cell caveat (D-013):** POWER returns the cell containing the point, with no interpolation. The current study point sits 0.009° east of a cell boundary, so it is NOT the cell containing the Lucknow stations. Check cell membership before any point comparison.
 - `backend/earthsignal/api/main.py`: `create_app(processed_root)` factory. Routes: `/api/health`, `/api/datasets`, `/api/provenance`, `/api/timeseries`, `/api/trend`. Returns 404 (never fake data) when nothing has been ingested.
 - `frontend/src/`: React 18 with `plotly.js-basic-dist-min`. Vite proxies `/api` to `127.0.0.1:8000`. `format.ts` holds the pure, tested helpers.
 - Data labels: POWER values are `derived_estimate` (reanalysis), trend outputs are `derived_statistic`. Never label POWER data "observed".

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Chart from "./Chart";
-import { api, ApiError, Health, Provenance, TimeSeries, TrendResponse } from "./api";
+import { RobustnessCard, SeasonalCard } from "./Analysis";
+import { api, ApiError, Health, Provenance, SeasonalResponse, SensitivityResponse, TimeSeries, TrendResponse } from "./api";
 import { dataKindLabel, formatP, loadProblem, senLine, signed, trendLineLabel, unitLabel } from "./format";
 
 const VARIABLES = [
@@ -33,6 +34,8 @@ export default function App() {
   const series = useLoad<TimeSeries>(() => api.timeseries(variable, "monthly"), [variable]);
   const trend = useLoad<TrendResponse>(() => api.trend(variable), [variable]);
   const prov = useLoad<Provenance>(() => api.provenance(), []);
+  const seasonal = useLoad<SeasonalResponse>(() => api.seasonal(variable), [variable]);
+  const sens = useLoad<SensitivityResponse>(() => api.sensitivity(variable), [variable]);
   const varLabel = VARIABLES.find((v) => v.id === variable)?.short ?? variable;
 
   return (
@@ -51,7 +54,8 @@ export default function App() {
       <section className="banner" aria-label="About this data">
         <strong>About these values:</strong> they are <strong>NASA POWER reanalysis estimates</strong> (NASA GMAO
         MERRA-2, extended to near real time with GEOS-IT). That is weather-model output constrained by observations and
-        averaged over a ~55 × 62 km grid cell around Lucknow. They are <strong>not</strong> thermometer or rain-gauge
+        averaged over one ~55 × 62 km grid cell. Our request point in central Lucknow sits at the cell's western edge, so
+        the cell mostly covers land east of the city. They are <strong>not</strong> thermometer or rain-gauge
         readings. No forecasts are shown.
       </section>
 
@@ -94,6 +98,8 @@ export default function App() {
           <p>{trend.message}</p>
         </section>
       )}
+      {sens.state === "ok" && <RobustnessCard s={sens.data} label={varLabel} />}
+      {seasonal.state === "ok" && <SeasonalCard s={seasonal.data} label={varLabel} />}
       {prov.state === "ok" && <ProvenanceCard p={prov.data} />}
 
       <footer className="note">

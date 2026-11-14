@@ -5,6 +5,7 @@ interface Props {
   data: Record<string, unknown>[];
   layout: Record<string, unknown>;
   ariaLabel: string;
+  small?: boolean;
 }
 
 function cssVar(name: string): string {
@@ -27,16 +28,20 @@ function useColorSchemeVersion(): number {
 /** Trace colours may be given as CSS custom-property names (e.g. "--trend"); resolve them here. */
 function resolveColors(trace: Record<string, unknown>): Record<string, unknown> {
   const out = { ...trace };
-  for (const key of ["line", "marker"]) {
-    const part = out[key] as Record<string, unknown> | undefined;
-    if (part && typeof part.color === "string" && part.color.startsWith("--")) {
-      out[key] = { ...part, color: cssVar(part.color) };
-    }
+  const fix = (part: Record<string, unknown> | undefined) => {
+    if (!part) return part;
+    const next = { ...part };
+    if (typeof next.color === "string" && next.color.startsWith("--")) next.color = cssVar(next.color);
+    if (next.line) next.line = fix(next.line as Record<string, unknown>);
+    return next;
+  };
+  for (const key of ["line", "marker", "error_y"]) {
+    if (out[key]) out[key] = fix(out[key] as Record<string, unknown>);
   }
   return out;
 }
 
-export default function Chart({ data, layout, ariaLabel }: Props) {
+export default function Chart({ data, layout, ariaLabel, small = false }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const scheme = useColorSchemeVersion();
 
@@ -65,5 +70,5 @@ export default function Chart({ data, layout, ariaLabel }: Props) {
     };
   }, []);
 
-  return <div ref={ref} className="chart" role="img" aria-label={ariaLabel} />;
+  return <div ref={ref} className={small ? "chart small" : "chart"} role="img" aria-label={ariaLabel} />;
 }

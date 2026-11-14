@@ -70,6 +70,49 @@ export interface Provenance {
   // (fields not used by the UI are omitted)
 }
 
+export interface SeasonRow {
+  season: string;
+  label: string;
+  months: number[];
+  result: TrendResult;
+  season_means: { years: number[]; values: (number | null)[] };
+  bh_adjusted_p: number;
+  significant_after_fdr_0_05: boolean;
+}
+
+export interface SeasonalResponse {
+  dataset_id: string;
+  variable: string;
+  analysis_cutoff: string;
+  season_definition: string;
+  multiple_testing: string;
+  seasons: SeasonRow[];
+}
+
+export interface WindowRow {
+  start_year: number;
+  end_year: number;
+  n_years: number;
+  sen_slope_per_decade: number;
+  ci95_per_decade: [number, number];
+  modified_mk_p_value: number;
+  significant_at_0_05: boolean;
+}
+
+export interface SensitivityResponse {
+  dataset_id: string;
+  variable: string;
+  units: string;
+  analysis_cutoff: string;
+  vary_start: WindowRow[];
+  vary_end: WindowRow[];
+  min_window_years: number;
+  diagnostics: string[];
+  source_periods: { last_merra2_day: string; first_geosit_day: string | null; probed_at_utc: string } | null;
+  geosit_in_trend_window: boolean | null;
+  note: string;
+}
+
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
@@ -101,4 +144,6 @@ export const api = {
     getJson<TimeSeries>(`/api/timeseries?variable=${variable}&resolution=${resolution}`),
   trend: (variable: string) => getJson<TrendResponse>(`/api/trend?variable=${variable}`),
   provenance: () => getJson<Provenance>("/api/provenance"),
+  seasonal: (variable: string) => getJson<SeasonalResponse>(`/api/seasonal?variable=${variable}`),
+  sensitivity: (variable: string) => getJson<SensitivityResponse>(`/api/sensitivity?variable=${variable}`),
 };

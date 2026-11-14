@@ -73,3 +73,33 @@ Newest entries at the bottom. Record only what was actually done and verified.
 - README rewritten: data source table, analysis method, results with dataset date, limitations, port fallback, troubleshooting. Added `docs/DEMO_OUTLINE.md`.
 - Verification: `pytest backend` 45 passed, 1 deselected. `pytest -m network` 1 passed. `npm test` 6 passed. Typecheck clean. Build OK (JS 1,256 kB, 429 kB gzipped). The user's Vite dev server on :5174 served the updated modules (HTTP 200) and proxied `/api/trend` successfully.
 - Not verified by me: the visual rendering in a browser. Waiting for the user's manual inspection.
+
+## 2026-11-15: GitHub
+- Installed GitHub CLI 2.104.0 (winget). The user logged in as `thevisionforged` through browser device flow. Ran `gh auth setup-git`, which adds a credential helper for github.com to the global git config.
+- Repo identity set to `thevisionforged <thevisionforged@gmail.com>`, at the user's request. Rewrote the 2 unpushed commits' author and committer (`c2f0c5e` became `a299c50`, `1003b34` became `556cc76`); the trees are identical.
+- Created the **private** repo https://github.com/thevisionforged/EarthSignal and pushed `master`. GitHub links both commits to the user `thevisionforged`.
+
+## 2026-11-15: Milestone 2a, seasonal and robustness analysis
+- New modules:
+  - `analysis/seasonal.py`: IMD seasons, BH FDR
+  - `analysis/sensitivity.py`: start and end windows of at least 20 years, plus diagnostics
+  - `data/source_probe.py`: finds the MERRA-2/GEOS-IT boundary
+- New endpoints: `/api/seasonal`, `/api/sensitivity`. New frontend file `Analysis.tsx` with the seasonal table and robustness charts.
+- **Source probe (real):** 14 single-day requests. MERRA-2 up to 2026-09-30, GEOS-IT from 2026-10-01. Raw responses are in `data/raw/<dataset_id>__source_probe_20261114T204433Z/`. All 14 single-day T2M values equal the full-download values.
+- **Seasonal T2M (real):** no season is significant after FDR.
+  - Winter −0.17 °C/decade (FDR p 0.47)
+  - Pre-monsoon −0.08 (0.53)
+  - Monsoon −0.19 (corrected p 0.054, FDR 0.22)
+  - Post-monsoon −0.21 (0.39)
+- **Seasonal PRECTOTCORR (real):** **pre-monsoon +0.13 mm/day/decade, FDR p 0.032, significant**.
+  - Monsoon +0.55 (corrected p 0.072, FDR 0.14)
+  - Winter −0.04 and post-monsoon −0.03, not significant
+- **Robustness, T2M:** the full period is not significant, but 13 of 26 start years (1983–1995) give significant cooling. Windows ending 2000–2010 show warming and those ending 2011 or later show cooling. **The temperature trend verdict is fragile.**
+- **Robustness, PRECTOTCORR:** positive for every start year (22 of 26 significant). Significant only for windows ending 2021 or later, so recent years drive it.
+- Tests: `pytest backend` 61 passed, 1 deselected. `npm test` 6 passed, typecheck clean, build OK (430 kB gzipped).
+
+## 2026-11-15: Milestone 2b investigation (no station data downloaded)
+- NOAA station list downloaded to the scratchpad (not the repo). Lucknow airport station `42369099999` has records 1944 to 2025-08-24; old city station `42368099999` has 1973 to 2021-11-25.
+- GSOD readme and the 2024 airport file were read through the web-fetch agent (D-014). The NCEI landing page returned HTTP 503.
+- **Grid-cell check:** POWER requests at both station coordinates return identical values (elevation 127.59 m). Our study point returns different values (117.11 m). The study point is 0.009° east of the MERRA-2 cell boundary at 80.9375° E (D-013).
+- Waiting for user decisions on D-013 and D-014.

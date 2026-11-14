@@ -82,6 +82,20 @@ def test_trend_endpoint(synthetic_client):
     assert len(body["annual_means"]["years"]) == 31
 
 
+def test_seasonal_endpoint(synthetic_client):
+    body = synthetic_client.get("/api/seasonal", params={"variable": "T2M"}).json()
+    assert [s["season"] for s in body["seasons"]] == ["winter", "pre_monsoon", "monsoon", "post_monsoon"]
+    assert all(0 <= s["bh_adjusted_p"] <= 1 for s in body["seasons"])
+
+
+def test_sensitivity_endpoint(synthetic_client):
+    body = synthetic_client.get("/api/sensitivity", params={"variable": "T2M"}).json()
+    assert body["min_window_years"] == 20
+    assert len(body["vary_start"]) == 31 - 20 + 1
+    assert body["source_periods"] is None  # probe not run for synthetic data
+    assert body["geosit_in_trend_window"] is None
+
+
 def test_provenance_endpoint(synthetic_client):
     body = synthetic_client.get("/api/provenance").json()
     assert body["request_url"].startswith("https://power.larc.nasa.gov/")

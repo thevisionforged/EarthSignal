@@ -82,6 +82,17 @@ details { margin: 12px 0 0; font-size: 13px; }
 details summary { cursor: pointer; color: var(--accent); font-weight: 600; }
 details ul { margin-top: 6px; }
 footer { margin-top: 24px; text-align: center; }
+.chart.small { height: 260px; }
+.two-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+.chart-title { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+.table-wrap { overflow-x: auto; margin: 4px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+thead th { color: var(--muted); font-weight: 600; }
+td.num { font-variant-numeric: tabular-nums; text-align: right; }
+td.sig { color: var(--accent); font-weight: 600; }
+td.nonsig { color: var(--muted); }
+@media (max-width: 760px) { .two-charts { grid-template-columns: 1fr; } }
 .note { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 8px 0; }
 .stat { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }

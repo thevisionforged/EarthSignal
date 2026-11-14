@@ -27,14 +27,24 @@ Priority order. Status: `[x]` done and tested · `[~]` in progress · `[ ]` not 
 - [x] Responsive CSS (phone breakpoints at 560 and 360 px), legend moved above the plot, theme-aware chart colours
 - [x] README rewritten: data source, analysis, results, limitations, troubleshooting
 - [x] Seven-slide demo outline (`docs/DEMO_OUTLINE.md`)
-- [~] Second commit staged, waiting for user approval
+- [x] Second commit (`556cc76` after the email rewrite). Pushed to private GitHub repo `thevisionforged/EarthSignal`.
 - [ ] **Manual browser inspection by the user** (light and dark, desktop and phone width, both tabs, the "How to read" toggle, and the offline backend message)
 - [ ] Choose the Space Apps challenge and confirm submission requirements
 
 ## Milestone 2: historical validation and backtesting groundwork
-- [ ] Compare POWER T2M with an independent station record for Lucknow (for example NOAA GSOD/ISD for the Amausi airport station), with source and licence checked first
-- [ ] Seasonal (monsoon/winter/pre-monsoon) trend breakdown, with a multiple-testing caveat
-- [ ] Sensitivity of the trend to the start year and to excluding the GEOS-IT period
+### 2a: seasonal and robustness analysis (existing data only)
+- [x] Seasonal trends (IMD seasons) with Benjamini-Hochberg FDR across seasons (D-011)
+- [x] Start-year and end-year robustness windows with rule-based diagnostics (D-011)
+- [x] MERRA-2 / GEOS-IT boundary measured with a reproducible probe (D-012). The trend window is all MERRA-2.
+- [x] API `/api/seasonal`, `/api/sensitivity`; dashboard robustness and seasonal cards
+- [ ] Manual browser check of the new cards (user)
+### 2b: independent station comparison
+- [x] Investigate NOAA GSOD: station, access, format, comparability, licence (D-014)
+- [x] Found the study point sits at the edge of a grid cell; the stations fall in the neighbouring cell (D-013)
+- [ ] **Blocked on user decision:** which grid cell represents Lucknow (D-013)
+- [ ] **Blocked on user decision:** GSOD licence handling for public display (D-014)
+- [ ] Then: GSOD ingestion (immutable raw, provenance, unit conversion, minimum-observation rule), monthly/annual comparison with the station's own POWER cell, and a station trend computed with the same method
+### 2c: backtesting groundwork
 - [ ] Chronological backtesting harness with climatology and persistence baselines (still no forecasts in the UI until validated)
 
 ## Milestone 3: second NASA source

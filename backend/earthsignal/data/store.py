@@ -31,6 +31,12 @@ def list_provenance(processed_root: Path) -> list[dict[str, Any]]:
     return out
 
 
+def load_source_periods(processed_root: Path, dataset_id: str) -> dict[str, Any] | None:
+    """Result of earthsignal.data.source_probe for this dataset, if it has been run."""
+    path = processed_root / dataset_id / "source_periods.json"
+    return json.loads(path.read_text()) if path.exists() else None
+
+
 def load_dataset(processed_root: Path, dataset_id: str | None = None) -> Dataset:
     provs = list_provenance(processed_root)
     if not provs:

@@ -19,7 +19,7 @@ EarthSignal aims to become a Predictive Earth Intelligence System. It starts wit
 |---|---|
 | Provider | NASA Langley Research Center, POWER Project, Daily API (`/api/temporal/daily/point`) |
 | What the values are | **Reanalysis**: NASA GMAO **MERRA-2** (1981 to about a month behind real time), extended to near real time with **GEOS-IT** (about 2 days latency). Weather-model output that assimilates observations. **Not** direct station or satellite measurements. |
-| Spatial resolution | Native grid 0.5° latitude × 0.625° longitude (roughly 55 × 62 km). One grid cell covering Lucknow (request point 26.8467 N, 80.9462 E). |
+| Spatial resolution | Native grid 0.5° latitude × 0.625° longitude (roughly 55 × 62 km). POWER returns the cell containing the request point (26.8467 N, 80.9462 E), with no interpolation. That point is just east of a cell boundary (80.9375° E), so the cell used (centred near 27.0 N, 81.25 E) mostly covers land **east** of the city. The airport and much of western Lucknow fall in the neighbouring cell (DECISIONS D-013). |
 | Time standard | Daily values in Local Solar Time (LST) |
 | Variables | `T2M`, Temperature at 2 Meters (°C): "The average air (dry bulb) temperature at 2 meters above the surface of the earth." `PRECTOTCORR`, Precipitation Corrected (mm/day): "The average MERRA-2 bias corrected total precipitation at the surface of the earth." (Definitions are taken from the POWER parameter-metadata API.) |
 | Missing values | The marker is read from each response's `header.fill_value` (−999 so far) and converted to empty/NaN. Values are never zero-filled or imputed. |
