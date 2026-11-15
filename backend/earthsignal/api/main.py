@@ -26,6 +26,7 @@ from earthsignal.data import cpc, gsod, imd, imerg_power, store
 from earthsignal.metadata import describe
 from earthsignal.api.simulation import build_router as build_sim_router
 from earthsignal.api.response import build_router as build_response_router
+from earthsignal.api.forecast import build_router as build_forecast_router
 
 MONTHLY_MIN_COVERAGE = 0.9
 
@@ -55,7 +56,7 @@ def create_app(processed_root: Path = PROCESSED_DIR, cases_path: Path | None = N
             "endpoints": [
                 "/api/health", "/api/datasets", "/api/provenance", "/api/timeseries", "/api/trend",
                 "/api/seasonal", "/api/sensitivity", "/api/areas", "/api/station-comparison",
-                "/api/backtest", "/api/sources", "/api/precip-comparison", "/api/precip-comparison.csv", "/api/precip-arbitration", "/api/sim/*",
+                "/api/backtest", "/api/sources", "/api/precip-comparison", "/api/precip-comparison.csv", "/api/precip-arbitration", "/api/sim/*", "/api/forecast",
             ],
             "docs": "/docs",
             "ui": "Run the frontend (cd frontend; npm run dev) and open the URL Vite prints.",
@@ -419,6 +420,7 @@ def create_app(processed_root: Path = PROCESSED_DIR, cases_path: Path | None = N
         )
 
     app.include_router(build_sim_router(processed_root))
+    app.include_router(build_forecast_router(processed_root))
     app.include_router(build_response_router(processed_root, cases_path or processed_root.parent / "cases" / "cases.json"))
 
     return app

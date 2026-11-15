@@ -12,7 +12,7 @@ Not yet known: the specific Space Apps challenge and its submission rules. Align
 - Tagline: *Understand Reality. Simulate Possibilities. Anticipate Tomorrow.*
 - Problem: city climate claims often skip where the data comes from, what kind of data it is, and whether a "trend" survives basic checks.
 - Built: an open pipeline and dashboard that turns 45 years of NASA data for Lucknow into trend results, robustness checks, a station cross-check, provenance, and stated caveats.
-- Scope today: **historical analysis only**. No forecasts.
+- Scope today: historical analysis, what-if simulations, an event-response workflow, and one tested forecast (daily-mean temperature, up to 30 days, D-026). No rainfall forecast.
 - *Evidence:* README; dashboard header and banner.
 
 ## Slide 2: NASA data used

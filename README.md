@@ -13,7 +13,7 @@ EarthSignal aims to become a Predictive Earth Intelligence System. It starts wit
 - computes a statistically defensible long-term trend with its caveats
 - shows everything in a small web dashboard
 
-**No forecasts, machine learning or simulations are implemented yet.**
+Since Milestone 7 it also shows a **statistical temperature outlook** for the next few weeks. It appears only because it passed a test written down in advance (D-026). There is no rainfall forecast and no machine-learning model.
 
 ### For judges: the 2-minute tour
 1. Start the app (see **Run**) and open the **Key findings** view: three findings computed live from the analysis.
@@ -115,6 +115,14 @@ The **Response Intelligence** tab is an analyst's case file for unusual weather 
 3. **Respond:** open a case, record a decision with a written reason (confirm, dismiss, needs more data, escalate for expert review), add notes, and download a Markdown evidence brief. Every step is in the audit trail. Cases are stored locally in `data/cases/` (not committed).
 
 This is not a warning system: no forecasts, alerts or impact claims. See `docs/DECISIONS.md` D-025 and the plain-language `docs/PRESENTER_GUIDE.md`.
+
+## Anticipate: temperature outlook (Milestone 7)
+The **Anticipate** tab forecasts Lucknow's daily mean temperature (NASA POWER T2M) up to 30 days ahead from the latest data, with a 90% range.
+
+- **Pre-registered test (D-026):** two candidate methods were written down before any were run. Development years 2002–2013 chose between them; hold-out years 2014–2025 judged the choice once against damped anomaly persistence, the strongest simple baseline. A lead passes only if the gain is positive with year-block bootstrap 5th percentile above zero.
+- **Result:** anomaly regression passed every lead from 1 to 30 days in the eastern cell, and 1–29 in the western cell (lead 30 failed there and is not shown). The gain over the baseline is modest (about 2–7% lower mean squared error); beyond about two weeks both are close to the seasonal average.
+- **Band:** 5th–95th percentile of hold-out errors; in 2002–2013 it contained the actual value about 91% of the time.
+- **Caveats:** the starting days are provisional near-real-time data; verification is against reanalysis, not a thermometer; it knows nothing about current weather systems, so official IMD forecasts take precedence. CSV at `/api/forecast?format=csv`.
 
 ## Limitations
 - Reanalysis grid cells, not station or street-scale data. Results differ between the two cells covering the city.

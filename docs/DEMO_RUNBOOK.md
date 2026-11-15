@@ -39,7 +39,7 @@ cd frontend; npm run dev
 | 1:20 | Station card | "Against the airport thermometer, NASA POWER drifts apart after 2006. We don't claim to know which record is responsible." |
 | 1:45 | **Data sources** view → coverage and resolution table | "Six datasets, one metadata standard. Reanalysis, satellite, gauge grid and station data are labelled as what they are." |
 | 2:10 | Gauge card: annual totals, then the gauge-count chart | "Against India's rain-gauge grid, POWER's rainfall increase isn't supported in the western cell. POWER shifts at 2006, the documented year its gauge input changed. Local gauge counts didn't drop, so we report the shift but not a cause." |
-| 2:45 | Close | "No rainfall trend is claimed and no forecast is shown until it beats simple baselines. That's the point: honest Earth intelligence." |
+| 2:45 | Close | "No rainfall trend is claimed, and the temperature outlook is shown only because it beat the best simple method on years it had never seen. That's the point: honest Earth intelligence." |
 
 ### Optional: Simulation Studio segment (about 60 s, after the main script)
 | Show | Say |

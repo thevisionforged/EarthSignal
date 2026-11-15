@@ -307,3 +307,13 @@ Newest entries at the bottom. Record only what was actually done and verified.
   2. Feb 29 was mapped to Mar 1's day-of-year slot; caught by a test, fixed.
   3. Awkward wording ("All 1 … source(s)") rewritten; the station check now says when the station lies outside the event's cell. An unverified distance figure was removed before release.
 - **Verification:** `pytest backend` 162 passed; `npm test` 26 passed; typecheck exit 0. Browser walk-through on review servers with a throwaway case file: detect → select → investigate → open case → reason-gated decision → note → audit trail → brief download; no console errors; no overflow at 390 px.
+
+## 2026-11-15: Milestone 7, Anticipate (tested temperature forecasts)
+- **User choice:** "Anticipate: tested forecasts".
+- **Facts checked first:** POWER data runs to 2026-11-11 (provisional near-real-time days), so a 30-day outlook genuinely reaches the future. Baselines (D-016): damped anomaly persistence beats climatology by 75% at lead 1 and ~5% at lead 30 for temperature; for rainfall nothing beats climatology beyond lead 1, so rainfall is out of scope.
+- **Pre-registration:** D-026 (candidates, split, pass rule, display rule) was written to DECISIONS.md before any candidate was run. It is self-enforced within one session, not externally timestamped; the commit history records the order only at commit granularity.
+- **Built:** `analysis/forecast.py`, `api/forecast.py` (`/api/forecast`), `frontend/src/forecast/` ("Anticipate: temperature outlook" tab).
+- **Results (hold-out 2014–2025):** eastern cell 30/30 leads pass, western 1–29 (lead 30 fails: development picked seasonal damped persistence, gain 0.4%, bootstrap 5th percentile negative). Lead 1 RMSE 1.06 °C vs baseline 1.09; lead 7 1.94 vs 2.01; lead 30 2.13 vs 2.15. Band coverage on development years 91–92%. Details in the D-026 outcome note.
+- **First issued outlook:** from 2026-11-11; next-7-day mean about 0.3 °C above usual. Days 12–14 November were already past on the day of issue; the UI marks them "awaiting NASA data".
+- **Problems found and fixed:** NumPy floats in the issued forecast (JSON safety), a leftover placeholder fixture and loose indexing in the leakage test, awkward wording ("well warmer"); stale "no forecasts" statements in README, CLAUDE.md, the demo outline, runbook and presenter guide.
+- **Verification:** `pytest backend` 170 passed (8 new); `npm test` 31 passed (5 new); typecheck exit 0. Browser: both cells, KPIs, chart, past-day marking, scorecard (western lead 30 shown as "Did not pass"), phone width without overflow, no console errors. A leftover review Vite process was identified by its command line and stopped.

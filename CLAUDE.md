@@ -13,7 +13,7 @@ EarthSignal is meant to become a Predictive Earth Intelligence System. It will u
 
 ## Current state
 
-Milestone 1 (historical MVP) is implemented and tested. See `docs/TASKS.md`, `docs/IMPLEMENTATION_LOG.md` and `docs/DECISIONS.md` (read DECISIONS before changing data handling or statistics). **No forecasts exist yet, by design** (D-008).
+Milestone 1 (historical MVP) is implemented and tested. See `docs/TASKS.md`, `docs/IMPLEMENTATION_LOG.md` and `docs/DECISIONS.md` (read DECISIONS before changing data handling or statistics). **The only forecast is the daily-mean temperature outlook** (D-026), shown only for leads that passed a pre-registered hold-out test. No rainfall forecast. Any new forecast must go through the same kind of pre-registered test.
 
 Environment audit (2026-11-14): Windows 11, **7.7 GB physical RAM** (often only about 1 GB free), 512 GB SSD. Python 3.12.10, Node v26.13.0, npm 11.20.0, git 2.56.0. PostgreSQL, Docker, uv and conda are not installed. PyPI downloads are slow (about 40 KB/s), so large installs take a long time; run them in the background.
 
@@ -45,6 +45,7 @@ Environment audit (2026-11-14): Windows 11, **7.7 GB physical RAM** (often only 
   - Backend: `analysis/simulation.py` (all six tools share it), `api/simulation.py` (`/api/sim/*`, `format=csv`).
   - Frontend: `frontend/src/sim/`.
   - Scenario outputs are always labelled hypothetical. Never add impact claims (health, flood, crop, economic). Temperature thresholds use the daily MEAN.
+- **Anticipate (D-026):** `analysis/forecast.py` (candidates anomaly regression and seasonal damped persistence; dev 2002–2013 selects, hold-out 2014–2025 judges against damped anomaly persistence with a year-block bootstrap; contiguous passing horizon only), `api/forecast.py` (`/api/forecast`, `format=csv`, `data_kind: forecast`), frontend `src/forecast/`. Never change the candidates, split or pass rule after seeing results; a change means a new pre-registered decision.
 - **Response Intelligence (D-025):** `analysis/events.py` (heat episodes vs day-of-year 95th pct; rainfall vs wet-day 99th pct; cross-checks against each source's OWN history), `cases.py` (local JSON case file, server-enforced workflow, reasons required, audit trail), `api/response.py` (`/api/response/*`, `/api/cases*`), frontend `src/response/`. The neighbouring POWER cell is never counted as independent evidence. No alerts, forecasts or impact claims; `data/cases/` is gitignored.
 - `backend/earthsignal/api/main.py`: `create_app(processed_root)` factory. Routes: `/api/health`, `/api/datasets`, `/api/provenance`, `/api/timeseries`, `/api/trend`. Returns 404 (never fake data) when nothing has been ingested.
 - `frontend/src/`: React 18 with `plotly.js-basic-dist-min`. Vite proxies `/api` to `127.0.0.1:8000`. `format.ts` holds the pure, tested helpers.

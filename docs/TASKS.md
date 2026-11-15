@@ -113,6 +113,17 @@ Priority order. Status: `[x]` done and tested · `[~]` in progress · `[ ]` not 
 - [x] Committed and pushed (approved 2026-11-15)
 - [ ] Optional: a Response Intelligence slide in the deck
 
+## Milestone 7: Anticipate, tested temperature forecasts
+- [x] Pre-registered design written before any candidate was run (D-026)
+- [x] `analysis/forecast.py`: two candidates, chronological folds, dev/hold-out selection, year-block bootstrap pass rule, contiguous horizon, empirical band
+- [x] Result: eastern cell 30/30 leads pass; western cell 1–29 (lead 30 failed, not shown); outcome recorded in D-026
+- [x] `/api/forecast` (JSON and CSV, labelled `forecast`); "Anticipate" view with outlook, past-day marking, skill chart and scorecard
+- [x] Tests: backend 170 (8 new: leakage, known-answer synthetic cases, pass rule, issuing); frontend 31 (5 new)
+- [x] Browser check (both cells, phone width, no console errors); docs and presenter guide updated
+- [x] Committed and pushed (approved 2026-11-15)
+- [ ] Optional: deck slide for the outlook
+- [ ] Later: record issued forecasts and score them when NASA data for those days arrives
+
 ## Deferred / backlog
 - [ ] Playwright end-to-end test (needs a ~100–300 MB browser download; ask first)
 - [ ] MapLibre study-area map showing the POWER grid cell footprint

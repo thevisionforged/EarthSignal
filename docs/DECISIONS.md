@@ -52,7 +52,7 @@ The sources_meteorology page explains that PRECTOTCORR uses MERRA-2's observatio
 - **Validation:** Unit tests check a hand-computed S and variance, agreement with `scipy.stats.kendalltau` and the median of pairwise slopes, recovery of a known synthetic trend, a white-noise false-positive rate near 5%, and fewer false positives under AR(1) noise.
 - **Limitations (also returned by the API):** results describe one reanalysis grid cell; reanalysis trends can be affected by changes in which observations were assimilated; a trend is not a cause; extrapolating it is not a forecast; the Sen CI assumes independence.
 
-## D-008: No forecasts in the current milestones (2026-11-14)
+## D-008: No forecasts in the current milestones (2026-11-14; superseded for temperature by D-026)
 - **Decision:** Forecasting is out of scope until historical validation and chronological backtesting exist. The API exposes only historical estimates and descriptive trend statistics.
 
 ## D-010: Rule-based trend diagnostics (2026-11-14)
@@ -220,3 +220,26 @@ The sources_meteorology page explains that PRECTOTCORR uses MERRA-2's observatio
 - **Summaries are rule-based text built only from computed numbers** (CLAUDE.md rule 7); no AI text generation.
 - **Cases:** one JSON file (`data/cases/cases.json`, gitignored, atomic writes), one case per event, evidence recomputed on the server when a case opens (never trusted from the browser), status transitions enforced on the server, a written reason required for every decision and every reopening, full audit trail, Markdown brief marked "NOT a forecast, warning or impact assessment".
 - **Not done:** no user accounts (the audit trail records times, not people), no multi-user locking beyond one process, no notifications.
+
+## D-026: Temperature forecasting, pre-registered design (2026-11-15, written BEFORE any candidate was run)
+- **Target:** NASA POWER daily-mean T2M, both cells, leads 1–30 days. Precipitation is out of scope: no baseline beats climatology beyond lead 1 (D-016 results), so a daily rain forecast would not be credible.
+- **Bar to beat:** damped anomaly persistence (D-016), the strongest baseline at every lead.
+- **Two candidates, hyperparameters fixed now, never tuned on test data.** Both forecast the anomaly from the training-period 3-harmonic climatology:
+  - **A. Anomaly regression (direct, per lead):** OLS of anomaly(t+h) on anomaly(t), anomaly(t−1), anomaly(t−2), mean anomaly of the last 7 days and mean anomaly of the last 30 days, plus an intercept. Fitted on training folds only.
+  - **B. Seasonal damped persistence:** like the baseline, but the damping φ_h is estimated separately for each calendar month of the forecast origin.
+- **Folds:** the existing harness (expanding window, training ends max(lead) = 30 days before each test year).
+- **Split:** development years 2002–2013; hold-out years 2014–2025.
+  - Development is used only to choose A or B at each lead (lower pooled RMSE).
+  - The hold-out is then used once, to judge the chosen candidate.
+- **Pass rule at lead h:** on the hold-out, the improvement in mean squared error over damped anomaly persistence must be positive, with the 5th percentile of a year-block bootstrap (2,000 resamples, seed 2026) above zero.
+- **What reaches the UI:** a forecast only for the contiguous horizon 1…L where every lead passes. If lead 1 fails, no forecast is shown and the scorecard says so.
+- **Uncertainty band:** the 5th–95th percentiles of the chosen method's hold-out errors at each lead (empirical, not a model assumption).
+- **Labels:** `forecast`, with the origin date, the data-provisional flag and the method; verified against POWER reanalysis, not a thermometer.
+- **If nothing passes, that is the result,** reported as such. The rule will not be relaxed after seeing results.
+
+### D-026 outcome (recorded after the single hold-out evaluation, 2026-11-15)
+- The design above was applied unchanged; no candidate, hyperparameter, split or rule was altered after results were seen.
+- **Eastern cell:** anomaly regression chosen at all 30 leads; all 30 pass. Hold-out RMSE 1.06 °C at lead 1 (baseline 1.09), 1.94 at lead 7 (2.01), 2.13 at lead 30 (2.15). MSE improvement 2–7%.
+- **Western cell:** leads 1–29 pass (anomaly regression). At lead 30 development chose seasonal damped persistence, whose hold-out gain (0.4%) failed the bootstrap rule, so the shown horizon is 29 days.
+- **Band check:** hold-out error bands contained 91–92% of development-period values (target 90%).
+- **Interpretation:** a real but modest gain, consistent with the 7- and 30-day mean anomalies capturing slow departures from a fixed climatology. Skill against the seasonal average falls from 77% at lead 1 to about 7% at lead 30.
