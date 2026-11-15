@@ -296,3 +296,14 @@ Newest entries at the bottom. Record only what was actually done and verified.
   - `pytest backend`: 148 passed. `npm test`: 22 passed. Typecheck exit 0. Build OK (445 kB gzipped).
   - Browser (Claude in Chrome): each of the six tools had its inputs changed, was run, and its results and charts updated with no errors.
   - Phone width (390 px): no horizontal overflow in any tool.
+
+## 2026-11-15: Deck slide and Milestone 6, Response Intelligence
+- **Deck:** added a "Simulation Studio" slide before the integrity slide; updated the method slide's test count to 170 (148 backend, 22 frontend). Published to the existing private deck.
+- **User choices:** "response" = analyst case workflow; detect heat episodes and extreme rainfall; the project must be explainable by a non-specialist teammate (MBA), so the UI and a new `docs/PRESENTER_GUIDE.md` use plain language.
+- **Built:** `analysis/events.py` (detection, cross-check helpers, rule-based summary), `cases.py` (case store, workflow, brief), `api/response.py` (routes), `frontend/src/response/` (three-step view). Decisions in D-025.
+- **Results on real data (1981–2026):** eastern cell 77 heat episodes and 47 rainfall events; western cell 93 and 43. The most severe heat episode in both cells is 19–30 July 2002 (the airport station agrees on 4 of 5 near-hourly days). The most severe rainfall event in both cells is 29–30 Aug 2000 (282 mm east), but **neither IMERG (23 mm max) nor IMD (10 mm max) confirms it**, so the tool flags it as a possible reanalysis artifact. That is the workflow doing its job.
+- **Problems found and fixed:**
+  1. The first summary counted the neighbouring POWER cell as an independent check; it is the same dataset, so it is now labelled not independent and excluded from the count.
+  2. Feb 29 was mapped to Mar 1's day-of-year slot; caught by a test, fixed.
+  3. Awkward wording ("All 1 … source(s)") rewritten; the station check now says when the station lies outside the event's cell. An unverified distance figure was removed before release.
+- **Verification:** `pytest backend` 162 passed; `npm test` 26 passed; typecheck exit 0. Browser walk-through on review servers with a throwaway case file: detect → select → investigate → open case → reason-gated decision → note → audit trail → brief download; no console errors; no overflow at 390 px.

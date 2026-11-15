@@ -209,3 +209,14 @@ The sources_meteorology page explains that PRECTOTCORR uses MERRA-2's observatio
 
 ## D-009: Lightweight frontend (2026-11-14)
 - **Decision:** Vite + React + TypeScript with `plotly.js-basic-dist-min` (the smallest Plotly bundle with scatter and line traces) and no UI framework. The Vite dev server proxies `/api` to `127.0.0.1:8000`. Playwright is deferred because its browser download is large; Vitest covers the frontend logic.
+
+## D-025: Response Intelligence, detect → investigate → respond (2026-11-15)
+- **"Response" means an analyst's case workflow, not public alerts** (user choice). The data is reanalysis with a ~2-month delay, POWER rainfall is unvalidated after 2006, and there are no forecasts, so automatic warnings would overclaim.
+- **Heat episode:** ≥ 3 consecutive days whose daily-mean T2M exceeds that calendar day's 95th percentile (1991–2020, ±7-day window, Feb 29 shares Feb 28's slot). Relative to the season, so it measures "unusual for the time of year", not absolute danger. A missing day ends an episode. Severity = sum of exceedances (°C-days).
+- **Extreme rainfall:** consecutive days ≥ the 99th percentile of 1991–2020 wet days (≥ 1 mm), one threshold all year. Severity = event total (mm).
+- **Ranks and "k of n years"** describe this record only; never phrased as probabilities or return periods.
+- **Provisional:** events touching days on or after the first GEOS-IT day (or, if unknown, the last 60 days).
+- **Cross-checks, each source against its own history:** the airport station (near-hourly days only, own day-of-year 95th percentile 2005–2024); IMERG (own wet-day 99th percentile 2001–2020, Final run only); IMD (own 99th percentile 1998–2024). Rain windows are ±1 day because day boundaries differ. The neighbouring POWER cell is shown but labelled **not independent** and excluded from the corroboration count.
+- **Summaries are rule-based text built only from computed numbers** (CLAUDE.md rule 7); no AI text generation.
+- **Cases:** one JSON file (`data/cases/cases.json`, gitignored, atomic writes), one case per event, evidence recomputed on the server when a case opens (never trusted from the browser), status transitions enforced on the server, a written reason required for every decision and every reopening, full audit trail, Markdown brief marked "NOT a forecast, warning or impact assessment".
+- **Not done:** no user accounts (the audit trail records times, not people), no multi-user locking beyond one process, no notifications.

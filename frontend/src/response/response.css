@@ -1,0 +1,73 @@
+/* Response Intelligence: uses the main (light/dark) theme tokens from styles.css. */
+.ri { margin-top: 16px; }
+.ri-head h1 { font-size: 26px; margin: 2px 0 6px; }
+.ri-eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .12em; font-size: 12px; margin: 0; }
+.ri-plain { margin: 0; color: var(--text); }
+.ri-explain { font-size: 14px; background: var(--notice); border-radius: 8px; padding: 8px 12px; }
+.stepper { list-style: none; padding: 0; margin: 16px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stepper li { display: flex; gap: 10px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+.stepper li.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.stepper li.done { opacity: .8; }
+.stepper .num { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--surface); font-weight: 700; flex: none; }
+.stepper small { color: var(--muted); }
+.ri-err { color: var(--trend); }
+.ri-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.ri-grid > * { min-width: 0; }
+.ri-wide { grid-column: 1 / -1; }
+.ri-card h2 { margin-bottom: 8px; }
+.ri-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.seg-l { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg-l button { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; }
+.seg-l button[aria-pressed="true"] { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+.ri-listhead { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; font-size: 14px; }
+.ri-listhead .linkish[aria-pressed="true"] { font-weight: 700; text-decoration: underline; }
+.ri-events { list-style: none; padding: 0; margin: 0; max-height: 420px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+.ri-events li + li { border-top: 1px solid var(--border); }
+.ri-events button { width: 100%; text-align: left; font: inherit; font-size: 13px; background: none; border: none; color: var(--text); padding: 8px 10px; cursor: pointer; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.ri-events button:hover, .ri-events button.sel { background: var(--notice); }
+.ri-events .rank { color: var(--muted); font-variant-numeric: tabular-nums; width: 34px; }
+.ri-events .what { font-weight: 600; }
+.ri-events .sev { color: var(--muted); flex-basis: 100%; padding-left: 44px; }
+.prov, .hascase { font-size: 11px; border-radius: 999px; padding: 1px 8px; border: 1px solid var(--border); }
+.prov { color: var(--trend); }
+.hascase { color: var(--accent); }
+.ri-empty { color: var(--muted); }
+.ri-title { font-size: 17px; margin: 0 0 6px; color: var(--text); text-transform: none; letter-spacing: 0; }
+.ri-sub { margin-top: 12px; }
+.ri-summary { font-size: 15px; line-height: 1.55; background: var(--notice); border-left: 4px solid var(--accent); padding: 8px 12px; border-radius: 6px; }
+.ri-summary.small { font-size: 13px; }
+.checks { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.checks li { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 13px; }
+.checks small { color: var(--muted); }
+.badge-v { float: right; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 1px 8px; margin-left: 8px; }
+.checks .corroborated .badge-v, .checks li.corroborated .badge-v { background: rgba(31, 111, 92, .15); color: var(--accent); }
+.checks li.not_corroborated .badge-v { background: rgba(194, 80, 44, .15); color: var(--trend); }
+.checks li.no_data .badge-v { background: var(--grid); color: var(--muted); }
+.ri-actions { margin-top: 12px; display: flex; gap: 8px; }
+.ri-actions.wrap { flex-wrap: wrap; }
+.ri-btn { font: inherit; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--surface); cursor: pointer; text-decoration: none; }
+.ri-btn:disabled { opacity: .45; cursor: not-allowed; }
+.ri-btn.ghost, .ri-btn.investigating, .ri-btn.needs_data { background: var(--surface); color: var(--accent); }
+.ri-btn.dismissed { background: var(--surface); color: var(--trend); border-color: var(--trend); }
+.ri-btn.escalated { background: var(--surface); color: var(--text); border-color: var(--text); }
+.ri-btn.link { display: inline-block; margin-top: 10px; }
+.cases { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 16px; }
+.case-list ul { list-style: none; padding: 0; margin: 8px 0 0; }
+.case-list button { width: 100%; text-align: left; font: inherit; font-size: 13px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; cursor: pointer; }
+.case-list button.sel { border-color: var(--accent); }
+.status { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 1px 8px; margin-left: 6px; border: 1px solid var(--border); }
+.s-open { color: var(--muted); }
+.s-investigating, .s-needs_data { color: var(--annual); }
+.s-confirmed { color: var(--accent); border-color: var(--accent); }
+.s-dismissed { color: var(--trend); }
+.s-escalated { color: var(--text); border-color: var(--text); }
+.ri-field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; margin-top: 10px; }
+.ri-field textarea, .ri-field input { font: inherit; font-size: 13px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+.note-row { display: flex; gap: 6px; }
+.note-row input { flex: 1; min-width: 0; }
+.audit { font-size: 13px; padding-left: 18px; }
+.audit .at { color: var(--muted); font-variant-numeric: tabular-nums; }
+@media (max-width: 860px) {
+  .ri-grid, .cases { grid-template-columns: minmax(0, 1fr); }
+  .stepper { grid-template-columns: 1fr; }
+}

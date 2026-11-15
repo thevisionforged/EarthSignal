@@ -21,3 +21,6 @@ data/raw/*
 data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
+
+# Analyst case files (local working records, not committed)
+data/cases/

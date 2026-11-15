@@ -107,6 +107,15 @@ The **Simulation Studio** tab offers six interactive tools on the real NASA POWE
 
 All results are labelled **hypothetical** (the historical record with a uniform change applied) or **derived statistic**. They are not forecasts, projections or impact predictions: no health, flood, crop or economic outcomes. API: `/api/sim/*`; method in `docs/DECISIONS.md` D-024.
 
+## Response Intelligence (detect → investigate → respond)
+The **Response Intelligence** tab is an analyst's case file for unusual weather events in the record.
+
+1. **Detect:** heat episodes (3+ days hotter than 95% of days at the same time of year, 1991–2020) and extreme rainfall (top 1% of rainy days), for either grid cell.
+2. **Investigate:** each event is checked against independent sources, each judged against its own history: the airport weather station for heat; NASA GPM IMERG and IMD rain gauges for rainfall. A plain-English summary is built by fixed rules from the numbers.
+3. **Respond:** open a case, record a decision with a written reason (confirm, dismiss, needs more data, escalate for expert review), add notes, and download a Markdown evidence brief. Every step is in the audit trail. Cases are stored locally in `data/cases/` (not committed).
+
+This is not a warning system: no forecasts, alerts or impact claims. See `docs/DECISIONS.md` D-025 and the plain-language `docs/PRESENTER_GUIDE.md`.
+
 ## Limitations
 - Reanalysis grid cells, not station or street-scale data. Results differ between the two cells covering the city.
 - Reanalysis trends can be affected by changes over time in the observations that were assimilated.

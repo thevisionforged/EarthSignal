@@ -25,6 +25,7 @@ from earthsignal.config import DEFAULT_AREA, PROCESSED_DIR, STUDY_AREAS
 from earthsignal.data import cpc, gsod, imd, imerg_power, store
 from earthsignal.metadata import describe
 from earthsignal.api.simulation import build_router as build_sim_router
+from earthsignal.api.response import build_router as build_response_router
 
 MONTHLY_MIN_COVERAGE = 0.9
 
@@ -35,7 +36,7 @@ def _clean(values) -> list[float | None]:
     return [None if (v is None or (isinstance(v, float) and math.isnan(v))) else round(float(v), 4) for v in values]
 
 
-def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
+def create_app(processed_root: Path = PROCESSED_DIR, cases_path: Path | None = None) -> FastAPI:
     app = FastAPI(title="EarthSignal API", version=__version__)
 
     def _load(dataset_id: str | None, area: str = DEFAULT_AREA) -> store.Dataset:
@@ -418,6 +419,7 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
         )
 
     app.include_router(build_sim_router(processed_root))
+    app.include_router(build_response_router(processed_root, cases_path or processed_root.parent / "cases" / "cases.json"))
 
     return app
 

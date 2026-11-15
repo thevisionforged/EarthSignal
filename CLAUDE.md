@@ -45,6 +45,7 @@ Environment audit (2026-11-14): Windows 11, **7.7 GB physical RAM** (often only 
   - Backend: `analysis/simulation.py` (all six tools share it), `api/simulation.py` (`/api/sim/*`, `format=csv`).
   - Frontend: `frontend/src/sim/`.
   - Scenario outputs are always labelled hypothetical. Never add impact claims (health, flood, crop, economic). Temperature thresholds use the daily MEAN.
+- **Response Intelligence (D-025):** `analysis/events.py` (heat episodes vs day-of-year 95th pct; rainfall vs wet-day 99th pct; cross-checks against each source's OWN history), `cases.py` (local JSON case file, server-enforced workflow, reasons required, audit trail), `api/response.py` (`/api/response/*`, `/api/cases*`), frontend `src/response/`. The neighbouring POWER cell is never counted as independent evidence. No alerts, forecasts or impact claims; `data/cases/` is gitignored.
 - `backend/earthsignal/api/main.py`: `create_app(processed_root)` factory. Routes: `/api/health`, `/api/datasets`, `/api/provenance`, `/api/timeseries`, `/api/trend`. Returns 404 (never fake data) when nothing has been ingested.
 - `frontend/src/`: React 18 with `plotly.js-basic-dist-min`. Vite proxies `/api` to `127.0.0.1:8000`. `format.ts` holds the pure, tested helpers.
 - Data labels: POWER values are `derived_estimate` (reanalysis), trend outputs are `derived_statistic`. Never label POWER data "observed".

@@ -15,6 +15,7 @@ import {
 } from "./api";
 import { OverviewView } from "./Overview";
 import { SimulationStudio } from "./sim/Studio";
+import { ResponseView } from "./response/Response";
 import { SourcesView } from "./Sources";
 import { StationCard } from "./Station";
 import { dataKindLabel, formatP, loadProblem, senLine, shortAreaLabel, signed, trendLineLabel, unitLabel } from "./format";
@@ -46,7 +47,7 @@ function useLoad<T>(fn: () => Promise<T>, deps: unknown[]): Load<T> {
 export default function App() {
   const [variable, setVariable] = useState("T2M");
   const [area, setArea] = useState("lucknow");
-  const [view, setView] = useState<"overview" | "analysis" | "sources" | "studio">("overview");
+  const [view, setView] = useState<"overview" | "analysis" | "sources" | "studio" | "response">("overview");
   const health = useLoad<Health>(() => api.health(), []);
   const areas = useLoad<Area[]>(() => api.areas(), []);
   const series = useLoad<TimeSeries>(() => api.timeseries(area, variable, "monthly"), [area, variable]);
@@ -84,6 +85,9 @@ export default function App() {
         <button aria-pressed={view === "studio"} onClick={() => setView("studio")}>
           Simulation Studio
         </button>
+        <button aria-pressed={view === "response"} onClick={() => setView("response")}>
+          Response Intelligence
+        </button>
       </nav>
 
       {(view === "analysis" || view === "sources") && (
@@ -101,6 +105,8 @@ export default function App() {
 
       {view === "studio" ? (
         <SimulationStudio />
+      ) : view === "response" ? (
+        <ResponseView />
       ) : view === "overview" ? (
         <OverviewView
           go={(v: "analysis" | "sources") => {

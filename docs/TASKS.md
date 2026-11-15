@@ -100,7 +100,18 @@ Priority order. Status: `[x]` done and tested · `[~]` in progress · `[ ]` not 
 - [x] Frontend Simulation Studio: dark workstation, six tools, run/reset, presets, saved configurations, methodology and provenance panel
 - [x] Tests: backend 148 (33 new); frontend 22 (9 new)
 - [x] Browser verification of every tool (inputs → run → results and charts update); phone-width check; matrix overflow fixed
-- [ ] Commit (waiting for user approval)
+- [x] Committed and pushed (a1d733c)
+- [x] Simulation Studio slide added to the deck; test count on the method slide updated (170)
+
+## Milestone 6: Response Intelligence (detect → investigate → respond)
+- [x] Detection: heat episodes (≥3 days above the day-of-year 95th percentile, 1991–2020) and extreme rainfall (≥ wet-day 99th percentile), both cells (D-025)
+- [x] Investigation: neighbouring cell (labelled not independent), airport station for heat, IMERG and IMD for rain, each against its own history; rule-based plain-English summary
+- [x] Response: local case file (open → investigating → confirmed / dismissed / needs data / escalated), reasons required for decisions, audit trail, Markdown evidence brief
+- [x] API `/api/response/*` and `/api/cases*`; UI "Response Intelligence" with a three-step guide written for non-specialists
+- [x] Tests: backend 162 (14 new); frontend 26 (4 new); typecheck; browser walk-through; phone width
+- [x] Presenter guide in plain language (`docs/PRESENTER_GUIDE.md`)
+- [x] Committed and pushed (approved 2026-11-15)
+- [ ] Optional: a Response Intelligence slide in the deck
 
 ## Deferred / backlog
 - [ ] Playwright end-to-end test (needs a ~100–300 MB browser download; ask first)
