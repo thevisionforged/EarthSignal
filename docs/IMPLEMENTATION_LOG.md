@@ -317,3 +317,23 @@ Newest entries at the bottom. Record only what was actually done and verified.
 - **First issued outlook:** from 2026-11-11; next-7-day mean about 0.3 °C above usual. Days 12–14 November were already past on the day of issue; the UI marks them "awaiting NASA data".
 - **Problems found and fixed:** NumPy floats in the issued forecast (JSON safety), a leftover placeholder fixture and loose indexing in the leakage test, awkward wording ("well warmer"); stale "no forecasts" statements in README, CLAUDE.md, the demo outline, runbook and presenter guide.
 - **Verification:** `pytest backend` 170 passed (8 new); `npm test` 31 passed (5 new); typecheck exit 0. Browser: both cells, KPIs, chart, past-day marking, scorecard (western lead 30 shown as "Did not pass"), phone width without overflow, no console errors. A leftover review Vite process was identified by its command line and stopped.
+
+## 2026-11-15: Deployment preparation for Render (D-027)
+- **Request:** prepare a public Render deployment without deploying, pushing, changing repository visibility or creating services.
+- **Audit:** GitHub `master` HEAD = local HEAD = `6010fd6`, clean tree. The runtime reads only `data/processed/` (about 10 MB); no route reads raw files. Git history has never contained data files. No secrets, tokens or local paths were found in the publishable files or the history. The commit author is `thevisionforged <thevisionforged@gmail.com>` on all 11 commits, which becomes public with the repository.
+- **Blocker resolved (no data in a fresh clone):** committed-ready snapshot of the public datasets; GSOD and IMD downloaded at build time and checked against `data/manifests/` (checksums only).
+- **Built:**
+  - `api/deploy.py`: `/api/ready`, optional CORS, static serving with SPA fallback and immutable asset caching. `/` serves the UI when a build is configured; the service listing is also at `/api`.
+  - `config.DeploySettings`.
+  - `data/deploy_data.py` (`--fetch`, `--strict`, `--check`, `--precompute-forecast`, `--write-manifests`).
+  - Forecast evaluation cache keyed by dataset id and code hash, with a lock so warm-up and a first request never compute twice.
+  - Background warm-up.
+  - Public-demo case note and audit cap.
+  - `frontend/src/apiBase.ts` (all API URLs go through it).
+  - `Dockerfile`, `.dockerignore`, `render.yaml`, `backend/requirements.lock`, `docs/DEPLOYMENT.md`.
+- **Measured:** backend memory about 150 MB with every endpoint used. The forecast evaluation takes 7–8 s per cell on this laptop and would be far slower on Render's 0.1 CPU, hence the build-time precompute. The cached evaluation round-trips through JSON exactly, and the issued forecast is identical.
+- **Live checks:** a fresh GSOD download matched all 45 recorded checksums (twice); the IMD 2024 file matched.
+- **Render facts used** (render.com docs read 2026-11-15): `runtime: docker`, `plan: free` (0.1 CPU, 512 MB), `autoDeployTrigger: off`, health check 2xx/3xx within 5 s, environment variables passed as Docker build arguments, bind to `0.0.0.0:$PORT` (default 10000), 15-minute spin-down, ephemeral disk.
+- **Problem found in rehearsal and fixed:** with IMD absent, the "Key findings" landing page failed entirely ("Findings unavailable: No IMD dataset"). The station and rain-gauge findings are now optional: a missing source becomes a labelled "not available on this server" line with no numbers, and the temperature finding still shows.
+- **Clean-copy rehearsal** (only the 158 publishable files, no Docker): `npm ci` and production build; `deploy_data --fetch gsod` (45/45 checksums matched, 1 min 54 s); `--check` ready; `--precompute-forecast` cached both cells; production server (`EARTHSIGNAL_FRONTEND_DIST`, warm-up, public demo). Results: `/` and a refreshed client URL returned the app; unknown `/api/*` returned a JSON 404; hashed assets were served `immutable`; the forecast came from the cache in 17–30 ms (30-day horizon); memory 149 MB. In the browser, findings, sources, Response (public-demo note shown) and Anticipate rendered with no console errors. The gauge comparison returned 404 only because IMD was skipped in the rehearsal.
+- **Verification:** `pytest backend` 184 passed (14 new in `test_deploy.py`); `npm test` 34 passed (3 new); typecheck exit 0; build 452 kB gzipped. Docker is not installed, so the image has not been built locally.

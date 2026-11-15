@@ -133,7 +133,7 @@ The **Anticipate** tab forecasts Lucknow's daily mean temperature (NASA POWER T2
 - IMERG trends across 2014 (TRMM to GPM) and 2005 (sensor changes) may contain artifacts (NASA caveats). POWER's IMERG values have not yet been checked against native GES DISC files.
 
 ## IMD data notice
-IMD gridded rainfall is downloaded from imdpune.gov.in. No licence terms were found on the download pages. IMD asks for citation of Pai et al. (2014), MAUSAM 65(1), 1–18. Raw IMD files are **not** included in this repository.
+IMD gridded rainfall is downloaded from imdpune.gov.in. No licence terms were found on the download pages. IMD asks for citation of Pai et al. (2014), MAUSAM 65(1), 1–18. IMD files are **not** included in this repository; a deployment downloads them at build time and checks them against recorded checksums.
 
 ## Station data notice
 NOAA NCEI GSOD data for non-U.S. stations are subject to WMO Resolution 40 (Cg-XII). They are intended for free and unrestricted use in research, education and other non-commercial activities. Non-U.S. data and derived products must not be used commercially. Raw GSOD files are **not** included in this repository; the download command below fetches them from NOAA.
@@ -151,7 +151,7 @@ cd frontend; npm install; cd ..
 ```
 
 ## Run
-**1. Get the data.** A fresh clone has none, because `data/` is not committed.
+**1. Get the data.** A fresh clone already contains the public snapshot: NASA POWER for both cells, GPM IMERG via POWER and NOAA CPC gauge counts (D-027). It does **not** contain the NOAA station data or IMD data. Fetch and checksum-verify both with `.venv\Scripts\python -m earthsignal.data.deploy_data --fetch gsod imd`. The IMD download is about 650 MB. The commands below download everything again from scratch:
 ```powershell
 .venv\Scripts\python -m earthsignal.data.ingest                          # eastern cell (default)
 .venv\Scripts\python -m earthsignal.data.ingest --area lucknow_airport   # western cell
@@ -184,6 +184,14 @@ Open the URL Vite prints, normally http://localhost:5173. If that port is busy, 
 - **The dashboard says "Backend not reachable":** start the backend (step 2).
 - **The dashboard says "No data ingested yet":** run step 1.
 - **Uvicorn logs `WARNING: Invalid HTTP request received.`:** something sent non-HTTP traffic to port 8000, typically a browser trying `https://`. Use `http://`. These warnings are harmless.
+
+## Deploy (Render)
+One Docker web service serves the UI and the API (`Dockerfile`, `render.yaml`). See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the configuration, environment variables and manual steps. Production-like run without Docker:
+```powershell
+cd frontend; npm run build; cd ..
+$env:EARTHSIGNAL_FRONTEND_DIST="frontend\dist"; .venv\Scripts\python -m uvicorn earthsignal.api.main:app --app-dir backend --port 8000
+```
+Then open http://127.0.0.1:8000/. Readiness is at `/api/ready`.
 
 ## Tests
 ```powershell

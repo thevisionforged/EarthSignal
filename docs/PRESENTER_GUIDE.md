@@ -43,7 +43,7 @@ Our edge is **trust**: every number traces back to a stored NASA download, and t
 ## Likely questions and honest answers
 - **"Can it predict the weather?"** It gives a statistical temperature outlook for the next few weeks, and only because it passed a test we wrote down in advance. It's modestly better than the best simple method, mostly in the first week. It does not predict rain, and it's not a replacement for IMD's official forecasts.
 - **"Is this used for public warnings?"** No. It's an analyst's tool. Warnings need real-time data and official authority.
-- **"Why trust it?"** Raw data is stored unchanged; every result shows its source, version and method; 201 automated tests check the calculations.
+- **"Why trust it?"** Raw data is stored unchanged; every result shows its source, version and method; 218 automated tests (184 backend + 34 frontend) check the calculations.
 - **"What does it cost to run?"** It runs on a laptop with free public data. No cloud or paid services.
 - **"What's next?"** Checking each issued outlook once NASA's data for those days arrives, more cities, more variables (air quality, humidity).
 

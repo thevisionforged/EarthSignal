@@ -1,0 +1,139 @@
+{
+  "dataset_id": "power_daily_lucknow_19810101_20261113_20261114T173438Z",
+  "provider": "NASA Langley Research Center - POWER Project",
+  "product": "POWER Daily API, point request",
+  "api_version": "v2.10.3",
+  "data_sources_reported_by_api": [
+    "MERRA2",
+    "GEOSIT"
+  ],
+  "data_kind": "derived_estimate",
+  "data_kind_note": "NASA POWER meteorology is reanalysis output (MERRA-2 / GEOS-IT assimilation models), averaged over a ~0.5 x 0.625 degree grid cell. It is a model-based estimate constrained by observations, not a direct ground or satellite measurement.",
+  "methodology_summary": "Meteorological parameters derived from NASA GMAO MERRA-2 reanalysis (1981-01-01 to about one month behind real time) and GEOS-IT (near real time, ~2 day latency). Native resolution 0.5 deg lat x 0.625 deg lon. Daily values aggregated in Local Solar Time. NASA POWER recommends ending climate-trend analyses about 2 months behind near real time, because MERRA-2 values replace GEOS-IT values as they become available.",
+  "spatial_resolution": "0.5 deg latitude x 0.625 deg longitude (native MERRA-2 grid)",
+  "temporal_resolution": "daily",
+  "time_standard": "LST",
+  "request_url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,PRECTOTCORR&community=AG&longitude=80.9462&latitude=26.8467&start=19810101&end=20261113&format=JSON&time-standard=LST",
+  "parameter_metadata_url": "https://power.larc.nasa.gov/api/system/manager/parameters?community=AG&temporal=daily&parameters=T2M,PRECTOTCORR",
+  "retrieved_at_utc": "2026-11-14T17:34:38.078773+00:00",
+  "requested": {
+    "latitude": 26.8467,
+    "longitude": 80.9462,
+    "study_area": "Lucknow, Uttar Pradesh, India",
+    "start": "1981-01-01",
+    "end": "2026-11-13",
+    "parameters": [
+      "T2M",
+      "PRECTOTCORR"
+    ],
+    "community": "AG",
+    "time_standard": "LST"
+  },
+  "returned_coordinates": {
+    "longitude": 80.946,
+    "latitude": 26.847,
+    "elevation_m": 117.11
+  },
+  "fill_value": -999.0,
+  "fill_value_handling": "values equal to header.fill_value replaced with NaN; no imputation; no zero-fill",
+  "variables": {
+    "T2M": {
+      "units": "C",
+      "longname": "Temperature at 2 Meters",
+      "definition": "The average air (dry bulb) temperature at 2 meters above the surface of the earth.",
+      "metadata_units": "C"
+    },
+    "PRECTOTCORR": {
+      "units": "mm/day",
+      "longname": "Precipitation Corrected",
+      "definition": "The average MERRA-2 bias corrected total precipitation at the surface of the earth.",
+      "metadata_units": "mm/day"
+    }
+  },
+  "api_messages": [],
+  "raw_files": [
+    {
+      "role": "daily_point_response",
+      "path": "data/raw/power_daily_lucknow_19810101_20261113_20261114T173438Z/daily_point_response.json",
+      "sha256": "b37050b4ca49cd9c63e666ce9468e22a57b94e1202a64ea3643c2558a7709643"
+    },
+    {
+      "role": "parameter_metadata_response",
+      "path": "data/raw/power_daily_lucknow_19810101_20261113_20261114T173438Z/parameter_metadata_response.json",
+      "sha256": "75c9669edbbf9326ec7e6c7cc80c476439640f4e334f6cd19b466e5262847146"
+    }
+  ],
+  "processing_history": [
+    {
+      "step": "download",
+      "detail": "HTTP GET request_url; response bytes stored unmodified"
+    },
+    {
+      "step": "parse",
+      "detail": "JSON parsed; dates interpreted as YYYYMMDD in time_standard"
+    },
+    {
+      "step": "missing_values",
+      "detail": "header.fill_value -> NaN"
+    },
+    {
+      "step": "validate",
+      "detail": "continuity, duplicates, units, plausibility flags (no values altered)"
+    },
+    {
+      "step": "write_processed",
+      "detail": "data/processed/power_daily_lucknow_19810101_20261113_20261114T173438Z/daily.csv"
+    }
+  ],
+  "validation": {
+    "passed": true,
+    "errors": [],
+    "warnings": [
+      "T2M: 2 trailing missing days (expected near-real-time latency)",
+      "PRECTOTCORR: 2 trailing missing days (expected near-real-time latency)"
+    ],
+    "variables": {
+      "T2M": {
+        "n_days": 16753,
+        "n_valid": 16751,
+        "n_missing": 2,
+        "n_missing_interior": 0,
+        "n_missing_trailing": 2,
+        "first_valid": "1981-01-01",
+        "last_valid": "2026-11-11",
+        "min": 7.26,
+        "max": 42.01,
+        "n_out_of_plausible_range": 0,
+        "plausible_range": [
+          -60.0,
+          60.0
+        ]
+      },
+      "PRECTOTCORR": {
+        "n_days": 16753,
+        "n_valid": 16751,
+        "n_missing": 2,
+        "n_missing_interior": 0,
+        "n_missing_trailing": 2,
+        "first_valid": "1981-01-01",
+        "last_valid": "2026-11-11",
+        "min": 0.0,
+        "max": 142.43,
+        "n_out_of_plausible_range": 0,
+        "plausible_range": [
+          0.0,
+          1000.0
+        ]
+      }
+    }
+  },
+  "documentation": {
+    "methodology": "https://power.larc.nasa.gov/docs/methodology/",
+    "meteorology_sources": "https://power.larc.nasa.gov/docs/methodology/data/sources_meteorology/",
+    "processing": "https://power.larc.nasa.gov/docs/methodology/data/processing/",
+    "daily_api": "https://power.larc.nasa.gov/docs/services/api/temporal/daily/",
+    "referencing": "https://power.larc.nasa.gov/docs/referencing/"
+  },
+  "citation": "The data was obtained from the National Aeronautics and Space Administration (NASA) Langley Research Center (LaRC) Prediction of Worldwide Energy Resource (POWER) Project funded through the NASA Earth Science Division.",
+  "citation_data_reference": "Data obtained from the POWER Project's Daily API v2.10.3 on 2026-11-14."
+}

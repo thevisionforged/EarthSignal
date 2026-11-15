@@ -22,5 +22,24 @@ data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 
+# Deployment snapshot (D-027): processed PUBLIC datasets only, so a fresh clone can run the app.
+#   NASA POWER (both cells, with the raw API responses for checksum verification), GPM IMERG via POWER
+#   (processed only), NOAA CPC gauge counts. NEVER un-ignore data/raw/stations or data/processed/stations
+#   (NOAA GSOD, WMO Resolution 40) or IMD files (no redistribution terms found); deploys fetch those at build time.
+!data/processed/power_daily_lucknow_19810101_20261113_20261114T173438Z/
+!data/processed/power_daily_lucknow_airport_19810101_20261113_20261114T210009Z/
+!data/raw/power_daily_lucknow_19810101_20261113_20261114T173438Z/
+!data/raw/power_daily_lucknow_19810101_20261113_20261114T173438Z__source_probe_20261114T204433Z/
+!data/raw/power_daily_lucknow_airport_19810101_20261113_20261114T210009Z/
+!data/raw/power_daily_lucknow_airport_19810101_20261113_20261114T210009Z__source_probe_20261114T210014Z/
+!data/processed/imerg/
+data/processed/imerg/*
+!data/processed/imerg/imergpower_lucknow_19980101_20261113_20261114T223323Z/
+!data/processed/imerg/imergpower_lucknow_airport_19980101_20261113_20261114T223530Z/
+!data/processed/cpc/
+
 # Analyst case files (local working records, not committed)
 data/cases/
+
+# Build-time forecast evaluation cache (D-027)
+data/cache/

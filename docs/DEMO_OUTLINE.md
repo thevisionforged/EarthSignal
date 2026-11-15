@@ -4,7 +4,7 @@ Every claim below maps to something implemented and verified (see "Evidence").
 - **Source data:** POWER datasets retrieved 2026-11-14 (eastern cell `power_daily_lucknow_…T173438Z`, western cell `power_daily_lucknow_airport_…T210009Z`) and GSOD dataset `gsod_42369099999_1981_2025_…T210127Z`.
 - **Refresh before the demo:** if you re-run ingestion, take the numbers from the dashboard again.
 
-Not yet known: the specific Space Apps challenge and its submission rules. Align slide 1 wording with the challenge statement once it is chosen.
+Challenge: **Be An Earth System Trend Detective!** Still to check: that challenge's official submission rules (see `docs/SUBMISSION_DRAFT.md` §6).
 
 ---
 
@@ -69,18 +69,18 @@ Not yet known: the specific Space Apps challenge and its submission rules. Align
 - *Evidence:* `/api/precip-comparison`, CSV downloads; DECISIONS D-019.
 
 ## Slide 7: Scientific integrity and next steps
-- Built in: observed versus derived labels, immutable raw data, measured source boundary, corrected significance tests, FDR across seasons, robustness windows, a station cross-check with a homogeneity rule, a multi-source comparison with explicit aggregation rules, a common metadata interface, rule-based diagnostics, written limitations. 99 backend tests and 7 frontend tests.
+- Built in: observed versus derived labels, immutable raw data, measured source boundary, corrected significance tests, FDR across seasons, robustness windows, a station cross-check with a homogeneity rule, a multi-source comparison with explicit aggregation rules, a common metadata interface, rule-based diagnostics, written limitations, a pre-registered forecast test. **218 automated tests: 184 backend + 34 frontend.**
 - Next, planned and **not built**:
-  1. Chronological backtesting harness with simple baselines, before any forecast is shown.
+  1. Score each issued temperature outlook once NASA data for those days arrives.
   2. Investigate the POWER−station drift (station history, MERRA-2 inputs).
-  3. Verify POWER's IMERG values against native GES DISC files (needs a free Earthdata Login), and investigate which product changed around 2014.
+  3. Verify POWER's IMERG values against native GES DISC files (needs a free Earthdata Login), and explain POWER's 2006 rainfall shift.
 - Team: AstraelForge (TheVisionForged).
 - Citations: NASA LaRC POWER Project, funded through the NASA Earth Science Division (Daily API v2.10.3, accessed 2026-11-14). Huffman et al. (2023), GPM IMERG Final Precipitation L3 1 day 0.1° V07, GES DISC, doi:10.5067/GPM/IMERGDF/DAY/07, accessed via POWER 2026-11-14. NOAA NCEI Global Surface Summary of the Day (accessed 2026-11-14).
 
 ---
 
 ### Claims to avoid in the submission
-- "Satellite data" for these variables, "observed temperatures" for POWER, "forecast", or "AI predicts".
+- "Satellite data" for these variables, "observed temperatures" for POWER, "weather forecast" (say "statistical temperature outlook"; IMD forecasts come first), a rainfall forecast, or "AI predicts".
 - "Lucknow is cooling" or "Lucknow is getting wetter" stated as facts.
 - Calling the precipitation result confirmed, or saying POWER is "validated" in general. Only monthly temperature agreement was checked, and it shows a drift.
 - Implying street-scale or urban-heat-island resolution.

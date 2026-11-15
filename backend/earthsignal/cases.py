@@ -39,10 +39,18 @@ STATUS_HELP = {
     "escalated": "Flagged for review by a domain expert. Not a public alert.",
 }
 _lock = threading.Lock()
+# Upper bound on audit entries per case, so a public deployment cannot grow the case file without limit.
+# (Cases themselves are bounded: one per detected event.)
+MAX_AUDIT_ENTRIES = 200
 
 
 class CaseError(ValueError):
     pass
+
+
+def _check_room(case: dict[str, Any]) -> None:
+    if len(case["audit"]) >= MAX_AUDIT_ENTRIES:
+        raise CaseError(f"this case already has {MAX_AUDIT_ENTRIES} logged actions, the maximum; open a new case or download the brief")
 
 
 def _now() -> str:
@@ -109,6 +117,7 @@ class CaseStore:
             case = next((c for c in cases if c["id"] == case_id), None)
             if case is None:
                 raise KeyError(case_id)
+            _check_room(case)
             frm = case["status"]
             if to not in TRANSITIONS[frm]:
                 raise CaseError(f"cannot move a case from {frm!r} to {to!r}; allowed: {sorted(TRANSITIONS[frm])}")
@@ -131,6 +140,7 @@ class CaseStore:
             case = next((c for c in cases if c["id"] == case_id), None)
             if case is None:
                 raise KeyError(case_id)
+            _check_room(case)
             now = _now()
             case["notes"].append({"at": now, "text": text})
             case["audit"].append({"at": now, "action": "note", "status": case["status"], "note": text})

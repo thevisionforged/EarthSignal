@@ -26,6 +26,8 @@ from earthsignal.data import gsod, imd, imerg_power, store
 
 Kind = Literal["heat", "rain"]
 OTHER = {"lucknow": "lucknow_airport", "lucknow_airport": "lucknow"}
+PUBLIC_DEMO_NOTE = ("Public demo: cases here are visible to every visitor and are cleared whenever the server restarts. "
+                    "Do not enter personal information.")
 
 EXPLAIN = {
     "heat": ("A heat episode is 3 or more days in a row that were hotter than 95% of days at the same time of year in "
@@ -65,7 +67,7 @@ class NoteIn(BaseModel):
     text: str = Field(max_length=2000)
 
 
-def build_router(processed_root: Path, cases_path: Path) -> APIRouter:
+def build_router(processed_root: Path, cases_path: Path, public_demo: bool = False) -> APIRouter:
     r = APIRouter(tags=["response"])
     cases = CaseStore(cases_path)
     cache: dict[tuple, tuple] = {}
@@ -186,7 +188,8 @@ def build_router(processed_root: Path, cases_path: Path) -> APIRouter:
 
     @r.get("/api/cases")
     def list_cases() -> dict:
-        return {"cases": cases.list(), "statuses": STATUS_HELP, "transitions": {k: sorted(v) for k, v in TRANSITIONS.items()}}
+        return {"cases": cases.list(), "statuses": STATUS_HELP, "transitions": {k: sorted(v) for k, v in TRANSITIONS.items()},
+                "storage_note": PUBLIC_DEMO_NOTE if public_demo else None}
 
     @r.post("/api/cases")
     def create_case(body: CaseCreate) -> dict:

@@ -1,4 +1,5 @@
 /** Pure Simulation Studio helpers (unit-tested). They shape inputs and results; no climate numbers are made here. */
+import { apiUrl } from "../apiBase";
 
 export type Params = Record<string, string | number>;
 
@@ -9,7 +10,7 @@ export function queryString(p: Params): string {
 }
 
 export function simUrl(tool: string, p: Params, format: "json" | "csv" = "json"): string {
-  return `/api/sim/${tool}?${queryString(format === "csv" ? { ...p, format: "csv" } : p)}`;
+  return apiUrl(`/api/sim/${tool}?${queryString(format === "csv" ? { ...p, format: "csv" } : p)}`);
 }
 
 /** Clamp to a control's range and snap to its step, so typed values can never leave the allowed domain. */

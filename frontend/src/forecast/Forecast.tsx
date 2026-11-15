@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { apiUrl } from "../apiBase";
 import Chart from "../Chart";
 import { baselineSkill, departureWords, ForecastDay, isoToday, LeadResult, mean, METHOD_LABEL, pct, splitByToday, weekSummary } from "./logic";
 import "./forecast.css";
@@ -25,7 +26,7 @@ export function ForecastView() {
   useEffect(() => {
     setRes(null);
     setErr(null);
-    fetch(`/api/forecast?area=${area}`)
+    fetch(apiUrl(`/api/forecast?area=${area}`))
       .then(async (r) => {
         if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail ?? r.statusText);
         return r.json();
@@ -107,7 +108,7 @@ function Body({ res, today }: { res: ForecastRes; today: string }) {
               ({ev.dev_years[0]}–{ev.dev_years[1]}) the band contained the actual value {pct(mean(ev.per_lead.map((r) => r.band_coverage_dev)))} of the time.
             </p>
             <DayTable days={fcst.days} today={today} />
-            <a className="fc-csv" href={`/api/forecast?area=${res.area}&format=csv`} download>⬇ Download the forecast (CSV)</a>
+            <a className="fc-csv" href={apiUrl(`/api/forecast?area=${res.area}&format=csv`)} download>⬇ Download the forecast (CSV)</a>
           </section>
         </>
       )}

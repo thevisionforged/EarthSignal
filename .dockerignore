@@ -1,0 +1,23 @@
+# Keep a local `docker build` identical to a build from a fresh clone: no local-only data, secrets or caches.
+.git
+.env
+.env.*
+.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/*.egg-info
+frontend/node_modules
+frontend/dist
+docs
+
+# Data: only the committed public snapshot and the checksum manifests go into the image.
+data/raw/*
+!data/raw/power_daily_lucknow_*
+data/processed/*
+!data/processed/power_daily_lucknow_*
+!data/processed/imerg
+data/processed/imerg/imergpower_lucknow_20240701_20240731_*
+!data/processed/cpc
+data/cases
+data/cache

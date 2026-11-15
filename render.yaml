@@ -1,0 +1,21 @@
+# Render Blueprint for EarthSignal (DECISIONS D-027). One free Docker web service serving the UI and the API.
+# Field names checked against https://render.com/docs/blueprint-spec on 2026-11-15.
+services:
+  - type: web
+    name: earthsignal
+    runtime: docker
+    plan: free                   # 0.1 CPU, 512 MB; spins down after 15 min idle (~1 min to wake)
+    region: singapore            # closest Render region to Lucknow; cannot be changed after creation
+    branch: master
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/ready  # 200 only when NASA POWER data for both cells is present
+    autoDeployTrigger: "off"     # deploy manually; pushes do not redeploy
+    envVars:
+      # Render passes these to the Docker build as build args too.
+      - key: EARTHSIGNAL_PUBLIC_DEMO
+        value: "1"
+      - key: EARTHSIGNAL_WARMUP
+        value: "1"
+      - key: FETCH_SOURCES       # GSOD + IMD are downloaded and checksum-verified at build time
+        value: "gsod imd"

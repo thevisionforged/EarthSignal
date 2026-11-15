@@ -1,0 +1,768 @@
+{
+  "source": "NOAA CPC Unified gauge analysis, CPC HTTPS archive (daily binary incl. gauge counts)",
+  "readme": "https://ftp.cpc.ncep.noaa.gov/precip/CPC_UNI_PRCP/GAUGE_GLB/DOCU/PRCP_CU_GAUGE_V1.0GLB_0.50deg_README.txt",
+  "n_days": 54,
+  "neighbourhood_deg": 2.0,
+  "areas": {
+    "lucknow": [
+      {
+        "date": "1998-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 31554
+      },
+      {
+        "date": "1998-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 0,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 30374
+      },
+      {
+        "date": "1999-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 6,
+        "gauges_global": 30867
+      },
+      {
+        "date": "1999-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 6,
+        "gauges_global": 30487
+      },
+      {
+        "date": "2000-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 31404
+      },
+      {
+        "date": "2000-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 6,
+        "gauges_global": 32384
+      },
+      {
+        "date": "2001-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 31682
+      },
+      {
+        "date": "2001-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 33600
+      },
+      {
+        "date": "2002-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 6,
+        "gauges_global": 32639
+      },
+      {
+        "date": "2002-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 32854
+      },
+      {
+        "date": "2003-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 0,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 34336
+      },
+      {
+        "date": "2003-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 6,
+        "gauges_global": 34538
+      },
+      {
+        "date": "2004-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 6,
+        "gauges_global": 25270
+      },
+      {
+        "date": "2004-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 23951
+      },
+      {
+        "date": "2005-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 8,
+        "gauges_global": 22681
+      },
+      {
+        "date": "2005-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 22995
+      },
+      {
+        "date": "2006-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 21173
+      },
+      {
+        "date": "2006-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 22386
+      },
+      {
+        "date": "2007-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 18773
+      },
+      {
+        "date": "2007-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 0,
+        "gauges_in_neighbourhood": 4,
+        "gauges_global": 19694
+      },
+      {
+        "date": "2008-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 17667
+      },
+      {
+        "date": "2008-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 16347
+      },
+      {
+        "date": "2009-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 17431
+      },
+      {
+        "date": "2009-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 6,
+        "gauges_global": 15919
+      },
+      {
+        "date": "2010-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 8,
+        "gauges_global": 16827
+      },
+      {
+        "date": "2010-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 6,
+        "gauges_global": 15757
+      },
+      {
+        "date": "2011-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 17032
+      },
+      {
+        "date": "2011-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 6,
+        "gauges_global": 16504
+      },
+      {
+        "date": "2012-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 16459
+      },
+      {
+        "date": "2012-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 16187
+      },
+      {
+        "date": "2013-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 8,
+        "gauges_global": 17434
+      },
+      {
+        "date": "2013-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 17603
+      },
+      {
+        "date": "2014-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 16807
+      },
+      {
+        "date": "2014-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 17105
+      },
+      {
+        "date": "2015-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 15664
+      },
+      {
+        "date": "2015-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 7,
+        "gauges_global": 14826
+      },
+      {
+        "date": "2016-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 15,
+        "gauges_global": 15424
+      },
+      {
+        "date": "2016-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 15,
+        "gauges_global": 15849
+      },
+      {
+        "date": "2017-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 15,
+        "gauges_global": 16882
+      },
+      {
+        "date": "2017-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 15,
+        "gauges_global": 18266
+      },
+      {
+        "date": "2018-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 13,
+        "gauges_global": 14876
+      },
+      {
+        "date": "2018-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 15,
+        "gauges_global": 15671
+      },
+      {
+        "date": "2019-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 16,
+        "gauges_global": 16134
+      },
+      {
+        "date": "2019-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 16,
+        "gauges_global": 16513
+      },
+      {
+        "date": "2020-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 14,
+        "gauges_global": 18861
+      },
+      {
+        "date": "2020-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 13,
+        "gauges_global": 18275
+      },
+      {
+        "date": "2021-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 15,
+        "gauges_global": 18963
+      },
+      {
+        "date": "2021-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 15,
+        "gauges_global": 18661
+      },
+      {
+        "date": "2022-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 15,
+        "gauges_global": 21900
+      },
+      {
+        "date": "2022-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 15,
+        "gauges_global": 22014
+      },
+      {
+        "date": "2023-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 15,
+        "gauges_global": 18237
+      },
+      {
+        "date": "2023-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 15,
+        "gauges_global": 20748
+      },
+      {
+        "date": "2024-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 15,
+        "gauges_global": 19544
+      },
+      {
+        "date": "2024-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 17,
+        "gauges_global": 20592
+      }
+    ],
+    "lucknow_airport": [
+      {
+        "date": "1998-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 3,
+        "gauges_global": 31554
+      },
+      {
+        "date": "1998-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 0,
+        "gauges_in_neighbourhood": 3,
+        "gauges_global": 30374
+      },
+      {
+        "date": "1999-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 4,
+        "gauges_global": 30867
+      },
+      {
+        "date": "1999-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 4,
+        "gauges_global": 30487
+      },
+      {
+        "date": "2000-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 3,
+        "gauges_global": 31404
+      },
+      {
+        "date": "2000-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 4,
+        "gauges_global": 32384
+      },
+      {
+        "date": "2001-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 31682
+      },
+      {
+        "date": "2001-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 33600
+      },
+      {
+        "date": "2002-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 32639
+      },
+      {
+        "date": "2002-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 32854
+      },
+      {
+        "date": "2003-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 0,
+        "gauges_in_neighbourhood": 3,
+        "gauges_global": 34336
+      },
+      {
+        "date": "2003-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 4,
+        "gauges_global": 34538
+      },
+      {
+        "date": "2004-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 4,
+        "gauges_global": 25270
+      },
+      {
+        "date": "2004-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 3,
+        "gauges_global": 23951
+      },
+      {
+        "date": "2005-07-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 6,
+        "gauges_global": 22681
+      },
+      {
+        "date": "2005-08-15",
+        "version": "V1.0",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 22995
+      },
+      {
+        "date": "2006-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 4,
+        "gauges_global": 21173
+      },
+      {
+        "date": "2006-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 4,
+        "gauges_global": 22386
+      },
+      {
+        "date": "2007-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 18773
+      },
+      {
+        "date": "2007-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 0,
+        "gauges_in_neighbourhood": 3,
+        "gauges_global": 19694
+      },
+      {
+        "date": "2008-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 17667
+      },
+      {
+        "date": "2008-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 16347
+      },
+      {
+        "date": "2009-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 4,
+        "gauges_global": 17431
+      },
+      {
+        "date": "2009-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 15919
+      },
+      {
+        "date": "2010-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 6,
+        "gauges_global": 16827
+      },
+      {
+        "date": "2010-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 15757
+      },
+      {
+        "date": "2011-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 17032
+      },
+      {
+        "date": "2011-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 16504
+      },
+      {
+        "date": "2012-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 16459
+      },
+      {
+        "date": "2012-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 16187
+      },
+      {
+        "date": "2013-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 6,
+        "gauges_global": 17434
+      },
+      {
+        "date": "2013-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 17603
+      },
+      {
+        "date": "2014-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 16807
+      },
+      {
+        "date": "2014-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 3,
+        "gauges_global": 17105
+      },
+      {
+        "date": "2015-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 15664
+      },
+      {
+        "date": "2015-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 1,
+        "gauges_in_neighbourhood": 5,
+        "gauges_global": 14826
+      },
+      {
+        "date": "2016-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 14,
+        "gauges_global": 15424
+      },
+      {
+        "date": "2016-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 14,
+        "gauges_global": 15849
+      },
+      {
+        "date": "2017-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 13,
+        "gauges_global": 16882
+      },
+      {
+        "date": "2017-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 13,
+        "gauges_global": 18266
+      },
+      {
+        "date": "2018-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 12,
+        "gauges_global": 14876
+      },
+      {
+        "date": "2018-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 13,
+        "gauges_global": 15671
+      },
+      {
+        "date": "2019-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 14,
+        "gauges_global": 16134
+      },
+      {
+        "date": "2019-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 14,
+        "gauges_global": 16513
+      },
+      {
+        "date": "2020-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 13,
+        "gauges_global": 18861
+      },
+      {
+        "date": "2020-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 12,
+        "gauges_global": 18275
+      },
+      {
+        "date": "2021-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 13,
+        "gauges_global": 18963
+      },
+      {
+        "date": "2021-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 13,
+        "gauges_global": 18661
+      },
+      {
+        "date": "2022-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 14,
+        "gauges_global": 21900
+      },
+      {
+        "date": "2022-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 13,
+        "gauges_global": 22014
+      },
+      {
+        "date": "2023-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 14,
+        "gauges_global": 18237
+      },
+      {
+        "date": "2023-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 14,
+        "gauges_global": 20748
+      },
+      {
+        "date": "2024-07-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 15,
+        "gauges_global": 19544
+      },
+      {
+        "date": "2024-08-15",
+        "version": "RT",
+        "gauges_in_cell_boxes": 2,
+        "gauges_in_neighbourhood": 16,
+        "gauges_global": 20592
+      }
+    ]
+  }
+}

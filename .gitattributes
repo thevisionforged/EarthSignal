@@ -1,0 +1,8 @@
+# Data files are stored and checked out byte-for-byte, so the SHA-256 checksums in provenance.json and
+# data/manifests/ keep verifying on every OS (no line-ending conversion).
+data/** -text
+# Files read inside the Linux build image keep LF endings.
+Dockerfile text eol=lf
+render.yaml text eol=lf
+.dockerignore text eol=lf
+backend/requirements.lock text eol=lf

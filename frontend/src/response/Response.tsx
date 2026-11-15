@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { apiUrl } from "../apiBase";
 import Chart from "../Chart";
 import { ACTION_LABEL, EventRow, eventTitle, frequencyText, needsReason, severityText, sortEvents, SortKey, STATUS_LABEL, verdictLabel } from "./logic";
 import "./response.css";
@@ -32,10 +33,10 @@ interface Case {
   audit: { at: string; action: string; from?: string; status: string; note?: string }[];
   updated_at: string;
 }
-interface CasesRes { cases: Case[]; statuses: Record<string, string>; transitions: Record<string, string[]> }
+interface CasesRes { cases: Case[]; statuses: Record<string, string>; transitions: Record<string, string[]>; storage_note?: string | null }
 
 async function call<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, init);
+  const res = await fetch(apiUrl(url), init);
   if (!res.ok) {
     let d = res.statusText;
     try {
@@ -286,6 +287,7 @@ function CasePanel({ cases, activeId, setActive, reload, onError }: { cases: Cas
     <div className="cases">
       <div className="case-list">
         <p className="ri-plain"><b>Cases</b> are an analyst’s working records. They are stored only on this computer.</p>
+        {cases.storage_note && <p className="ri-explain">{cases.storage_note}</p>}
         {cases.cases.length === 0 && <p className="ri-empty">No cases yet. Open one from an event in step 2.</p>}
         <ul>
           {cases.cases.map((c) => (
@@ -337,7 +339,7 @@ function CasePanel({ cases, activeId, setActive, reload, onError }: { cases: Cas
                 </li>
               ))}
             </ol>
-            <a className="ri-btn link" href={`/api/cases/${active.id}/brief`} download>⬇ Download evidence brief (Markdown)</a>
+            <a className="ri-btn link" href={apiUrl(`/api/cases/${active.id}/brief`)} download>⬇ Download evidence brief (Markdown)</a>
           </>
         )}
       </div>

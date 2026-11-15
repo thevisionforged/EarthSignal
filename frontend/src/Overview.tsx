@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { api, m4Api, multiApi } from "./api";
-import { Finding, rainfallFinding, stationFinding, temperatureFinding } from "./findings";
+import { Finding, rainfallFinding, stationFinding, temperatureFinding, unavailableFinding } from "./findings";
+
+// Optional sources: a failure becomes an "unavailable" line instead of hiding every finding.
+const settle = <T,>(p: Promise<T>): Promise<{ ok: T } | { err: string }> =>
+  p.then((ok) => ({ ok }), (e) => ({ err: String(e?.message ?? e) }));
 
 type State = { findings: Finding[]; nSources: number } | { error: string } | null;
 
@@ -11,18 +15,19 @@ export function OverviewView({ go }: { go: (view: "analysis" | "sources") => voi
     Promise.all([
       api.trend("lucknow", "T2M"),
       api.trend("lucknow_airport", "T2M"),
-      api.stationComparison(),
-      m4Api.arbitration("lucknow"),
-      m4Api.arbitration("lucknow_airport"),
+      settle(api.stationComparison()),
+      settle(Promise.all([m4Api.arbitration("lucknow"), m4Api.arbitration("lucknow_airport")])),
       multiApi.sources(),
     ])
-      .then(([te, tw, st, ae, aw, src]) => {
+      .then(([te, tw, st, arb, src]) => {
         if (!live) return;
         const findings: Finding[] = [temperatureFinding(te.result, tw.result)];
-        if (st.trend_comparison) {
-          findings.push(stationFinding(st.trend_comparison.difference_power_minus_station, st.trend_comparison.years));
+        if ("err" in st) findings.push(unavailableFinding("station", "Weather-station check", st.err, "analysis"));
+        else if (st.ok.trend_comparison) {
+          findings.push(stationFinding(st.ok.trend_comparison.difference_power_minus_station, st.ok.trend_comparison.years));
         }
-        findings.push(rainfallFinding(ae, aw));
+        if ("err" in arb) findings.push(unavailableFinding("rainfall", "Rain-gauge check of the rainfall trend", arb.err, "sources"));
+        else findings.push(rainfallFinding(arb.ok[0], arb.ok[1]));
         setState({ findings, nSources: src.length });
       })
       .catch((e) => live && setState({ error: String(e.message ?? e) }));

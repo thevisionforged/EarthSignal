@@ -6,6 +6,8 @@ Run (from repo root):  .venv\\Scripts\\python -m uvicorn earthsignal.api.main:ap
 from __future__ import annotations
 
 import math
+import threading
+from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Literal
@@ -21,12 +23,13 @@ from earthsignal.analysis import seasonal as seasonal_mod
 from earthsignal.analysis import sensitivity as sensitivity_mod
 from earthsignal.analysis import trend as trend_mod
 from earthsignal.analysis import arbiter, multisource
-from earthsignal.config import DEFAULT_AREA, PROCESSED_DIR, STUDY_AREAS
+from earthsignal.config import DEFAULT_AREA, PROCESSED_DIR, STUDY_AREAS, DeploySettings
 from earthsignal.data import cpc, gsod, imd, imerg_power, store
 from earthsignal.metadata import describe
 from earthsignal.api.simulation import build_router as build_sim_router
 from earthsignal.api.response import build_router as build_response_router
 from earthsignal.api.forecast import build_router as build_forecast_router
+from earthsignal.api import deploy
 
 MONTHLY_MIN_COVERAGE = 0.9
 
@@ -37,8 +40,26 @@ def _clean(values) -> list[float | None]:
     return [None if (v is None or (isinstance(v, float) and math.isnan(v))) else round(float(v), 4) for v in values]
 
 
-def create_app(processed_root: Path = PROCESSED_DIR, cases_path: Path | None = None) -> FastAPI:
-    app = FastAPI(title="EarthSignal API", version=__version__)
+def create_app(processed_root: Path = PROCESSED_DIR, cases_path: Path | None = None,
+               settings: DeploySettings | None = None) -> FastAPI:
+    settings = settings or DeploySettings()
+    warm_state: dict = {"enabled": settings.warmup, "done": False, "error": None}
+    forecast_router = build_forecast_router(processed_root, settings.cache_dir)
+
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI):
+        if settings.warmup:
+            def warm() -> None:
+                try:
+                    forecast_router.warm()
+                except Exception as exc:  # report, never crash the server over a warm-up
+                    warm_state["error"] = f"{type(exc).__name__}: {exc}"
+                warm_state["done"] = True
+            threading.Thread(target=warm, name="forecast-warmup", daemon=True).start()
+        yield
+
+    app = FastAPI(title="EarthSignal API", version=__version__, lifespan=lifespan)
+    deploy.add_cors(app, settings.cors_origins)
 
     def _load(dataset_id: str | None, area: str = DEFAULT_AREA) -> store.Dataset:
         if area not in STUDY_AREAS:
@@ -48,7 +69,7 @@ def create_app(processed_root: Path = PROCESSED_DIR, cases_path: Path | None = N
         except store.NoDatasetError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
 
-    @app.get("/")
+    @app.get("/api")
     def root() -> dict:
         return {
             "service": "EarthSignal API",
@@ -57,15 +78,16 @@ def create_app(processed_root: Path = PROCESSED_DIR, cases_path: Path | None = N
                 "/api/health", "/api/datasets", "/api/provenance", "/api/timeseries", "/api/trend",
                 "/api/seasonal", "/api/sensitivity", "/api/areas", "/api/station-comparison",
                 "/api/backtest", "/api/sources", "/api/precip-comparison", "/api/precip-comparison.csv", "/api/precip-arbitration", "/api/sim/*", "/api/forecast",
+                "/api/response/*", "/api/cases", "/api/ready",
             ],
             "docs": "/docs",
-            "ui": "Run the frontend (cd frontend; npm run dev) and open the URL Vite prints.",
+            "ui": "Served at / when EARTHSIGNAL_FRONTEND_DIST is set; otherwise run the frontend (cd frontend; npm run dev).",
         }
 
     @app.get("/api/health")
     def health() -> dict:
         n = len(store.list_provenance(processed_root))
-        return {"status": "ok", "version": __version__, "datasets_available": n}
+        return {"status": "ok", "version": __version__, "datasets_available": n, "public_demo": settings.public_demo}
 
     @app.get("/api/datasets")
     def datasets() -> list[dict]:
@@ -420,10 +442,17 @@ def create_app(processed_root: Path = PROCESSED_DIR, cases_path: Path | None = N
         )
 
     app.include_router(build_sim_router(processed_root))
-    app.include_router(build_forecast_router(processed_root))
-    app.include_router(build_response_router(processed_root, cases_path or processed_root.parent / "cases" / "cases.json"))
+    app.include_router(forecast_router)
+    app.include_router(build_response_router(processed_root, cases_path or processed_root.parent / "cases" / "cases.json",
+                                             public_demo=settings.public_demo))
+    deploy.add_ready(app, processed_root, warm_state)
+
+    if settings.frontend_dist is not None:
+        deploy.mount_frontend(app, settings.frontend_dist)  # must come last: it has a catch-all route
+    else:
+        app.add_api_route("/", root, include_in_schema=False)
 
     return app
 
 
-app = create_app()
+app = create_app(settings=DeploySettings.from_env())

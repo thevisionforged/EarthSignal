@@ -1,0 +1,111 @@
+{
+  "dataset_id": "power_daily_lucknow_19810101_20261113_20261114T173438Z",
+  "probed_at_utc": "2026-11-14T20:44:33.744579+00:00",
+  "method": "binary search of single-day POWER requests; header.sources per day",
+  "assumption": "MERRA2 up to a boundary date, GEOSIT after it (checked at search endpoints)",
+  "raw_probe_dir": "data/raw/power_daily_lucknow_19810101_20261113_20261114T173438Z__source_probe_20261114T204433Z",
+  "geosit_present": true,
+  "last_merra2_day": "2026-09-30",
+  "first_geosit_day": "2026-10-01",
+  "probes": [
+    {
+      "date": "2020-01-01",
+      "sources": [
+        "MERRA2"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20200101&end=20200101&format=JSON&time-standard=LST"
+    },
+    {
+      "date": "2026-11-11",
+      "sources": [
+        "GEOSIT"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20261111&end=20261111&format=JSON&time-standard=LST"
+    },
+    {
+      "date": "2023-06-07",
+      "sources": [
+        "MERRA2"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20230607&end=20230607&format=JSON&time-standard=LST"
+    },
+    {
+      "date": "2025-02-22",
+      "sources": [
+        "MERRA2"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20250222&end=20250222&format=JSON&time-standard=LST"
+    },
+    {
+      "date": "2026-01-01",
+      "sources": [
+        "MERRA2"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20260101&end=20260101&format=JSON&time-standard=LST"
+    },
+    {
+      "date": "2026-06-07",
+      "sources": [
+        "MERRA2"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20260607&end=20260607&format=JSON&time-standard=LST"
+    },
+    {
+      "date": "2026-08-24",
+      "sources": [
+        "MERRA2"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20260824&end=20260824&format=JSON&time-standard=LST"
+    },
+    {
+      "date": "2026-10-02",
+      "sources": [
+        "GEOSIT"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20261002&end=20261002&format=JSON&time-standard=LST"
+    },
+    {
+      "date": "2026-09-12",
+      "sources": [
+        "MERRA2"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20260912&end=20260912&format=JSON&time-standard=LST"
+    },
+    {
+      "date": "2026-09-22",
+      "sources": [
+        "MERRA2"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20260922&end=20260922&format=JSON&time-standard=LST"
+    },
+    {
+      "date": "2026-09-27",
+      "sources": [
+        "MERRA2"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20260927&end=20260927&format=JSON&time-standard=LST"
+    },
+    {
+      "date": "2026-09-29",
+      "sources": [
+        "MERRA2"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20260929&end=20260929&format=JSON&time-standard=LST"
+    },
+    {
+      "date": "2026-09-30",
+      "sources": [
+        "MERRA2"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20260930&end=20260930&format=JSON&time-standard=LST"
+    },
+    {
+      "date": "2026-10-01",
+      "sources": [
+        "GEOSIT"
+      ],
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=AG&longitude=80.9462&latitude=26.8467&start=20261001&end=20261001&format=JSON&time-standard=LST"
+    }
+  ],
+  "note": "Boundary as served at probe time. The dataset itself was retrieved at 2026-11-14T17:34:38.078773+00:00; NASA back-fills MERRA-2 over time, so the boundary at that retrieval may have been slightly earlier."
+}

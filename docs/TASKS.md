@@ -121,8 +121,17 @@ Priority order. Status: `[x]` done and tested · `[~]` in progress · `[ ]` not 
 - [x] Tests: backend 170 (8 new: leakage, known-answer synthetic cases, pass rule, issuing); frontend 31 (5 new)
 - [x] Browser check (both cells, phone width, no console errors); docs and presenter guide updated
 - [x] Committed and pushed (approved 2026-11-15)
-- [ ] Optional: deck slide for the outlook
+- [x] Deck slide for the outlook
 - [ ] Later: record issued forecasts and score them when NASA data for those days arrives
+
+## Deployment preparation (Render; D-027)
+- [x] Audit: GitHub HEAD = local HEAD = 6010fd6; runtime needs only `data/processed/`; no secrets, local paths or data files in history
+- [x] Public data snapshot committed-ready (NASA POWER, IMERG via POWER, CPC counts); GSOD and IMD fetched and checksum-verified at build
+- [x] Build-time cached forecast evaluation (code-tagged); `/api/ready`; SPA fallback; optional CORS and `VITE_API_BASE`; public-demo case note and audit cap
+- [x] `Dockerfile`, `.dockerignore`, `render.yaml`, `backend/requirements.lock`, `docs/DEPLOYMENT.md`
+- [x] Clean-copy rehearsal (frontend build, GSOD fetch and verify, precompute, production server); live checksum checks (GSOD 45/45, IMD 2024)
+- [ ] User: review, approve commit and push, make the repository public, create the Render Blueprint, share the deck
+- [ ] First real Docker build happens on Render (Docker is not installed locally)
 
 ## Deferred / backlog
 - [ ] Playwright end-to-end test (needs a ~100–300 MB browser download; ask first)

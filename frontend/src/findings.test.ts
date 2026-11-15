@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ArbLite, rainfallFinding, stationFinding, temperatureFinding } from "./findings";
+import { ArbLite, rainfallFinding, stationFinding, temperatureFinding, unavailableFinding } from "./findings";
 
 const t = (s: number, pv: number) => ({ sen_slope_per_decade: s, modified_mk_p_value: pv, significant_at_0_05: pv < 0.05 });
 
@@ -43,5 +43,15 @@ describe("rainfallFinding", () => {
     const f = rainfallFinding(arb([129, 0.02], [-150, 0.01], 0.5), arb([10, 0.6], [4, 0.9], 0.5));
     expect(f.headline).toMatch(/^Rainfall sources disagree/);
     expect(f.evidence).not.toMatch(/2006/);
+  });
+});
+
+describe("unavailableFinding", () => {
+  it("names what is missing without inventing numbers", () => {
+    const f = unavailableFinding("rainfall", "Rain-gauge check of the rainfall trend", "No IMD dataset", "sources");
+    expect(f.key).toBe("rainfall-unavailable");
+    expect(f.headline).toContain("not available");
+    expect(f.evidence).toContain("No IMD dataset");
+    expect(/\d/.test(f.headline + f.evidence.replace("No IMD dataset", ""))).toBe(false);
   });
 });

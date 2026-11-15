@@ -17,6 +17,7 @@ EarthSignal turns NASA Earth observations into climate findings for Lucknow, Ind
   - NASA POWER drifts from the airport thermometer after 2006.
   - POWER's rainfall increase is not supported by rain gauges in the western cell.
 - **Restraint:** EarthSignal reports what the data supports, and what it doesn't.
+- **Testing:** 218 automated tests (184 backend + 34 frontend).
 
 ## 3. NASA data used (with citations)
 - **NASA POWER Daily API** v2.10.3: T2M and PRECTOTCORR (NASA GMAO MERRA-2 / GEOS-IT), Lucknow, 1981–2026. Accessed 2026-11-14.
@@ -42,11 +43,11 @@ EarthSignal turns NASA Earth observations into climate findings for Lucknow, Ind
 ## 6. Confirm against the official rules before submitting
 - [ ] Required submission fields, and limits on length or word count
 - [ ] Demo format: video length limit and/or number of slides; whether a public link is required
-- [ ] Whether the code repository must be public. It is **private** now; making it public is your decision.
+- [ ] Whether the code repository must be public. It is **private** now; you have approved making it public, which you will do yourself.
 - [ ] Licence requirements. The code is MIT-licensed (`LICENSE`, chosen by the user on 2026-11-15). Data keeps its providers' terms.
 - [ ] Rules on work done before the event. EarthSignal's history is in git from 2026-11-14.
 - [ ] AI-use disclosure wording, and whether AI-assisted projects are allowed in your event or category
-- [ ] Challenge selection: which official challenge statement EarthSignal answers. Not chosen yet; slide 1 depends on it.
+- [x] Challenge selection: **Be An Earth System Trend Detective!** (chosen by the team). Still check its official statement and requirements.
 - [ ] Team, eligibility and deadline for your local or virtual event
 
 ## 7. Links (fill in after your decisions)

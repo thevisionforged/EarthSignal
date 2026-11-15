@@ -1,0 +1,22 @@
+{
+  "dataset_id": "power_daily_lucknow_airport_19810101_20261113_20261114T210009Z",
+  "study_area": {
+    "name": "Lucknow airport (Chaudhary Charan Singh Intl), Uttar Pradesh, India",
+    "latitude": 26.761,
+    "longitude": 80.889,
+    "note": "Point at the Lucknow airport weather station; the value is that of the enclosing MERRA-2/GEOS-IT grid cell (centred near 27.0 N, 80.625 E), which covers the airport and western Lucknow (D-013).",
+    "key": "lucknow_airport",
+    "label": "Western cell (Lucknow airport station)"
+  },
+  "requested_start": "1981-01-01",
+  "requested_end": "2026-11-13",
+  "parameters": [
+    "T2M",
+    "PRECTOTCORR"
+  ],
+  "community": "AG",
+  "time_standard": "LST",
+  "request_url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,PRECTOTCORR&community=AG&longitude=80.8890&latitude=26.7610&start=19810101&end=20261113&format=JSON&time-standard=LST",
+  "parameter_metadata_url": "https://power.larc.nasa.gov/api/system/manager/parameters?community=AG&temporal=daily&parameters=T2M,PRECTOTCORR",
+  "retrieved_at_utc": "2026-11-14T21:00:09.816613+00:00"
+}

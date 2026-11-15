@@ -12,6 +12,40 @@ RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 
 
+def _flag(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+@dataclass(frozen=True)
+class DeploySettings:
+    """Deployment switches, all off by default so local development is unchanged (D-027).
+
+    EARTHSIGNAL_FRONTEND_DIST  path to the built frontend (frontend/dist); when set, the API also serves the UI
+    EARTHSIGNAL_CORS_ORIGINS   comma-separated origins allowed to call the API from another domain (split deploy only)
+    EARTHSIGNAL_WARMUP         1 = compute the forecast evaluation in the background at startup
+    EARTHSIGNAL_PUBLIC_DEMO    1 = tell visitors that analyst cases are shared and reset when the server restarts
+    EARTHSIGNAL_CACHE_DIR      folder for the cached forecast evaluation (deploy: filled at build time)
+    """
+
+    frontend_dist: Path | None = None
+    cors_origins: tuple[str, ...] = ()
+    warmup: bool = False
+    public_demo: bool = False
+    cache_dir: Path | None = None
+
+    @classmethod
+    def from_env(cls) -> "DeploySettings":
+        dist = os.environ.get("EARTHSIGNAL_FRONTEND_DIST", "").strip()
+        origins = tuple(o.strip().rstrip("/") for o in os.environ.get("EARTHSIGNAL_CORS_ORIGINS", "").split(",") if o.strip())
+        return cls(
+            frontend_dist=Path(dist) if dist else None,
+            cors_origins=origins,
+            warmup=_flag("EARTHSIGNAL_WARMUP"),
+            public_demo=_flag("EARTHSIGNAL_PUBLIC_DEMO"),
+            cache_dir=Path(c) if (c := os.environ.get("EARTHSIGNAL_CACHE_DIR", "").strip()) else None,
+        )
+
+
 @dataclass(frozen=True)
 class StudyArea:
     name: str

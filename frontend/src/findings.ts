@@ -79,3 +79,14 @@ export function rainfallFinding(east: ArbLite, west: ArbLite, breakAlpha = 0.025
       : "");
   return { key: "rainfall", headline, evidence, view: "sources" };
 }
+
+/** Shown in place of a finding whose source data is not on this server (e.g. a build could not download it).
+ * Contains no climate numbers: it only says what is missing. */
+export function unavailableFinding(key: string, what: string, reason: string, view: Finding["view"]): Finding {
+  return {
+    key: `${key}-unavailable`,
+    headline: `${what}: not available on this server right now.`,
+    evidence: `The data this finding needs could not be loaded (${reason}). The other findings are unaffected.`,
+    view,
+  };
+}

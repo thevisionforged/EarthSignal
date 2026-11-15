@@ -243,3 +243,15 @@ The sources_meteorology page explains that PRECTOTCORR uses MERRA-2's observatio
 - **Western cell:** leads 1–29 pass (anomaly regression). At lead 30 development chose seasonal damped persistence, whose hold-out gain (0.4%) failed the bootstrap rule, so the shown horizon is 29 days.
 - **Band check:** hold-out error bands contained 91–92% of development-period values (target 90%).
 - **Interpretation:** a real but modest gain, consistent with the 7- and 30-day mean anomalies capturing slow departures from a fixed climatology. Skill against the seasonal average falls from 77% at lead 1 to about 7% at lead 30.
+
+## D-027: Public deployment on Render (2026-11-15)
+- **Context:** the user approved making the repository public, deploying publicly and sharing the deck. A fresh clone had no data, so a deployment would show nothing.
+- **Shape:** one Docker web service. FastAPI serves `/api/*` and the built React app; any other path returns `index.html`, so a page refresh works. The UI and API share one origin, so no CORS is needed by default. Optional `EARTHSIGNAL_CORS_ORIGINS` and `VITE_API_BASE` support a split deploy.
+- **Data, by licence:**
+  - Committed: a snapshot of the public datasets (processed NASA POWER for both cells with the raw API responses, processed GPM IMERG via POWER, NOAA CPC gauge counts). Deployed numbers therefore equal the analysed and documented ones.
+  - Not committed: NOAA GSOD (WMO Resolution 40) and IMD (no redistribution terms found). The build downloads them from the official servers, checks each file against checksums recorded from the analysed versions (`data/manifests/`, checksums only), processes them, and deletes the raw files from the image. A changed file is reported and its new checksum kept in the provenance; `FETCH_STRICT=1` fails the build instead.
+- **Forecast evaluation:** deterministic for a dataset plus code version, so it is computed once at build time and cached, keyed by dataset id and a SHA-256 tag of `analysis/forecast.py`. Any code change invalidates the cache. The D-026 design, split and rule are unchanged.
+- **Health:** `/api/ready` returns 200 only when NASA POWER data for both cells is present. It reads provenance files only, so it answers well within Render's 5-second limit. `/api/health` stays as liveness.
+- **Public case workflow:** cases are shared by all visitors and live on an ephemeral disk. The UI says so (`EARTHSIGNAL_PUBLIC_DEMO`). The audit trail is capped at 200 entries per case; notes and titles were already length-limited, and there is one case per event. One worker process only, because the case file lock is in-process.
+- **Reproducibility:** Python 3.12.10 and Node 22.11.0 image tags, `backend/requirements.lock` with the exact versions the tests passed with, `npm ci` from the lockfile.
+- **Not done:** no authentication, rate limiting or persistent case storage (the free plan has no disks); no automatic data refresh. The outlook is issued from the snapshot's last day until someone refreshes the data deliberately.

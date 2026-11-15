@@ -1,3 +1,4 @@
+import { apiUrl } from "./apiBase";
 export type DataKind = "derived_estimate" | "derived_statistic" | "observed" | "forecast" | "hypothetical";
 
 export interface Health {
@@ -122,7 +123,7 @@ export class ApiError extends Error {
 async function getJson<T>(path: string): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(path);
+    res = await fetch(apiUrl(path));
   } catch (e) {
     throw new ApiError(0, `Network error: ${String(e)}`);
   }
@@ -296,7 +297,7 @@ export interface PrecipComparison {
 export const multiApi = {
   sources: () => getJson<SourceMetadata[]>("/api/sources"),
   precip: (area: string) => getJson<PrecipComparison>(`/api/precip-comparison?${q({ area })}`),
-  csvUrl: (area: string, level: "monthly" | "daily") => `/api/precip-comparison.csv?${q({ area, level })}`,
+  csvUrl: (area: string, level: "monthly" | "daily") => apiUrl(`/api/precip-comparison.csv?${q({ area, level })}`),
 };
 
 // ---------------- Milestone 4: gauge-reference arbitration ----------------

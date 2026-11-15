@@ -1,0 +1,605 @@
+{
+  "dataset_id": "imergpower_lucknow_airport_19980101_20261113_20261114T223530Z",
+  "source_type": "nasa_power_imerg",
+  "retrieved_at_utc": "2026-11-14T22:35:30.223981+00:00",
+  "study_area_key": "lucknow_airport",
+  "request": {
+    "requested_start": "1998-01-01",
+    "requested_end": "2026-11-13",
+    "time_standard": "UTC",
+    "merra2_cell": {
+      "south": 26.75,
+      "north": 27.25,
+      "west": 80.3125,
+      "east": 80.9375
+    },
+    "merra2_request_url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=PRECTOTCORR&community=AG&longitude=80.8890&latitude=26.7610&start=19980101&end=20261113&format=JSON&time-standard=UTC",
+    "parameter_metadata_url": "https://power.larc.nasa.gov/api/system/manager/parameters?community=AG&temporal=daily&parameters=IMERG_PRECTOT,PRECTOTCORR"
+  },
+  "imerg_cells": [
+    {
+      "file": "cell_26.75_80.35.json",
+      "lat": 26.75,
+      "lon": 80.35,
+      "overlap_fraction": 0.4375,
+      "weight": 0.01403103985339772,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.3500&latitude=26.7500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.75_80.45.json",
+      "lat": 26.75,
+      "lon": 80.45,
+      "overlap_fraction": 0.5,
+      "weight": 0.01603547411816687,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.4500&latitude=26.7500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.75_80.55.json",
+      "lat": 26.75,
+      "lon": 80.55,
+      "overlap_fraction": 0.5,
+      "weight": 0.01603547411816687,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.5500&latitude=26.7500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.75_80.65.json",
+      "lat": 26.75,
+      "lon": 80.65,
+      "overlap_fraction": 0.5,
+      "weight": 0.01603547411816915,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.6500&latitude=26.7500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.75_80.75.json",
+      "lat": 26.75,
+      "lon": 80.75,
+      "overlap_fraction": 0.5,
+      "weight": 0.01603547411816687,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.7500&latitude=26.7500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.75_80.85.json",
+      "lat": 26.75,
+      "lon": 80.85,
+      "overlap_fraction": 0.5,
+      "weight": 0.01603547411816915,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.8500&latitude=26.7500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.75_80.95.json",
+      "lat": 26.75,
+      "lon": 80.95,
+      "overlap_fraction": 0.1875,
+      "weight": 0.006013302794312006,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.9500&latitude=26.7500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.85_80.35.json",
+      "lat": 26.85,
+      "lon": 80.35,
+      "overlap_fraction": 0.875,
+      "weight": 0.02803735025148956,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.3500&latitude=26.8500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.85_80.45.json",
+      "lat": 26.85,
+      "lon": 80.45,
+      "overlap_fraction": 1.0,
+      "weight": 0.032042686001698455,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.4500&latitude=26.8500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.85_80.55.json",
+      "lat": 26.85,
+      "lon": 80.55,
+      "overlap_fraction": 1.0,
+      "weight": 0.032042686001698455,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.5500&latitude=26.8500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.85_80.65.json",
+      "lat": 26.85,
+      "lon": 80.65,
+      "overlap_fraction": 1.0,
+      "weight": 0.03204268600170301,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.6500&latitude=26.8500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.85_80.75.json",
+      "lat": 26.85,
+      "lon": 80.75,
+      "overlap_fraction": 1.0,
+      "weight": 0.032042686001698455,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.7500&latitude=26.8500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.85_80.85.json",
+      "lat": 26.85,
+      "lon": 80.85,
+      "overlap_fraction": 1.0,
+      "weight": 0.03204268600170301,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.8500&latitude=26.8500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.85_80.95.json",
+      "lat": 26.85,
+      "lon": 80.95,
+      "overlap_fraction": 0.375,
+      "weight": 0.012016007250635782,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.9500&latitude=26.8500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.95_80.35.json",
+      "lat": 26.95,
+      "lon": 80.35,
+      "overlap_fraction": 0.875,
+      "weight": 0.028012535389554442,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.3500&latitude=26.9500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.95_80.45.json",
+      "lat": 26.95,
+      "lon": 80.45,
+      "overlap_fraction": 1.0,
+      "weight": 0.0320143261594869,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.4500&latitude=26.9500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.95_80.55.json",
+      "lat": 26.95,
+      "lon": 80.55,
+      "overlap_fraction": 1.0,
+      "weight": 0.0320143261594869,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.5500&latitude=26.9500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.95_80.65.json",
+      "lat": 26.95,
+      "lon": 80.65,
+      "overlap_fraction": 1.0,
+      "weight": 0.032014326159491444,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.6500&latitude=26.9500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.95_80.75.json",
+      "lat": 26.95,
+      "lon": 80.75,
+      "overlap_fraction": 1.0,
+      "weight": 0.0320143261594869,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.7500&latitude=26.9500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.95_80.85.json",
+      "lat": 26.95,
+      "lon": 80.85,
+      "overlap_fraction": 1.0,
+      "weight": 0.032014326159491444,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.8500&latitude=26.9500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_26.95_80.95.json",
+      "lat": 26.95,
+      "lon": 80.95,
+      "overlap_fraction": 0.375,
+      "weight": 0.012005372309806448,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.9500&latitude=26.9500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.05_80.35.json",
+      "lat": 27.05,
+      "lon": 80.35,
+      "overlap_fraction": 0.875,
+      "weight": 0.027987635196577473,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.3500&latitude=27.0500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.05_80.45.json",
+      "lat": 27.05,
+      "lon": 80.45,
+      "overlap_fraction": 1.0,
+      "weight": 0.03198586879608464,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.4500&latitude=27.0500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.05_80.55.json",
+      "lat": 27.05,
+      "lon": 80.55,
+      "overlap_fraction": 1.0,
+      "weight": 0.03198586879608464,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.5500&latitude=27.0500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.05_80.65.json",
+      "lat": 27.05,
+      "lon": 80.65,
+      "overlap_fraction": 1.0,
+      "weight": 0.03198586879608919,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.6500&latitude=27.0500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.05_80.75.json",
+      "lat": 27.05,
+      "lon": 80.75,
+      "overlap_fraction": 1.0,
+      "weight": 0.03198586879608464,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.7500&latitude=27.0500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.05_80.85.json",
+      "lat": 27.05,
+      "lon": 80.85,
+      "overlap_fraction": 1.0,
+      "weight": 0.03198586879608919,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.8500&latitude=27.0500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.05_80.95.json",
+      "lat": 27.05,
+      "lon": 80.95,
+      "overlap_fraction": 0.375,
+      "weight": 0.011994700798530607,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.9500&latitude=27.0500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.15_80.35.json",
+      "lat": 27.15,
+      "lon": 80.35,
+      "overlap_fraction": 0.875,
+      "weight": 0.027962649748408952,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.3500&latitude=27.1500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.15_80.45.json",
+      "lat": 27.15,
+      "lon": 80.45,
+      "overlap_fraction": 1.0,
+      "weight": 0.03195731399817777,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.4500&latitude=27.1500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.15_80.55.json",
+      "lat": 27.15,
+      "lon": 80.55,
+      "overlap_fraction": 1.0,
+      "weight": 0.03195731399817777,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.5500&latitude=27.1500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.15_80.65.json",
+      "lat": 27.15,
+      "lon": 80.65,
+      "overlap_fraction": 1.0,
+      "weight": 0.03195731399818231,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.6500&latitude=27.1500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.15_80.75.json",
+      "lat": 27.15,
+      "lon": 80.75,
+      "overlap_fraction": 1.0,
+      "weight": 0.03195731399817777,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.7500&latitude=27.1500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.15_80.85.json",
+      "lat": 27.15,
+      "lon": 80.85,
+      "overlap_fraction": 1.0,
+      "weight": 0.03195731399818231,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.8500&latitude=27.1500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.15_80.95.json",
+      "lat": 27.15,
+      "lon": 80.95,
+      "overlap_fraction": 0.375,
+      "weight": 0.011983992749315527,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.9500&latitude=27.1500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.25_80.35.json",
+      "lat": 27.25,
+      "lon": 80.35,
+      "overlap_fraction": 0.4375,
+      "weight": 0.013968789560580936,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.3500&latitude=27.2500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.25_80.45.json",
+      "lat": 27.25,
+      "lon": 80.45,
+      "overlap_fraction": 0.5,
+      "weight": 0.01596433092637627,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.4500&latitude=27.2500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.25_80.55.json",
+      "lat": 27.25,
+      "lon": 80.55,
+      "overlap_fraction": 0.5,
+      "weight": 0.01596433092637627,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.5500&latitude=27.2500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.25_80.65.json",
+      "lat": 27.25,
+      "lon": 80.65,
+      "overlap_fraction": 0.5,
+      "weight": 0.01596433092637854,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.6500&latitude=27.2500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.25_80.75.json",
+      "lat": 27.25,
+      "lon": 80.75,
+      "overlap_fraction": 0.5,
+      "weight": 0.01596433092637627,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.7500&latitude=27.2500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.25_80.85.json",
+      "lat": 27.25,
+      "lon": 80.85,
+      "overlap_fraction": 0.5,
+      "weight": 0.01596433092637854,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.8500&latitude=27.2500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    },
+    {
+      "file": "cell_27.25_80.95.json",
+      "lat": 27.25,
+      "lon": 80.95,
+      "overlap_fraction": 0.1875,
+      "weight": 0.005986624097390534,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=80.9500&latitude=27.2500&start=19980101&end=20261113&format=JSON&time-standard=UTC"
+    }
+  ],
+  "point_cell": "26.75_80.85",
+  "sources_reported_by_api": [
+    "IMERG"
+  ],
+  "raw_dir": "data/raw/imerg/imergpower_lucknow_airport_19980101_20261113_20261114T223530Z",
+  "raw_files": [
+    {
+      "file": "cell_26.75_80.35.json",
+      "sha256": "5209cd216c717df5c6ccad055611068b3b631b3ec563a8e649848be01a206edb"
+    },
+    {
+      "file": "cell_26.75_80.45.json",
+      "sha256": "ccad6170ca3be240b94f3b85a1104cda756eb3ed7b030ef406bd209f53722db6"
+    },
+    {
+      "file": "cell_26.75_80.55.json",
+      "sha256": "cbce1bf6aa6189a6e4963258c2e8d38e8bdb82052f2d3e6e89b5919b50f9ecd0"
+    },
+    {
+      "file": "cell_26.75_80.65.json",
+      "sha256": "c4a52c4edf97516da8852fb1e5d327809259af714f50895fd310665b95e534e1"
+    },
+    {
+      "file": "cell_26.75_80.75.json",
+      "sha256": "e2a448b549830f9a477a98ea589d883fca1bb1e1e34fd54489dbc40f194e2506"
+    },
+    {
+      "file": "cell_26.75_80.85.json",
+      "sha256": "ea59b10e1a0e5a6c4ca521ea7bc15d9b59d00a4d77c906f671de091f119ba704"
+    },
+    {
+      "file": "cell_26.75_80.95.json",
+      "sha256": "49b71d5ce598dae60c5adff1eaac97d927a7bd12c3a3e1a60a76e1ab70f47a29"
+    },
+    {
+      "file": "cell_26.85_80.35.json",
+      "sha256": "8f2a11d36e295e3b5b964cb0935aac7fba2d61b766d17c9d7949d92d1c20092d"
+    },
+    {
+      "file": "cell_26.85_80.45.json",
+      "sha256": "252f2dd8a4d719ebc5e51a439a96120c03e2efd8ab15e8a8e305c95f7bc5895b"
+    },
+    {
+      "file": "cell_26.85_80.55.json",
+      "sha256": "7ee3da7e5a0f76424271f2f02c2bdbadb9370aff6750643f291aaa4bc2685f66"
+    },
+    {
+      "file": "cell_26.85_80.65.json",
+      "sha256": "8b178e4b79a07497b724639548a87c76c314b6ef3607a622ec4592a3be6829d5"
+    },
+    {
+      "file": "cell_26.85_80.75.json",
+      "sha256": "e8b27d2d25d3b3298a0b2acd7aae0a9eaa59f51d0cd18d85b1d603d227c619b7"
+    },
+    {
+      "file": "cell_26.85_80.85.json",
+      "sha256": "3327922034e6c33e5baaa26d3a8e217b8c66ddadd4146795e6d8d0d2647d57c8"
+    },
+    {
+      "file": "cell_26.85_80.95.json",
+      "sha256": "998e3d8922d0379773efc8c030e7244fc8e122127ceee18b438f38da8b5c052a"
+    },
+    {
+      "file": "cell_26.95_80.35.json",
+      "sha256": "1d7af007407078df5d5efa03fe97fef098148039d4d0fae4522b3e6065c8e3da"
+    },
+    {
+      "file": "cell_26.95_80.45.json",
+      "sha256": "67b1c6944d0d1454cc537ed22eb740e13a2b2f639346cc0673166936f56dd176"
+    },
+    {
+      "file": "cell_26.95_80.55.json",
+      "sha256": "20b205fa17c93d3e4b65bc4875ab991743f975323bbb68acbf44353440e7497f"
+    },
+    {
+      "file": "cell_26.95_80.65.json",
+      "sha256": "58bdc888a8634ac12ad0db6c325f88c43d792e2adc045946cb4bfcd73d195f63"
+    },
+    {
+      "file": "cell_26.95_80.75.json",
+      "sha256": "e568dd33158d3251b4abe745908cdba77e76cd1540bd29814ab174d50bf2e39b"
+    },
+    {
+      "file": "cell_26.95_80.85.json",
+      "sha256": "b5119808203fea2897207c8ad201075e5cf34ef09433a99a1965c7d4909efb9c"
+    },
+    {
+      "file": "cell_26.95_80.95.json",
+      "sha256": "091d40035250f003609333c4c215a8d0f8ab36f4d7ea36bf0dc7d0cd7e6e6d4b"
+    },
+    {
+      "file": "cell_27.05_80.35.json",
+      "sha256": "6864c90c3ace165ee9563f00576af1952607f3f7b26fdef0f0543e946386128f"
+    },
+    {
+      "file": "cell_27.05_80.45.json",
+      "sha256": "433f4a97e669eddb355a9f97b5926f632262c66744e1ed795a5197104ae655db"
+    },
+    {
+      "file": "cell_27.05_80.55.json",
+      "sha256": "5d6ce7e9b757cfd65172f6cfb70dca248698a55e0f7226620435a684afc81cf2"
+    },
+    {
+      "file": "cell_27.05_80.65.json",
+      "sha256": "c35d4cb02412f7bb259794de30d1dbc8cb24994838f5825c0bed2b155f96fed2"
+    },
+    {
+      "file": "cell_27.05_80.75.json",
+      "sha256": "9a1839bbbf45100e11b4655ef38314395ff196b4a37aceb64c0dd79140e3053c"
+    },
+    {
+      "file": "cell_27.05_80.85.json",
+      "sha256": "f01642f281487f44844828b8d3a85401bff6b0dba1c28e9072aab688b22e816a"
+    },
+    {
+      "file": "cell_27.05_80.95.json",
+      "sha256": "9a9f437a05e607ed9cb8374bf7ba2a2c786a07b5d135c0c6ecf67b53d7dcc3d8"
+    },
+    {
+      "file": "cell_27.15_80.35.json",
+      "sha256": "fcfef8abd4f1c5806d05aeeb877508fe643843c52815867078fb2f891c46cced"
+    },
+    {
+      "file": "cell_27.15_80.45.json",
+      "sha256": "cac8090a525b0c56885bb6c76cd3e47e32391856d177ddd81f75dd9b12150a0f"
+    },
+    {
+      "file": "cell_27.15_80.55.json",
+      "sha256": "9f89172d32d6c7193a803a47c32a74d4cb40b88e801bc60e5163e4126eec71de"
+    },
+    {
+      "file": "cell_27.15_80.65.json",
+      "sha256": "522c32ed93047e736f659541baccbe8da135387a681bada8f3977bfb0214359d"
+    },
+    {
+      "file": "cell_27.15_80.75.json",
+      "sha256": "78d463db80a9fc2be8051a9de5975502ab9b7af37ea0685b832bd2b3c0308b8f"
+    },
+    {
+      "file": "cell_27.15_80.85.json",
+      "sha256": "fe6b1e0056b062a8885ced5a5c0fd08fd43c6af8fc65149093118c1ce8bed1ee"
+    },
+    {
+      "file": "cell_27.15_80.95.json",
+      "sha256": "3fb5c74f032ce7fa4438c0d8c9f38be002ace1e70250cd438468e53f12179cc2"
+    },
+    {
+      "file": "cell_27.25_80.35.json",
+      "sha256": "8a0f29d573b531887cedc4d63fbed079cf4916f351544196876a665dcf8d8144"
+    },
+    {
+      "file": "cell_27.25_80.45.json",
+      "sha256": "7a4f4edd0e6310ec9bf633e0266bcb8fcc613b31b459a32f2c0d2e172475cb8f"
+    },
+    {
+      "file": "cell_27.25_80.55.json",
+      "sha256": "f0a3cc0b01f12d60a87f97f20a18c0f45c522a44d10aeb01dc34c4e1f0da9a76"
+    },
+    {
+      "file": "cell_27.25_80.65.json",
+      "sha256": "d8f723c87aebb27e656fb6786e4c5027eb82238c300a6ca17c8eabf74dcfb452"
+    },
+    {
+      "file": "cell_27.25_80.75.json",
+      "sha256": "6185211024f7ba41cacefcdf5193da82a9e81304482c6476d307d7c620bb6db6"
+    },
+    {
+      "file": "cell_27.25_80.85.json",
+      "sha256": "51c24d6fe2be54cad1e946139d88a855dc20088283598e2e77c80fc9857adab7"
+    },
+    {
+      "file": "cell_27.25_80.95.json",
+      "sha256": "144595b67ce1076b48c53c6e6483e94288b49acb0e4a396decc8e7e5c9ca926b"
+    },
+    {
+      "file": "merra2_prectotcorr_utc.json",
+      "sha256": "ea0e67a5bd34e6937ba1479e7a9421ed492c338d70d1c273928dff1f10efe67a"
+    }
+  ],
+  "coverage": {
+    "days": 10544,
+    "area_mean_valid_days": 10484,
+    "merra2_valid_days": 10543,
+    "days_after_final_run_end": 409
+  },
+  "metadata": {
+    "dataset_id": "imergpower_lucknow_airport_19980101_20261113_20261114T223530Z",
+    "source_type": "nasa_power_imerg",
+    "provider": "NASA GPM IMERG (Huffman et al.), multi-satellite precipitation with monthly gauge calibration (Final run)",
+    "distributor": "NASA LaRC POWER Project (parameter IMERG_PRECTOT), from NASA GES DISC / PPS IMERG",
+    "product_id": "GPM_3IMERGDF (IMERG Final daily), via POWER IMERG_PRECTOT; Late run after 2025-09-30",
+    "product_version": "V07 (inferred; POWER does not state the version)",
+    "variables": [
+      {
+        "name": "imerg_area_mean_mm_day",
+        "units": "mm/day",
+        "definition": "Weighted mean of 42 IMERG 0.1 deg cells over the MERRA-2 cell",
+        "data_kind": "derived_estimate"
+      },
+      {
+        "name": "imerg_point_cell_mm_day",
+        "units": "mm/day",
+        "definition": "IMERG 0.1 deg cell containing the study-area point",
+        "data_kind": "derived_estimate"
+      },
+      {
+        "name": "merra2_prectotcorr_utc_mm_day",
+        "units": "mm/day",
+        "definition": "MERRA-2 bias-corrected precipitation for the same MERRA-2 cell, UTC days",
+        "data_kind": "derived_estimate"
+      }
+    ],
+    "spatial_resolution": "IMERG 0.1 x 0.1 deg; aggregated to the 0.5 x 0.625 deg MERRA-2 cell",
+    "spatial_support": "area mean over MERRA-2 cell 26.75-27.25 N, 80.3125-80.9375 E",
+    "geographic_coverage": {
+      "merra2_cell": {
+        "south": 26.75,
+        "north": 27.25,
+        "west": 80.3125,
+        "east": 80.9375
+      },
+      "n_imerg_cells": 42
+    },
+    "temporal_resolution": "daily",
+    "time_standard": "UTC",
+    "time_coverage": {
+      "start": "1998-01-01",
+      "end": "2026-09-14",
+      "final_run_end": "2025-09-30"
+    },
+    "retrieved_at_utc": "2026-11-14T22:35:30.223981+00:00",
+    "processing_history": [
+      "download 42 IMERG cell series and 1 MERRA-2 series from POWER (UTC); bytes stored unmodified",
+      "fill value from each response header -> NaN; API messages cause rejection",
+      "area mean = overlap x cos(lat) weighted mean; a day is missing unless every cell is valid",
+      "days after 2025-09-30 flagged (not IMERG Final run)"
+    ],
+    "citation": "Huffman, G.J., E.F. Stocker, D.T. Bolvin, E.J. Nelkin, J. Tan (2023), GPM IMERG Final Precipitation L3 1 day 0.1 degree x 0.1 degree V07, Greenbelt, MD, Goddard Earth Sciences Data and Information Services Center (GES DISC), doi:10.5067/GPM/IMERGDF/DAY/07. Accessed via the NASA LaRC POWER Project (IMERG_PRECTOT).",
+    "quality_limitations": [
+      "IMERG Final uses MERRA-2 winds for morphing and GPCC gauges for monthly calibration, so it is not independent of MERRA-2.",
+      "Changes in the satellite constellation (notably TRMM to GPM, May/June 2014, and sensors before 2005) may introduce artifacts in multi-year changes.",
+      "Lower skill expected over complex terrain, coasts and frozen surfaces (CMR abstract).",
+      "POWER's IMERG count field counts precipitating half-hours only, so completeness cannot be checked from it.",
+      "Equality of POWER IMERG values with native GPM_3IMERGDF files has not been verified (needs Earthdata Login)."
+    ],
+    "access": "Public NASA POWER API; no login required. Native IMERG at GES DISC requires Earthdata Login.",
+    "usage_notice": null
+  }
+}
