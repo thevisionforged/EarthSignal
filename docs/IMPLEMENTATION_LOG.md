@@ -242,3 +242,24 @@ Newest entries at the bottom. Record only what was actually done and verified.
   - `pytest backend`: 115 passed, 1 deselected. `pytest -m network`: 1 passed.
   - `npm test`: 7 passed; typecheck clean; build OK.
   - Temporary-server smoke test: `/api/precip-arbitration` 200 for both cells with 54 gauge rows; unknown area 422.
+- Committed and pushed as `24f9ac3`.
+
+## 2026-11-15: Milestone 5, demo and submission readiness
+- **Start state:** clean, at `24f9ac3`. The user chose this focus.
+- **Space Apps rules:** not readable here. The web-fetch tool and direct curl both fail with an untrusted certificate chain. The chain was inspected without reading content: issuer "SSL.com TLS Issuing RSA CA R1", subject `www.space.apps.nasa.gov`, so this is not network interception. Certificate checks were not bypassed. Rules-dependent items are a checklist in `docs/SUBMISSION_DRAFT.md`.
+- **Review copy:** a separate backend (:8011) and Vite (:5181) were run, because the user's uvicorn on :8000 predates Milestone 2b. `vite.config.ts` now reads `EARTHSIGNAL_API_PORT` (default 8000) to make that possible.
+- **Visual review with Claude in Chrome:**
+  - all views render; no console errors
+  - checked in a 390 px frame and in dark mode
+- **Defects found and fixed:**
+  1. IMERG and IMD labelled "Derived estimate (reanalysis)" in the sources table and the precipitation-card badge. Fixed with a source-type label, plus a test that no satellite, gauge or station product is called reanalysis.
+  2. A 7 px horizontal overflow at phone width in the data-sources view (grid children lacked `min-width: 0`).
+  3. Internal "Milestone 3/4" wording in the UI.
+  4. Nested brackets in card titles.
+  5. IMD shared POWER's colour in the coverage chart.
+- **New default "Key findings" view:** the text comes from `findings.ts` pure functions and live API results (6 new frontend tests). It shows: no significant temperature trend 1981–2025 in either cell; POWER and the airport thermometer drift apart over 2006–2023; POWER's rainfall increase not supported by gauges in the western cell, with no rainfall trend claimed.
+- **Build errors caught by the typecheck:**
+  - `overview.ts` and `Overview.tsx` clashed on a case-insensitive filesystem; renamed to `findings.ts`.
+  - `process` was untyped in `vite.config.ts`; declared locally instead of adding `@types/node`.
+- **Cleanup:** a leftover Vite Node process on :5181 was stopped after its task was stopped (same behaviour as in Milestone 1).
+- **Docs:** added `docs/DEMO_RUNBOOK.md` and `docs/SUBMISSION_DRAFT.md`; updated the README tour and the demo outline.

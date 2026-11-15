@@ -84,6 +84,7 @@ details ul { margin-top: 6px; }
 footer { margin-top: 24px; text-align: center; }
 .chart.small { height: 260px; }
 .two-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+.two-charts > div { min-width: 0; } /* let charts shrink inside grid cells (phone overflow fix) */
 .chart-title { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
 .table-wrap { overflow-x: auto; margin: 4px 0; }
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
@@ -132,3 +133,8 @@ a { color: var(--accent); }
 tr.selected th, tr.selected td { background: var(--notice); }
 .compact { margin: 0; padding-left: 18px; }
 .downloads { margin: 12px 0 0; font-size: 14px; }
+.hero h2 { font-size: 22px; }
+.findings { margin: 12px 0 0; padding-left: 22px; }
+.findings li { margin-bottom: 14px; }
+.finding-head { margin: 0; font-size: 16px; font-weight: 600; }
+.findings .note { margin: 4px 0; }

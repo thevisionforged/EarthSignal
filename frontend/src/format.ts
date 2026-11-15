@@ -36,6 +36,30 @@ export function sourceLabel(s: { source_type: string; area?: string | null }): s
   }
 }
 
+/** What kind of values a dataset holds, by source type. The generic data_kind "derived_estimate" covers
+ *  reanalysis, satellite-gauge and gauge-grid products alike, so it must not be shown as "reanalysis" for all. */
+export function sourceKindLabel(sourceType: string): string {
+  switch (sourceType) {
+    case "nasa_power_met":
+      return "Reanalysis estimate (model + observations)";
+    case "nasa_power_imerg":
+      return "Satellite estimate, gauge-calibrated";
+    case "imd_gridded":
+      return "Gridded from rain gauges";
+    case "noaa_cpcu":
+      return "Gridded from rain gauges";
+    case "noaa_gsod":
+      return "Station observation";
+    default:
+      return sourceType;
+  }
+}
+
+/** Short name of a study area for titles: "eastern cell" / "western cell". */
+export function shortAreaLabel(area: string): string {
+  return area === "lucknow_airport" ? "western cell, airport" : area === "lucknow" ? "eastern cell, city centre" : area;
+}
+
 /** Which problem to show for a failed API call. 404 = backend up but no ingested data. */
 export function loadProblem(status: number | undefined): "no-data" | "backend-unreachable" {
   return status === 404 ? "no-data" : "backend-unreachable";

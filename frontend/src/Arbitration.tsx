@@ -84,7 +84,7 @@ function ArbitrationBody({ a, areaLabel }: { a: Arbitration; areaLabel: string }
     <section className="card">
       <div className="card-head">
         <h2>Which product matches the rain gauges? ({areaLabel})</h2>
-        <span className="badge">Milestone 4 · derived statistic</span>
+        <span className="badge">Derived statistic</span>
       </div>
       <p className="note">
         Annual rainfall totals {a.period[0]}–{a.period[1]} from all three sources over the same MERRA-2 cell. IMD's gridded

@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArbitrationCard } from "./Arbitration";
 import Chart from "./Chart";
 import { multiApi, PrecipComparison, SourceMetadata } from "./api";
-import { dataKindLabel, formatP, signed } from "./format";
-import { sourceLabel } from "./format";
+import { formatP, signed, sourceKindLabel, sourceLabel } from "./format";
 
 type Load<T> = { state: "loading" } | { state: "ok"; data: T } | { state: "error"; message: string };
 
@@ -28,7 +27,7 @@ export function SourcesView({ area, areaLabel }: { area: string; areaLabel: stri
   return (
     <>
       <section className="banner" aria-label="About this view">
-        <strong>Multi-source view (Milestone 3):</strong> datasets EarthSignal holds, described with one common set of
+        <strong>Data sources:</strong> every dataset EarthSignal holds, described with one common set of
         metadata, and a like-for-like check of NASA POWER (MERRA-2 reanalysis) precipitation against NASA GPM IMERG
         (satellite-gauge). The two are <strong>related products</strong>, not independent: agreement is consistency, not
         validation.
@@ -59,7 +58,7 @@ function SourceCatalog({ rows }: { rows: SourceMetadata[] }) {
         name: sourceLabel(r),
         x: [r.time_coverage.start, r.time_coverage.end],
         y: [i, i],
-        line: { color: r.source_type === "nasa_power_imerg" ? "--trend" : r.source_type === "noaa_gsod" ? "--muted" : "--annual", width: 10 },
+        line: { color: COVERAGE_COLOR[r.source_type] ?? "--muted", width: 10 },
         hovertemplate: `${sourceLabel(r)}<br>%{x|%Y-%m-%d}<extra></extra>`,
       })),
     [rows],
@@ -100,7 +99,7 @@ function SourceCatalog({ rows }: { rows: SourceMetadata[] }) {
                     {sourceLabel(r)}
                   </button>
                 </th>
-                <td>{dataKindLabel(r.variables[0]?.data_kind ?? "")}</td>
+                <td>{sourceKindLabel(r.source_type)}</td>
                 <td>{r.spatial_resolution}</td>
                 <td>{r.spatial_support}</td>
                 <td>
@@ -125,7 +124,7 @@ function SourceCatalog({ rows }: { rows: SourceMetadata[] }) {
         <dd>
           {s.variables.map((v) => (
             <div key={v.name}>
-              <code>{v.name}</code> ({v.units}, {dataKindLabel(v.data_kind)}){v.definition ? `: ${v.definition}` : ""}
+              <code>{v.name}</code> ({v.units}, {sourceKindLabel(s.source_type)}){v.definition ? `: ${v.definition}` : ""}
             </div>
           ))}
         </dd>
@@ -169,6 +168,13 @@ function SourceCatalog({ rows }: { rows: SourceMetadata[] }) {
   );
 }
 
+const COVERAGE_COLOR: Record<string, string> = {
+  nasa_power_met: "--annual",
+  nasa_power_imerg: "--trend",
+  imd_gridded: "--text",
+  noaa_gsod: "--muted",
+};
+
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function PrecipCard({ c, area, areaLabel }: { c: PrecipComparison; area: string; areaLabel: string }) {
@@ -199,7 +205,7 @@ function PrecipCard({ c, area, areaLabel }: { c: PrecipComparison; area: string;
     <section className="card">
       <div className="card-head">
         <h2>Precipitation: POWER vs GPM IMERG ({areaLabel})</h2>
-        <span className="badge">{dataKindLabel("derived_estimate")} vs {dataKindLabel("derived_estimate")}</span>
+        <span className="badge">{sourceKindLabel("nasa_power_met")} vs {sourceKindLabel("nasa_power_imerg")}</span>
       </div>
       <p className="note">
         Same area (IMERG averaged over the MERRA-2 cell), same UTC days, same units, {c.period.first_day} to{" "}

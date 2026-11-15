@@ -1,11 +1,33 @@
 import { describe, expect, it } from "vitest";
-import { dataKindLabel, formatP, loadProblem, senLine, signed, sourceLabel, trendLineLabel, unitLabel } from "./format";
+import {
+  dataKindLabel,
+  formatP,
+  loadProblem,
+  senLine,
+  shortAreaLabel,
+  signed,
+  sourceKindLabel,
+  sourceLabel,
+  trendLineLabel,
+  unitLabel,
+} from "./format";
 
 describe("sourceLabel", () => {
   it("names each source and cell without calling reanalysis observed", () => {
     expect(sourceLabel({ source_type: "nasa_power_met", area: "lucknow" })).toBe("POWER MERRA-2 (eastern cell)");
     expect(sourceLabel({ source_type: "nasa_power_imerg", area: "lucknow_airport" })).toBe("GPM IMERG via POWER (western cell)");
     expect(sourceLabel({ source_type: "noaa_gsod" })).toBe("NOAA GSOD airport station");
+  });
+});
+
+describe("sourceKindLabel", () => {
+  it("never labels satellite or gauge products as reanalysis", () => {
+    expect(sourceKindLabel("nasa_power_met")).toMatch(/Reanalysis/);
+    for (const t of ["nasa_power_imerg", "imd_gridded", "noaa_gsod"]) {
+      expect(sourceKindLabel(t)).not.toMatch(/reanalysis/i);
+    }
+    expect(sourceKindLabel("noaa_gsod")).toBe("Station observation");
+    expect(shortAreaLabel("lucknow_airport")).toBe("western cell, airport");
   });
 });
 

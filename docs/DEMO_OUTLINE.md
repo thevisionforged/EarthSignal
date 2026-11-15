@@ -33,10 +33,12 @@ Not yet known: the specific Space Apps challenge and its submission rules. Align
 - *Evidence:* `backend/earthsignal/data/`; `test_power.py`, `test_ingest.py`, `test_source_probe.py`.
 
 ## Slide 4: Dashboard walkthrough (live)
+- Open on **Key findings**: three findings computed live from the analysis results, each with a "See the evidence" link.
 - Switch between the eastern and western cells, and between temperature and precipitation.
 - Trend card: plain verdict, Sen's slope with CI, corrected p, and "how to read these numbers".
-- Robustness charts (start and end year), seasonal table, station check, provenance.
-- *Evidence:* `frontend/src/`. A manual browser check is required before the demo.
+- Robustness charts (start and end year), seasonal table, station check, data sources, the rain-gauge check.
+- Timed script: `docs/DEMO_RUNBOOK.md` §C.
+- *Evidence:* `frontend/src/`. Visually reviewed on 2026-11-15 at desktop width, phone width (390 px, no overflow) and in dark mode.
 
 ## Slide 5: Finding 1: no robust temperature trend
 - 1981–2025: −0.16 °C/decade in the eastern cell (corrected p 0.18), −0.12 in the western cell (p 0.35). **Not significant.**

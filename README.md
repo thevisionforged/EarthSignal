@@ -15,6 +15,12 @@ EarthSignal aims to become a Predictive Earth Intelligence System. It starts wit
 
 **No forecasts, machine learning or simulations are implemented yet.**
 
+### For judges: the 2-minute tour
+1. Start the app (see **Run**) and open the **Key findings** view: three findings computed live from the analysis.
+2. Follow **See the evidence** to the temperature trend and its robustness checks, the airport-station check, and the rain-gauge check.
+3. **Data sources** lists all six datasets with one common set of metadata (provider, version, units, resolution, coverage, processing, citation, limitations).
+4. The full demo script is in `docs/DEMO_RUNBOOK.md`, the decisions in `docs/DECISIONS.md`, and the research notes in `docs/research/`.
+
 ## Data source
 
 | | |
@@ -178,6 +184,9 @@ The backend tests use real POWER responses recorded on 2026-11-14 (`backend/test
 - `backend/earthsignal/api/main.py`: FastAPI app
 - `frontend/src/`: React + TypeScript UI using the Plotly basic bundle
 - `docs/`: `DECISIONS.md`, `TASKS.md`, `IMPLEMENTATION_LOG.md`, `DEMO_OUTLINE.md`, and `research/` (`GPM_IMERG_RESEARCH.md`, `MULTI_SOURCE_METHODOLOGY.md`)
+
+## Licence
+EarthSignal's code is released under the MIT License (see `LICENSE`). Data downloaded by the scripts is **not** covered by this licence and keeps its providers' terms: NASA POWER and GPM IMERG (NASA open data), NOAA GSOD (WMO Resolution 40, non-commercial), IMD gridded rainfall (cite Pai et al. 2014). Raw data is not included in the repository.
 
 ## Data citation
 The data was obtained from the National Aeronautics and Space Administration (NASA) Langley Research Center (LaRC) Prediction of Worldwide Energy Resource (POWER) Project, funded through the NASA Earth Science Division. The API version and access date for each dataset are recorded in its `provenance.json`.

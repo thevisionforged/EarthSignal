@@ -13,9 +13,10 @@ import {
   TimeSeries,
   TrendResponse,
 } from "./api";
+import { OverviewView } from "./Overview";
 import { SourcesView } from "./Sources";
 import { StationCard } from "./Station";
-import { dataKindLabel, formatP, loadProblem, senLine, signed, trendLineLabel, unitLabel } from "./format";
+import { dataKindLabel, formatP, loadProblem, senLine, shortAreaLabel, signed, trendLineLabel, unitLabel } from "./format";
 
 const VARIABLES = [
   { id: "T2M", label: "Air temperature (2 m)", short: "Temperature" },
@@ -44,7 +45,7 @@ function useLoad<T>(fn: () => Promise<T>, deps: unknown[]): Load<T> {
 export default function App() {
   const [variable, setVariable] = useState("T2M");
   const [area, setArea] = useState("lucknow");
-  const [view, setView] = useState<"analysis" | "sources">("analysis");
+  const [view, setView] = useState<"overview" | "analysis" | "sources">("overview");
   const health = useLoad<Health>(() => api.health(), []);
   const areas = useLoad<Area[]>(() => api.areas(), []);
   const series = useLoad<TimeSeries>(() => api.timeseries(area, variable, "monthly"), [area, variable]);
@@ -70,6 +71,9 @@ export default function App() {
       </header>
 
       <nav className="tabs views" aria-label="View">
+        <button aria-pressed={view === "overview"} onClick={() => setView("overview")}>
+          Key findings
+        </button>
         <button aria-pressed={view === "analysis"} onClick={() => setView("analysis")}>
           Climate analysis
         </button>
@@ -78,6 +82,8 @@ export default function App() {
         </button>
       </nav>
 
+      {view !== "overview" && (
+        <>
       <nav className="tabs" aria-label="Grid cell">
         {(areas.state === "ok" ? areas.data : []).map((a) => (
           <button key={a.key} aria-pressed={area === a.key} onClick={() => setArea(a.key)} disabled={!a.dataset_id}>
@@ -86,9 +92,18 @@ export default function App() {
         ))}
       </nav>
       {areaInfo && <p className="note area-note">{areaInfo.note}</p>}
+        </>
+      )}
 
-      {view === "sources" ? (
-        <SourcesView area={area} areaLabel={areaInfo?.label ?? area} />
+      {view === "overview" ? (
+        <OverviewView
+          go={(v: "analysis" | "sources") => {
+            setView(v);
+            window.scrollTo(0, 0);
+          }}
+        />
+      ) : view === "sources" ? (
+        <SourcesView area={area} areaLabel={shortAreaLabel(area)} />
       ) : (
         <>
       <section className="banner" aria-label="About this data">
