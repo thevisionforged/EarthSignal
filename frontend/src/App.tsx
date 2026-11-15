@@ -14,6 +14,7 @@ import {
   TrendResponse,
 } from "./api";
 import { OverviewView } from "./Overview";
+import { SimulationStudio } from "./sim/Studio";
 import { SourcesView } from "./Sources";
 import { StationCard } from "./Station";
 import { dataKindLabel, formatP, loadProblem, senLine, shortAreaLabel, signed, trendLineLabel, unitLabel } from "./format";
@@ -45,7 +46,7 @@ function useLoad<T>(fn: () => Promise<T>, deps: unknown[]): Load<T> {
 export default function App() {
   const [variable, setVariable] = useState("T2M");
   const [area, setArea] = useState("lucknow");
-  const [view, setView] = useState<"overview" | "analysis" | "sources">("overview");
+  const [view, setView] = useState<"overview" | "analysis" | "sources" | "studio">("overview");
   const health = useLoad<Health>(() => api.health(), []);
   const areas = useLoad<Area[]>(() => api.areas(), []);
   const series = useLoad<TimeSeries>(() => api.timeseries(area, variable, "monthly"), [area, variable]);
@@ -80,9 +81,12 @@ export default function App() {
         <button aria-pressed={view === "sources"} onClick={() => setView("sources")}>
           Data sources &amp; precipitation check
         </button>
+        <button aria-pressed={view === "studio"} onClick={() => setView("studio")}>
+          Simulation Studio
+        </button>
       </nav>
 
-      {view !== "overview" && (
+      {(view === "analysis" || view === "sources") && (
         <>
       <nav className="tabs" aria-label="Grid cell">
         {(areas.state === "ok" ? areas.data : []).map((a) => (
@@ -95,7 +99,9 @@ export default function App() {
         </>
       )}
 
-      {view === "overview" ? (
+      {view === "studio" ? (
+        <SimulationStudio />
+      ) : view === "overview" ? (
         <OverviewView
           go={(v: "analysis" | "sources") => {
             setView(v);

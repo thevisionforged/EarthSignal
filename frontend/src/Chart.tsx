@@ -6,6 +6,8 @@ interface Props {
   layout: Record<string, unknown>;
   ariaLabel: string;
   small?: boolean;
+  /** Fixed dark workstation styling (Simulation Studio), independent of the page theme. */
+  dark?: boolean;
 }
 
 function cssVar(name: string): string {
@@ -44,18 +46,18 @@ function resolveColors(trace: Record<string, unknown>): Record<string, unknown> 
   return out;
 }
 
-export default function Chart({ data, layout, ariaLabel, small = false }: Props) {
+export default function Chart({ data, layout, ariaLabel, small = false, dark = false }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const scheme = useColorSchemeVersion();
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const grid = cssVar("--grid");
+    const grid = dark ? "#1E2A44" : cssVar("--grid");
     const themed = {
       paper_bgcolor: "rgba(0,0,0,0)",
       plot_bgcolor: "rgba(0,0,0,0)",
-      font: { color: cssVar("--text"), family: "system-ui, sans-serif", size: 12 },
+      font: { color: dark ? "#C9D6E8" : cssVar("--text"), family: "system-ui, sans-serif", size: 12 },
       margin: { l: 52, r: 12, t: 8, b: 32 },
       legend: { orientation: "h", x: 0, y: 1.02, yanchor: "bottom" },
       autosize: true,
@@ -64,7 +66,7 @@ export default function Chart({ data, layout, ariaLabel, small = false }: Props)
       yaxis: { gridcolor: grid, zeroline: false, automargin: true, ...(layout.yaxis as object) },
     };
     Plotly.react(el, data.map(resolveColors), themed, { responsive: true, displaylogo: false });
-  }, [data, layout, scheme]);
+  }, [data, layout, scheme, dark]);
 
   useEffect(() => {
     const el = ref.current;

@@ -190,5 +190,22 @@ The sources_meteorology page explains that PRECTOTCORR uses MERRA-2's observatio
 - **Reference robustness:** IMD's own trend is checked by leaving out one year at a time.
 - **Correction:** the first rule (any of three tests at p < 0.05 counts as "departs") overstated the eastern cell and was replaced before any result was reported.
 
+## D-024: Simulation Studio, six what-if tools on the historical record (2026-11-15)
+- **Scope:** hypothetical transformations of real NASA POWER daily data (T2M daily mean, PRECTOTCORR) for either grid cell. No new datasets, dependencies or infrastructure.
+- **One shared calculation module (`analysis/simulation.py`):**
+  - `scenario_T = T + offset` (−3 to +5 °C)
+  - `scenario_P = P × multiplier` (0 to 2)
+  - missing values stay missing
+  - complete calendar years only, so all six tools agree on the same days
+- **Thresholds:**
+  - Temperature exceedance is strict (daily mean > threshold). It is a *daily-mean* count, because daily maxima are not in the data.
+  - Wet day ≥ 1 mm and high-rainfall day ≥ 50 mm are documented user-adjustable choices, not official hazard categories.
+- **Percentages** are shown for amounts and counts only, never for °C (an interval scale).
+- **Compound matrix:** each cell is an independent application of both assumptions, labelled as joint assumptions, not causation.
+- **Analogues:** z-standardised Euclidean distance on (mean T, total P) per year or IMD season; similarity = 1/(1+d). Year-seasons with any missing day are excluded and listed. A warning shows when the target lies outside the record.
+- **Uncertainty:** year-block bootstrap with a recorded seed; reports median and 5th–95th percentiles. Labelled as empirical variability, not a prediction interval or a probability of future outcomes.
+- **Reproducibility:** every response echoes its inputs and the exact dataset id; CSV exports carry the same header. Saved configurations live only in the browser's localStorage, accessed fail-safe.
+- **Excluded by design:** health, flood, crop and economic impact claims. Results are labelled HYPOTHETICAL or DERIVED STATISTIC on every tool.
+
 ## D-009: Lightweight frontend (2026-11-14)
 - **Decision:** Vite + React + TypeScript with `plotly.js-basic-dist-min` (the smallest Plotly bundle with scatter and line traces) and no UI framework. The Vite dev server proxies `/api` to `127.0.0.1:8000`. Playwright is deferred because its browser download is large; Vitest covers the frontend logic.

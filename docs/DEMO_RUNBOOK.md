@@ -41,6 +41,13 @@ cd frontend; npm run dev
 | 2:10 | Gauge card: annual totals, then the gauge-count chart | "Against India's rain-gauge grid, POWER's rainfall increase isn't supported in the western cell. POWER shifts at 2006, the documented year its gauge input changed. Local gauge counts didn't drop, so we report the shift but not a cause." |
 | 2:45 | Close | "No rainfall trend is claimed and no forecast is shown until it beats simple baselines. That's the point: honest Earth intelligence." |
 
+### Optional: Simulation Studio segment (about 60 s, after the main script)
+| Show | Say |
+|---|---|
+| **Simulation Studio**, Tool 1, preset **Combined stress**, **Run experiment** | "A what-if on real NASA data: every historical day 2 °C warmer and 30% drier. Clearly labelled hypothetical." |
+| Tool 2, Heat Stress | "Days with a daily-mean temperature above 35 °C rise from about 44 to 70 a year under +2 °C. That's a count, not a health prediction." |
+| Tool 6, Uncertainty Lab | "Year-to-year resampling with a recorded seed shows the spread. It's empirical variability, not a forecast probability." |
+
 ## D. If something goes wrong
 - **"Backend not reachable":** start terminal 1. If port 8000 is busy, run on another port and start Vite with `$env:EARTHSIGNAL_API_PORT=8001; npm run dev`.
 - **A card says "unavailable"** or a 404 mentions a dataset: run the download command it names (section A).

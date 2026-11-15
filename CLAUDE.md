@@ -41,6 +41,10 @@ Environment audit (2026-11-14): Windows 11, **7.7 GB physical RAM** (often only 
   - `data/cpc.py`: CPCU, with gauge counts from the CPC HTTPS archive. File naming varies by year, including `.gz`.
   - `analysis/arbiter.py`: one primary test per product (trend of product − IMD), plus break tests at the **pre-registered** dates 2006 and 2014 with Bonferroni correction (D-023). Never add break dates chosen from the data.
   - IMD's day boundary is undocumented, so compare it monthly or annually only.
+- **Simulation Studio:**
+  - Backend: `analysis/simulation.py` (all six tools share it), `api/simulation.py` (`/api/sim/*`, `format=csv`).
+  - Frontend: `frontend/src/sim/`.
+  - Scenario outputs are always labelled hypothetical. Never add impact claims (health, flood, crop, economic). Temperature thresholds use the daily MEAN.
 - `backend/earthsignal/api/main.py`: `create_app(processed_root)` factory. Routes: `/api/health`, `/api/datasets`, `/api/provenance`, `/api/timeseries`, `/api/trend`. Returns 404 (never fake data) when nothing has been ingested.
 - `frontend/src/`: React 18 with `plotly.js-basic-dist-min`. Vite proxies `/api` to `127.0.0.1:8000`. `format.ts` holds the pure, tested helpers.
 - Data labels: POWER values are `derived_estimate` (reanalysis), trend outputs are `derived_statistic`. Never label POWER data "observed".

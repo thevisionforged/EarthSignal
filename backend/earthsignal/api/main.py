@@ -24,6 +24,7 @@ from earthsignal.analysis import arbiter, multisource
 from earthsignal.config import DEFAULT_AREA, PROCESSED_DIR, STUDY_AREAS
 from earthsignal.data import cpc, gsod, imd, imerg_power, store
 from earthsignal.metadata import describe
+from earthsignal.api.simulation import build_router as build_sim_router
 
 MONTHLY_MIN_COVERAGE = 0.9
 
@@ -53,7 +54,7 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
             "endpoints": [
                 "/api/health", "/api/datasets", "/api/provenance", "/api/timeseries", "/api/trend",
                 "/api/seasonal", "/api/sensitivity", "/api/areas", "/api/station-comparison",
-                "/api/backtest", "/api/sources", "/api/precip-comparison", "/api/precip-comparison.csv", "/api/precip-arbitration",
+                "/api/backtest", "/api/sources", "/api/precip-comparison", "/api/precip-comparison.csv", "/api/precip-arbitration", "/api/sim/*",
             ],
             "docs": "/docs",
             "ui": "Run the frontend (cd frontend; npm run dev) and open the URL Vite prints.",
@@ -415,6 +416,8 @@ def create_app(processed_root: Path = PROCESSED_DIR) -> FastAPI:
             media_type="text/csv",
             headers={"Content-Disposition": f'attachment; filename="earthsignal_precip_{area}_{level}.csv"'},
         )
+
+    app.include_router(build_sim_router(processed_root))
 
     return app
 

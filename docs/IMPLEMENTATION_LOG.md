@@ -263,3 +263,36 @@ Newest entries at the bottom. Record only what was actually done and verified.
   - `process` was untyped in `vite.config.ts`; declared locally instead of adding `@types/node`.
 - **Cleanup:** a leftover Vite Node process on :5181 was stopped after its task was stopped (same behaviour as in Milestone 1).
 - **Docs:** added `docs/DEMO_RUNBOOK.md` and `docs/SUBMISSION_DRAFT.md`; updated the README tour and the demo outline.
+- **User decisions:** commit and push; MIT licence; slide deck as the demo format. Committed and pushed as `f92140e` (with `LICENSE`).
+- **Fresh clone from GitHub:**
+  - backend imports from the clone, 115 passed
+  - frontend `npm ci`, 13 tests, typecheck and build OK
+  - the clone contains no data, so the repository is reproducible and no restricted data is committed
+- **Deck:** 7-slide private artifact https://claude.ai/artifact/KjRvtPw71XDsK2g81TDiBV, built from `docs/DEMO_OUTLINE.md`. Every number was checked against the logged results. The cover has a `[CHALLENGE NAME]` placeholder. Sharing it is the user's decision.
+
+## 2026-11-15: Simulation Studio (six interactive tools)
+- **Start state:** `f92140e` plus two uncommitted doc notes. Branch `master`.
+- **Backend:**
+  - `analysis/simulation.py` holds the shared transformations, metrics, aggregations, compound matrix, analogues, year-block bootstrap and sensitivity sweep.
+  - `api/simulation.py` provides `/api/sim/{meta,scenario,heat,rain,compound,analogs,uncertainty}` (GET, `format=csv`), mounted in `create_app`.
+  - Inputs are validated (422 on out-of-range values, a reversed or empty period, or an unknown area).
+- **Frontend:**
+  - `src/sim/` holds `logic.ts` (pure helpers: URLs, clamping, histograms, colour ramp, fail-safe localStorage), `ToolFrame.tsx` (shared controls, run/reset/save/CSV/disclosure), `Tools.tsx` (the six tools), `Studio.tsx` and `studio.css`.
+  - `Chart` gained a `dark` option. "Simulation Studio" was added to the primary navigation.
+  - Plotly's basic bundle has no heatmap or histogram, so the matrix is a coloured, clickable table and the histograms are binned client-side.
+- **Real-data checks (eastern cell, 1991–2020):**
+  - Combined stress (+2 °C, ×0.7): mean temperature 26.01 → 28.01 °C; precipitation 28,518 → 19,962 mm (−30.0%).
+  - Days with daily mean > 35 °C: 1,328 → 2,085 at +2 °C (44.3 → 69.5 a year). Cross-check: days > 33 °C historically is also 2,085.
+  - Compound matrix baseline cell: 44.3 days a year, the same as the heat tool.
+  - Bootstrap (1,000 resamples): 44.2 days a year (39.4–48.9) → 69.6 (64.6–74.1); precipitation at ×0.8: median 949 → 759 mm.
+  - Analogues, monsoon at +2 °C: target 33.00 °C; nearest is 2014 (32.21 °C, similarity 0.38). 1987 (33.66 °C) shows the target is within range.
+- **Errors caught and fixed:**
+  1. The tools initially used inconsistent periods (summaries included partial years); every tool now uses complete years only.
+  2. Two of my own test expectations were wrong (strict threshold; histogram bin edges).
+  3. Shell heredoc quoting errors aborted two edit batches; nothing had been applied, and they were redone with the editor tool or a script file.
+  4. A browser test script exceeded the tool's 45 s limit; it was rerun in per-tool steps.
+  5. The compound matrix overflowed the page by 203 px at phone width (grid-item min-width); fixed so the matrix scrolls inside its box.
+- **Verification:**
+  - `pytest backend`: 148 passed. `npm test`: 22 passed. Typecheck exit 0. Build OK (445 kB gzipped).
+  - Browser (Claude in Chrome): each of the six tools had its inputs changed, was run, and its results and charts updated with no errors.
+  - Phone width (390 px): no horizontal overflow in any tool.

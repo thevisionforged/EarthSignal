@@ -93,6 +93,20 @@ Reference: IMD's 0.25° gridded rain-gauge analysis (Pai et al. 2014), averaged 
 
 Re-running ingestion later produces a new dataset, and the numbers may change slightly as NASA updates the record.
 
+## Simulation Studio (what-if experiments)
+The **Simulation Studio** tab offers six interactive tools on the real NASA POWER daily record, for either grid cell. Each tool has run and reset, presets or saved configurations, CSV export, and a methodology, limitations and provenance panel.
+
+| Tool | What it computes |
+|---|---|
+| 1. Climate Scenario Builder | `T + offset` (−3 to +5 °C), `P × multiplier` (0–200%) on every historical day; baseline versus scenario series and differences |
+| 2. Heat Stress Explorer | days whose **daily-mean** temperature exceeds a threshold, per year and per month, plus the hottest days and months |
+| 3. Rainfall Stress Simulator | totals, mean daily rain, wet days (≥ 1 mm), high-rainfall days (≥ your threshold), wettest day, monthly and seasonal (IMD) distribution |
+| 4. Compound Climate Experiment | a matrix of offsets × multipliers with the supported metrics for each cell |
+| 5. Historical Analog Finder | past years or seasons closest to the assumptions (z-standardised distance, similarity score) |
+| 6. Uncertainty & Sensitivity Lab | year-block bootstrap with a recorded seed (median, 5th–95th percentile) and one-at-a-time sensitivity curves |
+
+All results are labelled **hypothetical** (the historical record with a uniform change applied) or **derived statistic**. They are not forecasts, projections or impact predictions: no health, flood, crop or economic outcomes. API: `/api/sim/*`; method in `docs/DECISIONS.md` D-024.
+
 ## Limitations
 - Reanalysis grid cells, not station or street-scale data. Results differ between the two cells covering the city.
 - Reanalysis trends can be affected by changes over time in the observations that were assimilated.

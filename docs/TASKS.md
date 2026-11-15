@@ -89,10 +89,18 @@ Priority order. Status: `[x]` done and tested · `[~]` in progress · `[ ]` not 
 - [x] `docs/SUBMISSION_DRAFT.md`, including an AI-use disclosure draft and a confirm-against-rules checklist
 - [ ] **User:** read the official Space Apps rules (unreachable from this machine: untrusted certificate chain) and work through the checklist
 - [x] Licence: MIT (user decision, 2026-11-15)
-- [ ] Slide deck from `docs/DEMO_OUTLINE.md` as a private artifact (user chose this demo format)
+- [x] Slide deck from `docs/DEMO_OUTLINE.md`: 7 slides, private artifact https://claude.ai/artifact/KjRvtPw71XDsK2g81TDiBV (fill in [CHALLENGE NAME] on the cover)
+- [x] Fresh-clone check of `f92140e`: backend 115 passed; frontend `npm ci`, 13 tests, typecheck and build OK; the clone contains no data
 - [ ] **User decisions:** challenge; repository visibility; publishing the deck or video
 - [ ] Fresh-clone reproducibility check after the next commit
 - [ ] Decide whether gridded data justifies xarray/rasterio (not needed so far; POWER point requests suffice)
+
+## Simulation Studio (six tools)
+- [x] Shared calculation module and `/api/sim/*` (meta, scenario, heat, rain, compound, analogs, uncertainty), with CSV export for each tool (D-024)
+- [x] Frontend Simulation Studio: dark workstation, six tools, run/reset, presets, saved configurations, methodology and provenance panel
+- [x] Tests: backend 148 (33 new); frontend 22 (9 new)
+- [x] Browser verification of every tool (inputs → run → results and charts update); phone-width check; matrix overflow fixed
+- [ ] Commit (waiting for user approval)
 
 ## Deferred / backlog
 - [ ] Playwright end-to-end test (needs a ~100–300 MB browser download; ask first)
