@@ -75,3 +75,53 @@ export function frequencyText(e: Pick<EventRow, "years_with_event_this_severe" |
   const k = e.years_with_event_this_severe;
   return `Events at least this strong happened in ${k} of ${e.n_years} years of this record.`;
 }
+
+export const CASE_PAGE_SIZE = 25;
+
+export interface CasePage {
+  total: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}
+
+export function pageOffset(offset: number): number {
+  return Number.isFinite(offset) && offset > 0 ? Math.floor(offset) : 0;
+}
+
+export function casesUrl(offset: number, limit: number = CASE_PAGE_SIZE): string {
+  return `/api/cases?limit=${limit}&offset=${pageOffset(offset)}`;
+}
+
+export function caseRange(page: CasePage, shown: number): string {
+  if (shown <= 0) return `Cases 0 of ${page.total}`;
+  return `Cases ${page.offset + 1}–${page.offset + shown} of ${page.total}`;
+}
+
+export function canGoBack(page: CasePage): boolean {
+  return page.offset > 0;
+}
+
+export function canGoForward(page: CasePage): boolean {
+  return page.has_more;
+}
+
+export function nextOffset(page: CasePage): number {
+  return page.has_more ? page.offset + page.limit : page.offset;
+}
+
+export function previousOffset(page: CasePage): number {
+  return Math.max(0, page.offset - page.limit);
+}
+
+export function lastPageOffset(total: number, limit: number = CASE_PAGE_SIZE): number {
+  return total > 0 ? Math.floor((total - 1) / limit) * limit : 0;
+}
+
+export function pastTheEnd(page: CasePage, shown: number): boolean {
+  return shown === 0 && page.offset > 0;
+}
+
+export function offsetAfter(action: "open" | "update", offset: number): number {
+  return action === "open" ? 0 : pageOffset(offset);
+}

@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { apiUrl } from "../apiBase";
 import Chart from "../Chart";
-import { ACTION_LABEL, EventRow, eventTitle, frequencyText, needsReason, severityText, sortEvents, SortKey, STATUS_LABEL, verdictLabel } from "./logic";
+import {
+  ACTION_LABEL, canGoBack, canGoForward, CasePage, caseRange, casesUrl, EventRow, eventTitle, frequencyText, lastPageOffset, needsReason,
+  nextOffset, offsetAfter, pastTheEnd, previousOffset, severityText, sortEvents, SortKey, STATUS_LABEL, verdictLabel,
+} from "./logic";
 import "./response.css";
 
 interface EventsRes {
@@ -33,7 +36,7 @@ interface Case {
   audit: { at: string; action: string; from?: string; status: string; note?: string }[];
   updated_at: string;
 }
-interface CasesRes { cases: Case[]; statuses: Record<string, string>; transitions: Record<string, string[]>; storage_note?: string | null }
+interface CasesRes { cases: Case[]; statuses: Record<string, string>; transitions: Record<string, string[]>; storage_note?: string | null; pagination: CasePage }
 
 async function call<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(apiUrl(url), init);
@@ -65,13 +68,35 @@ export function ResponseView() {
   const [selected, setSelected] = useState<EventRow | null>(null);
   const [inv, setInv] = useState<Investigation | null>(null);
   const [cases, setCases] = useState<CasesRes | null>(null);
-  const [activeCase, setActiveCase] = useState<string | null>(null);
+  const [activeCase, setActiveCase] = useState<Case | null>(null);
+  const [caseOffset, setCaseOffset] = useState(0);
+  const [casesLoading, setCasesLoading] = useState(false);
+  const casesRequest = useRef(0);
   const step = activeCase ? 3 : selected ? 2 : 1;
 
-  const loadCases = useCallback(() => call<CasesRes>("/api/cases").then(setCases).catch((e) => setErr(String(e.message))), []);
+  const loadCases = useCallback((offset: number) => {
+    const request = ++casesRequest.current;
+    setCasesLoading(true);
+    return call<CasesRes>(casesUrl(offset))
+      .then((res) => {
+        if (request !== casesRequest.current) return;
+        if (pastTheEnd(res.pagination, res.cases.length)) {
+          setCaseOffset(lastPageOffset(res.pagination.total));
+          return;
+        }
+        setCases(res);
+      })
+      .catch((e) => {
+        if (request === casesRequest.current) setErr(String(e.message));
+      })
+      .finally(() => {
+        if (request === casesRequest.current) setCasesLoading(false);
+      });
+  }, []);
   useEffect(() => {
-    loadCases();
-  }, [loadCases]);
+    loadCases(caseOffset);
+  }, [loadCases, caseOffset]);
+  const showCases = (offset: number) => (offset === caseOffset ? loadCases(offset) : setCaseOffset(offset));
   useEffect(() => {
     setEvents(null);
     setSelected(null);
@@ -90,8 +115,8 @@ export function ResponseView() {
     if (!selected) return;
     try {
       const c = await post<Case>("/api/cases", { area: selected.area, kind: selected.kind, event_id: selected.id });
-      await loadCases();
-      setActiveCase(c.id);
+      setActiveCase(c);
+      await showCases(offsetAfter("open", caseOffset));
     } catch (e) {
       setErr(String((e as Error).message));
     }
@@ -203,7 +228,7 @@ export function ResponseView() {
               </details>
               <div className="ri-actions">
                 {existingCase ? (
-                  <button className="ri-btn" onClick={() => setActiveCase(existingCase.id)}>Go to {existingCase.id} →</button>
+                  <button className="ri-btn" onClick={() => setActiveCase(existingCase)}>Go to {existingCase.id} →</button>
                 ) : (
                   <button className="ri-btn" onClick={openCase}>Open a case for this event →</button>
                 )}
@@ -215,7 +240,17 @@ export function ResponseView() {
         {/* ---------------- STEP 3: RESPOND */}
         <section className="card ri-card ri-wide">
           <h2>3 · Respond</h2>
-          {cases && <CasePanel cases={cases} activeId={activeCase} setActive={setActiveCase} reload={loadCases} onError={setErr} />}
+          {cases && (
+            <CasePanel
+              cases={cases}
+              current={activeCase}
+              setActive={setActiveCase}
+              reload={() => loadCases(offsetAfter("update", caseOffset))}
+              onError={setErr}
+              loading={casesLoading}
+              onPage={showCases}
+            />
+          )}
         </section>
       </div>
     </section>
@@ -253,8 +288,10 @@ function WindowChart({ inv }: { inv: Investigation }) {
   return <Chart small data={data} layout={layout} ariaLabel="The event with two weeks either side, against its threshold" />;
 }
 
-function CasePanel({ cases, activeId, setActive, reload, onError }: { cases: CasesRes; activeId: string | null; setActive: (id: string | null) => void; reload: () => Promise<void>; onError: (s: string) => void }) {
-  const active = cases.cases.find((c) => c.id === activeId) ?? null;
+function CasePanel({ cases, current, setActive, reload, onError, loading, onPage }: { cases: CasesRes; current: Case | null; setActive: (c: Case | null) => void; reload: () => Promise<void>; onError: (s: string) => void; loading: boolean; onPage: (offset: number) => void }) {
+  const activeId = current?.id ?? null;
+  const active = cases.cases.find((c) => c.id === activeId) ?? current;
+  const page = cases.pagination;
   const [reason, setReason] = useState("");
   const [note, setNote] = useState("");
   useEffect(() => {
@@ -265,8 +302,9 @@ function CasePanel({ cases, activeId, setActive, reload, onError }: { cases: Cas
   const move = async (to: string) => {
     if (!active) return;
     try {
-      await post(`/api/cases/${active.id}/status`, { to, note: reason });
+      const updated = await post<Case>(`/api/cases/${active.id}/status`, { to, note: reason });
       setReason("");
+      setActive(updated);
       await reload();
     } catch (e) {
       onError(String((e as Error).message));
@@ -275,8 +313,9 @@ function CasePanel({ cases, activeId, setActive, reload, onError }: { cases: Cas
   const addNote = async () => {
     if (!active || !note.trim()) return;
     try {
-      await post(`/api/cases/${active.id}/notes`, { text: note });
+      const updated = await post<Case>(`/api/cases/${active.id}/notes`, { text: note });
       setNote("");
+      setActive(updated);
       await reload();
     } catch (e) {
       onError(String((e as Error).message));
@@ -292,7 +331,7 @@ function CasePanel({ cases, activeId, setActive, reload, onError }: { cases: Cas
         <ul>
           {cases.cases.map((c) => (
             <li key={c.id}>
-              <button className={c.id === activeId ? "sel" : ""} onClick={() => setActive(c.id)}>
+              <button className={c.id === activeId ? "sel" : ""} onClick={() => setActive(c)}>
                 <b>{c.id}</b> {c.title}
                 <span className={`status s-${c.status}`}>{STATUS_LABEL[c.status] ?? c.status}</span>
               </button>
@@ -343,6 +382,15 @@ function CasePanel({ cases, activeId, setActive, reload, onError }: { cases: Cas
           </>
         )}
       </div>
+      {page.total > 0 && (
+        <div>
+          <p className="note">{caseRange(page, cases.cases.length)}</p>
+          <div className="ri-actions">
+            <button className="ri-btn ghost" disabled={loading || !canGoBack(page)} onClick={() => onPage(previousOffset(page))}>← Previous</button>
+            <button className="ri-btn ghost" disabled={loading || !canGoForward(page)} onClick={() => onPage(nextOffset(page))}>Next →</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
