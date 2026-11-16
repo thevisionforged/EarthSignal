@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Literal
 
 import pandas as pd
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 
@@ -28,6 +28,7 @@ Kind = Literal["heat", "rain"]
 OTHER = {"lucknow": "lucknow_airport", "lucknow_airport": "lucknow"}
 PUBLIC_DEMO_NOTE = ("Public demo: cases here are visible to every visitor and are cleared whenever the server restarts. "
                     "Do not enter personal information.")
+CASE_WRITES_DISABLED = "Cases are read-only on the public demo."
 
 EXPLAIN = {
     "heat": ("A heat episode is 3 or more days in a row that were hotter than 95% of days at the same time of year in "
@@ -71,6 +72,12 @@ def build_router(processed_root: Path, cases_path: Path, public_demo: bool = Fal
     r = APIRouter(tags=["response"])
     cases = CaseStore(cases_path)
     cache: dict[tuple, tuple] = {}
+
+    def require_case_writes() -> None:
+        if public_demo:
+            raise HTTPException(status_code=403, detail=CASE_WRITES_DISABLED)
+
+    case_writes = [Depends(require_case_writes)]
 
     def load(area: str) -> store.Dataset:
         if area not in STUDY_AREAS:
@@ -191,12 +198,12 @@ def build_router(processed_root: Path, cases_path: Path, public_demo: bool = Fal
         return {"cases": cases.list(), "statuses": STATUS_HELP, "transitions": {k: sorted(v) for k, v in TRANSITIONS.items()},
                 "storage_note": PUBLIC_DEMO_NOTE if public_demo else None}
 
-    @r.post("/api/cases")
+    @r.post("/api/cases", dependencies=case_writes)
     def create_case(body: CaseCreate) -> dict:
         evidence = investigate_event(body.area, body.kind, body.event_id)  # recomputed server-side, never trusted from the client
         return cases.create(evidence["event"], evidence, body.title)
 
-    @r.post("/api/cases/{case_id}/status")
+    @r.post("/api/cases/{case_id}/status", dependencies=case_writes)
     def change_status(case_id: str, body: StatusChange) -> dict:
         try:
             return cases.transition(case_id, body.to, body.note)
@@ -205,7 +212,7 @@ def build_router(processed_root: Path, cases_path: Path, public_demo: bool = Fal
         except CaseError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
 
-    @r.post("/api/cases/{case_id}/notes")
+    @r.post("/api/cases/{case_id}/notes", dependencies=case_writes)
     def add_note(case_id: str, body: NoteIn) -> dict:
         try:
             return cases.add_note(case_id, body.text)
