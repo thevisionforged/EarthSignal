@@ -28,6 +28,8 @@ Kind = Literal["heat", "rain"]
 OTHER = {"lucknow": "lucknow_airport", "lucknow_airport": "lucknow"}
 PUBLIC_DEMO_NOTE = ("Public demo: cases here are visible to every visitor and are cleared whenever the server restarts. "
                     "Do not enter personal information.")
+CASE_PAGE_SIZE = 25
+MAX_CASE_PAGE_SIZE = 100
 
 EXPLAIN = {
     "heat": ("A heat episode is 3 or more days in a row that were hotter than 95% of days at the same time of year in "
@@ -187,9 +189,13 @@ def build_router(processed_root: Path, cases_path: Path, public_demo: bool = Fal
         return investigate_event(area, kind, event_id)
 
     @r.get("/api/cases")
-    def list_cases() -> dict:
-        return {"cases": cases.list(), "statuses": STATUS_HELP, "transitions": {k: sorted(v) for k, v in TRANSITIONS.items()},
-                "storage_note": PUBLIC_DEMO_NOTE if public_demo else None}
+    def list_cases(limit: int = Query(CASE_PAGE_SIZE, ge=1, le=MAX_CASE_PAGE_SIZE), offset: int = Query(0, ge=0)) -> dict:
+        everything = cases.list()
+        page = everything[offset:offset + limit]
+        return {"cases": page, "statuses": STATUS_HELP, "transitions": {k: sorted(v) for k, v in TRANSITIONS.items()},
+                "storage_note": PUBLIC_DEMO_NOTE if public_demo else None,
+                "pagination": {"total": len(everything), "limit": limit, "offset": offset,
+                               "has_more": offset + len(page) < len(everything)}}
 
     @r.post("/api/cases")
     def create_case(body: CaseCreate) -> dict:

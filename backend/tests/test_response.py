@@ -8,10 +8,12 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
+from earthsignal import cases as cases_mod
 from earthsignal.analysis import events as ev
 from earthsignal.api.main import create_app
-from earthsignal.cases import CaseError, CaseStore, brief_markdown
-from earthsignal.config import LUCKNOW, LUCKNOW_AIRPORT
+from earthsignal.api.response import PUBLIC_DEMO_NOTE
+from earthsignal.cases import STATUS_HELP, TRANSITIONS, CaseError, CaseStore, brief_markdown
+from earthsignal.config import LUCKNOW, LUCKNOW_AIRPORT, DeploySettings
 from earthsignal.data import ingest
 
 from .conftest import synthetic_power_doc
@@ -203,3 +205,120 @@ def test_api_rejects_bad_requests(client):
     assert client.post("/api/cases", json={"area": "lucknow", "kind": "heat", "event_id": "nope"}).status_code == 404
     assert client.post("/api/cases/CASE-9999/status", json={"to": "investigating"}).status_code == 404
     assert client.get("/api/cases/CASE-9999/brief").status_code == 404
+
+
+def seed_cases(tmp_path, monkeypatch, stamps, count=None):
+    ticks = iter(stamps)
+    monkeypatch.setattr(cases_mod, "_now", lambda: next(ticks))
+    store = CaseStore(tmp_path / "cases.json")
+    ids = [store.create(dict(EVENT, id=f"heat-lucknow-2000-{i:04d}"), {"summary": f"s{i}"})["id"] for i in range(count or len(stamps))]
+    return store, ids
+
+
+def minute_stamps(n):
+    return [f"2026-01-01T{i // 60:02d}:{i % 60:02d}:00+00:00" for i in range(n)]
+
+
+def list_client(tmp_path, public_demo=False):
+    return TestClient(create_app(processed_root=tmp_path / "none", cases_path=tmp_path / "cases.json",
+                                 settings=DeploySettings(public_demo=public_demo)))
+
+
+def page(client, **params):
+    res = client.get("/api/cases", params=params)
+    assert res.status_code == 200
+    body = res.json()
+    return [c["id"] for c in body["cases"]], body["pagination"]
+
+
+def test_case_list_pages_through_every_case_exactly_once(tmp_path, monkeypatch):
+    store, ids = seed_cases(tmp_path, monkeypatch, minute_stamps(57))
+    newest_first = ids[::-1]
+    assert [c["id"] for c in store.list()] == newest_first
+    client = list_client(tmp_path)
+    first, meta = page(client)
+    assert first == newest_first[:25] and meta == {"total": 57, "limit": 25, "offset": 0, "has_more": True}
+    seen = []
+    for offset, size, more in [(0, 25, True), (25, 25, True), (50, 7, False)]:
+        got, meta = page(client, limit=25, offset=offset)
+        assert len(got) == size and meta == {"total": 57, "limit": 25, "offset": offset, "has_more": more}
+        seen += got
+    assert seen == newest_first and len(set(seen)) == 57
+    assert page(client, limit=10, offset=20) == (newest_first[20:30], {"total": 57, "limit": 10, "offset": 20, "has_more": True})
+    assert page(client, limit=19, offset=38) == (newest_first[38:], {"total": 57, "limit": 19, "offset": 38, "has_more": False})
+    assert page(client, limit=1) == (newest_first[:1], {"total": 57, "limit": 1, "offset": 0, "has_more": True})
+    assert page(client, limit=100) == (newest_first, {"total": 57, "limit": 100, "offset": 0, "has_more": False})
+    for offset in (57, 1000):
+        assert page(client, offset=offset) == ([], {"total": 57, "limit": 25, "offset": offset, "has_more": False})
+
+
+def test_case_list_caps_a_page_at_100(tmp_path, monkeypatch):
+    _, ids = seed_cases(tmp_path, monkeypatch, minute_stamps(101))
+    client = list_client(tmp_path)
+    got, meta = page(client, limit=100)
+    assert got == ids[::-1][:100] and meta == {"total": 101, "limit": 100, "offset": 0, "has_more": True}
+    assert page(client, limit=100, offset=100) == ([ids[0]], {"total": 101, "limit": 100, "offset": 100, "has_more": False})
+    assert client.get("/api/cases", params={"limit": 101}).status_code == 422
+
+
+def test_case_list_of_an_empty_store(tmp_path):
+    client = list_client(tmp_path)
+    for offset in (0, 50):
+        assert page(client, offset=offset) == ([], {"total": 0, "limit": 25, "offset": offset, "has_more": False})
+    assert not (tmp_path / "cases.json").exists()
+
+
+@pytest.mark.parametrize("params", [{"limit": 0}, {"limit": 101}, {"limit": -1}, {"offset": -1}, {"limit": "ten"},
+                                    {"limit": "2.5"}, {"offset": "1.5"}, {"offset": "first"}])
+def test_case_list_rejects_invalid_pagination(tmp_path, params):
+    res = list_client(tmp_path).get("/api/cases", params=params)
+    assert res.status_code == 422
+    detail = res.json()["detail"]
+    assert isinstance(detail, list) and [d["loc"] for d in detail] == [["query", next(iter(params))]]
+
+
+def test_case_list_keeps_the_existing_order_for_tied_timestamps(tmp_path, monkeypatch):
+    stamps = ["2026-01-01T00:00:00+00:00"] * 4 + ["2026-01-01T00:00:05+00:00"]
+    store, ids = seed_cases(tmp_path, monkeypatch, stamps)
+    expected = [ids[4], ids[0], ids[1], ids[2], ids[3]]
+    assert [c["id"] for c in store.list()] == expected
+    client = list_client(tmp_path)
+    assert page(client, limit=2)[0] + page(client, limit=2, offset=2)[0] + page(client, limit=2, offset=4)[0] == expected
+    assert page(client)[0] == expected
+
+
+def test_case_list_offsets_shift_when_a_case_changes_between_requests(tmp_path, monkeypatch):
+    store, ids = seed_cases(tmp_path, monkeypatch, minute_stamps(5) + ["2026-01-01T01:00:00+00:00"], count=5)
+    client = list_client(tmp_path)
+    assert page(client, limit=2)[0] == [ids[4], ids[3]]
+    store.add_note(ids[0], "Moved to the top.")
+    second, meta = page(client, limit=2, offset=2)
+    assert second == [ids[3], ids[2]] and meta == {"total": 5, "limit": 2, "offset": 2, "has_more": True}
+    assert page(client, limit=2)[0] == [ids[0], ids[4]]
+
+
+@pytest.mark.parametrize("public_demo", [False, True])
+def test_case_list_keeps_existing_fields(tmp_path, monkeypatch, public_demo):
+    store, ids = seed_cases(tmp_path, monkeypatch, minute_stamps(3))
+    body = list_client(tmp_path, public_demo).get("/api/cases", params={"limit": 2, "offset": 1}).json()
+    assert set(body) == {"cases", "statuses", "transitions", "storage_note", "pagination"}
+    assert body["statuses"] == STATUS_HELP
+    assert body["transitions"] == {k: sorted(v) for k, v in TRANSITIONS.items()}
+    assert body["storage_note"] == (PUBLIC_DEMO_NOTE if public_demo else None)
+    assert body["cases"] == [store.get(ids[1]), store.get(ids[0])]
+    assert body["pagination"] == {"total": 3, "limit": 2, "offset": 1, "has_more": False}
+
+
+def test_case_list_pages_alongside_case_operations(client):
+    events = client.get("/api/response/events", params={"kind": "rain"}).json()["events"]
+    first = client.post("/api/cases", json={"area": "lucknow", "kind": "rain", "event_id": events[0]["id"]}).json()["id"]
+    second = client.post("/api/cases", json={"area": "lucknow", "kind": "rain", "event_id": events[1]["id"]}).json()["id"]
+    assert client.post("/api/cases", json={"area": "lucknow", "kind": "rain", "event_id": events[0]["id"]}).json()["id"] == first
+    body = client.get("/api/cases", params={"limit": 1, "offset": 1}).json()
+    assert body["pagination"] == {"total": 2, "limit": 1, "offset": 1, "has_more": False}
+    assert client.post(f"/api/cases/{first}/status", json={"to": "investigating"}).json()["status"] == "investigating"
+    assert client.post(f"/api/cases/{first}/notes", json={"text": "Checked the gauges."}).status_code == 200
+    ids = [c["id"] for c in client.get("/api/cases").json()["cases"]]
+    assert sorted(ids) == sorted([first, second]) and len(ids) == 2
+    brief = client.get(f"/api/cases/{first}/brief")
+    assert brief.status_code == 200 and "Checked the gauges." in brief.text
