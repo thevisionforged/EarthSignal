@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 from earthsignal.analysis import events as ev
 from earthsignal.api.main import create_app
 from earthsignal.cases import CaseError, CaseStore, brief_markdown
-from earthsignal.config import LUCKNOW, LUCKNOW_AIRPORT
+from earthsignal.config import LUCKNOW, LUCKNOW_AIRPORT, DeploySettings
 from earthsignal.data import ingest
 
 from .conftest import synthetic_power_doc
@@ -162,7 +162,7 @@ def test_case_lifecycle_and_audit(tmp_path):
 
 # ---------------- API
 @pytest.fixture
-def client(tmp_path, sample_doc, metadata_bytes):
+def processed_root(tmp_path, sample_doc, metadata_bytes):
     for area in (LUCKNOW, LUCKNOW_AIRPORT):
         doc = synthetic_power_doc(sample_doc, "1990-01-01", "2022-12-31", seed=5)
         doc["properties"]["parameter"]["PRECTOTCORR"]["20150801"] = 400.0
@@ -170,7 +170,26 @@ def client(tmp_path, sample_doc, metadata_bytes):
         get = lambda url, pl=payload: metadata_bytes if "/system/manager/parameters" in url else pl
         raw = ingest.download(area, date(1990, 1, 1), date(2022, 12, 31), raw_root=tmp_path / "raw", http_get=get)
         ingest.process(raw, processed_root=tmp_path / "processed")
-    return TestClient(create_app(processed_root=tmp_path / "processed", cases_path=tmp_path / "cases" / "cases.json"))
+    return tmp_path / "processed"
+
+
+@pytest.fixture
+def cases_path(tmp_path):
+    return tmp_path / "cases" / "cases.json"
+
+
+@pytest.fixture
+def client(processed_root, cases_path):
+    return TestClient(create_app(processed_root=processed_root, cases_path=cases_path))
+
+
+def demo_client(processed_root, cases_path):
+    return TestClient(create_app(processed_root=processed_root, cases_path=cases_path, settings=DeploySettings(public_demo=True)))
+
+
+def assert_read_only(res):
+    assert res.status_code == 403
+    assert list(res.json()) == ["detail"] and "public demo" in res.json()["detail"]
 
 
 def test_api_detect_investigate_respond(client):
@@ -203,3 +222,49 @@ def test_api_rejects_bad_requests(client):
     assert client.post("/api/cases", json={"area": "lucknow", "kind": "heat", "event_id": "nope"}).status_code == 404
     assert client.post("/api/cases/CASE-9999/status", json={"to": "investigating"}).status_code == 404
     assert client.get("/api/cases/CASE-9999/brief").status_code == 404
+
+
+def test_public_demo_rejects_every_case_change(client, processed_root, cases_path):
+    events = client.get("/api/response/events", params={"kind": "rain"}).json()["events"]
+    first, second = events[0]["id"], events[1]["id"]
+    cid = client.post("/api/cases", json={"area": "lucknow", "kind": "rain", "event_id": first}).json()["id"]
+    before = cases_path.read_bytes()
+    demo = demo_client(processed_root, cases_path)
+    attempts = [
+        ("/api/cases", {"area": "lucknow", "kind": "rain", "event_id": second}),
+        ("/api/cases", {"area": "lucknow", "kind": "rain", "event_id": first}),
+        (f"/api/cases/{cid}/status", {"to": "investigating"}),
+        (f"/api/cases/{cid}/status", {"to": "dismissed", "note": "Not supported by the gauges."}),
+        (f"/api/cases/{cid}/notes", {"text": "Public note."}),
+        ("/api/cases/CASE-9999/notes", {"text": "Unknown case."}),
+        ("/api/cases/CASE-9999/status", {"to": "investigating"}),
+    ]
+    for url, body in attempts:
+        assert_read_only(demo.post(url, json=body))
+    assert demo.post("/api/cases", content=b"{not json", headers={"Content-Type": "application/json"}).status_code == 422
+    for method in ("put", "patch", "delete"):
+        assert getattr(demo, method)(f"/api/cases/{cid}").status_code in (404, 405)
+        assert getattr(demo, method)("/api/cases").status_code in (404, 405)
+    assert cases_path.read_bytes() == before
+    shown = demo.get("/api/cases").json()["cases"]
+    assert [c["id"] for c in shown] == [cid] and shown[0]["status"] == "open" and len(shown[0]["audit"]) == 1
+    assert demo.get(f"/api/cases/{cid}/brief").status_code == 200
+    nxt = client.post("/api/cases", json={"area": "lucknow", "kind": "rain", "event_id": second}).json()
+    assert nxt["id"] == "CASE-0002"
+    assert client.post(f"/api/cases/{cid}/status", json={"to": "investigating"}).json()["status"] == "investigating"
+    assert client.post(f"/api/cases/{cid}/notes", json={"text": "Local note."}).status_code == 200
+    updated = next(c for c in client.get("/api/cases").json()["cases"] if c["id"] == cid)
+    assert [a["action"] for a in updated["audit"]] == ["created", "status", "note"]
+
+
+def test_public_demo_ignores_client_supplied_hints(processed_root, cases_path):
+    demo = demo_client(processed_root, cases_path)
+    event_id = demo.get("/api/response/events", params={"kind": "rain"}).json()["events"][0]["id"]
+    hints = {"Host": "localhost", "Origin": "http://localhost:5173", "Referer": "http://127.0.0.1:5173/",
+             "X-Forwarded-For": "127.0.0.1", "X-Real-IP": "127.0.0.1", "X-Forwarded-Host": "localhost",
+             "Authorization": "Bearer local", "X-EarthSignal-Public-Demo": "0"}
+    res = demo.post("/api/cases", params={"public_demo": "0"}, headers=hints,
+                    json={"area": "lucknow", "kind": "rain", "event_id": event_id})
+    assert_read_only(res)
+    assert not cases_path.exists()
+    assert demo.get("/api/cases").json()["cases"] == []
